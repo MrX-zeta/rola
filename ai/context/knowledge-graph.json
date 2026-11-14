@@ -1,7 +1,7 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "actualizado": "2026-11-14",
     "fase": "Tarea 02 revisada. Siguiente: tarea 02b (mantenimiento, ajustes, esqueletos y movimiento).",
     "historial": [
@@ -44,6 +44,11 @@
         "version": "1.4.0",
         "fecha": "2026-11-14",
         "cambio": "Revisión tarea 02: abrir en Biblioteca (temporal), sin POST_NOTIFICATIONS al reproducir, esqueletos (DEC-09), letterSpacing 0 y radio de portada 8 (DEC-16), fondo de mini tarjeta más oscuro (DEC-15), DEC-28 movimiento."
+      },
+      {
+        "version": "1.4.1",
+        "fecha": "2026-11-14",
+        "cambio": "DEC-28: cómo debe animarse la barra de navegación para que sea fluida."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -1769,7 +1774,11 @@
       "tipo": "decision",
       "nombre": "Movimiento",
       "descripcion": "Las animaciones explican cambios, no decoran. Duración de la interfaz ≤ 300 ms (salidas más cortas que entradas), resortes interrumpibles para lo que se arrastra o cambia de estado, y nada se mueve si el sistema pide reducir movimiento (solo cambios instantáneos o fundidos cortos). Se planean con improve-animations y se construyen con animate. Primeros casos: la píldora activa de la barra se desliza entre pestañas, los íconos de la barra reaccionan al cambiar de sección, entrada y salida de la mini tarjeta, reproducir/pausa, esqueletos de carga.",
-      "estado": "decidido"
+      "estado": "decidido",
+      "detalles": {
+        "barra_navegacion": "La selección cambia al instante al tocar (sin esperar a la navegación). La barra tiene ancho fijo; un solo valor animado por pestaña (0→1) decide su ancho, la opacidad de su etiqueta y la posición del fondo lima, todo en el mismo cuadro. Sin expandHorizontally ni medidas de un cuadro atrasado.",
+        "fluidez": "Las animaciones se juzgan en una compilación no depurable (las de depuración van más lentas en Compose)."
+      }
     }
   ],
   "aristas": [
