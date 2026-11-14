@@ -1,0 +1,2983 @@
+{
+  "meta": {
+    "nombre": "Grafo de conocimiento — Rola",
+    "version": "1.0.0",
+    "actualizado": "2026-11-13",
+    "fase": "Identidad lista (DEC-16). Siguiente: tarea 01, fundaciones del proyecto.",
+    "historial": [
+      {
+        "version": "1.0.0",
+        "fecha": "2026-11-13",
+        "cambio": "Alcance, identidad Rola, decisiones de UX y técnicas, invariantes, pendientes y mapa de pantallas."
+      }
+    ],
+    "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
+    "como_usar_para_agentes": [
+      "Leer primero los nodos tipo 'invariante': son reglas que no se pueden romper.",
+      "Antes de implementar algo, buscar la 'decision' correspondiente y seguirla.",
+      "Para buscar un nodo usa Grep con su id (p. ej. \"DEC-05\" o \"SCR-10\"); no hace falta leer el archivo completo.",
+      "Los nodos con estado 'propuesto' o 'pendiente' NO son definitivos: preguntar antes de asumir.",
+      "Nada de lo que esté en 'fuera_de_alcance' se implementa sin aprobación.",
+      "Para implementar una vista, buscar su nodo 'pantalla' (SCR-xx): trae el nodo de Figma (si ya existe), el módulo, a dónde navega y qué operaciones invoca.",
+      "Las especificaciones de Spec Kit (.specify/, specs/) citan ids de este grafo; si una especificación contradice al grafo, manda el grafo y se reporta.",
+      "Claude Code no edita este archivo: propone cambios en el reporte; la sesión de diseño los aplica y sube la versión."
+    ],
+    "tipos_de_nodo": {
+      "proyecto": "Raíz del grafo",
+      "objetivo": "Qué se busca lograr",
+      "restriccion": "Límites del proyecto",
+      "actor": "Quién o qué interactúa con la app",
+      "tecnologia": "Herramientas y librerías",
+      "decision": "Decisión tomada o propuesta",
+      "invariante": "Regla obligatoria para todo el código",
+      "pregunta_abierta": "Pendiente de decidir",
+      "fuera_de_alcance": "Excluido del MVP",
+      "modulo": "Área funcional de la app",
+      "operacion": "Acción concreta del usuario",
+      "tabla": "Tabla de Room o fuente del sistema",
+      "almacen_clave_valor": "DataStore",
+      "pantalla": "Vista o estado de la app (Figma)"
+    },
+    "estados": {
+      "decidido": "Acordado",
+      "propuesto": "Recomendado, falta confirmación",
+      "pendiente": "Sin decidir",
+      "descartado": "No se usará",
+      "fuera_de_alcance": "Excluido del MVP",
+      "obligatorio": "Regla dura",
+      "resuelto": "Pregunta ya contestada"
+    },
+    "tipos_de_relacion": {
+      "persigue": "proyecto → objetivo",
+      "limitado_por": "proyecto → restricción",
+      "contiene": "proyecto → módulo",
+      "usa": "decisión → tecnología",
+      "depende_de": "decisión → decisión",
+      "motiva": "restricción → decisión",
+      "cumple": "decisión → objetivo",
+      "deriva_de": "invariante → decisión",
+      "afina": "pregunta → decisión",
+      "excluye": "decisión → fuera de alcance",
+      "excluido_por": "fuera de alcance → restricción",
+      "reemplazada_en": "tecnología descartada → decisión",
+      "pertenece_a": "operación → módulo",
+      "ejecutada_por": "operación → actor",
+      "regida_por": "operación → decisión",
+      "lee": "operación → tabla",
+      "escribe": "operación → tabla",
+      "definida_por": "tabla → decisión",
+      "referencia": "tabla hija → tabla padre",
+      "parte_de": "pantalla → módulo",
+      "navega_a": "pantalla → pantalla (nota = disparador)",
+      "invoca": "pantalla → operación"
+    },
+    "estadisticas": {
+      "nodos": 155,
+      "aristas": 273,
+      "por_tipo": {
+        "proyecto": 1,
+        "objetivo": 4,
+        "restriccion": 5,
+        "actor": 3,
+        "tecnologia": 20,
+        "decision": 26,
+        "invariante": 11,
+        "pregunta_abierta": 7,
+        "fuera_de_alcance": 7,
+        "modulo": 9,
+        "operacion": 19,
+        "tabla": 5,
+        "almacen_clave_valor": 1,
+        "pantalla": 37
+      }
+    }
+  },
+  "nodos": [
+    {
+      "id": "PRY-01",
+      "tipo": "proyecto",
+      "nombre": "Rola",
+      "descripcion": "Reproductor de música nativo para Android, sin conexión primero. Reproduce los audios del teléfono, organiza listas y muestra letras sincronizadas (locales o de LRCLIB).",
+      "estado": "decidido",
+      "detalles": {
+        "dueno": "Brian Luis Ruiz Pérez",
+        "clase": "Proyecto personal (no se publica en Play Store)",
+        "repositorio": "https://github.com/MrX-zeta/rola",
+        "proyecto_android": {
+          "ruta": "raíz del repositorio = proyecto de Android Studio",
+          "paquete": "com.luis.rola"
+        },
+        "figma": {
+          "archivo": "SgqjjZGWGQKXuJVtv5VmNf",
+          "paginas": {
+            "kit_de_marca": "14:274",
+            "identidad": "0:1",
+            "descartadas": "14:275"
+          }
+        }
+      }
+    },
+    {
+      "id": "OBJ-01",
+      "tipo": "objetivo",
+      "nombre": "Reproducir la música local",
+      "descripcion": "Reproducir los audios del teléfono con controles en la app, en la notificación y en un widget.",
+      "estado": "decidido"
+    },
+    {
+      "id": "OBJ-02",
+      "tipo": "objetivo",
+      "nombre": "Organizar",
+      "descripcion": "Biblioteca por canciones, álbumes, artistas y listas propias, con búsqueda y navegación por abecedario.",
+      "estado": "decidido"
+    },
+    {
+      "id": "OBJ-03",
+      "tipo": "objetivo",
+      "nombre": "Letras sincronizadas",
+      "descripcion": "Mostrar letras con resaltado por línea, desde archivos locales o desde LRCLIB, con corrección manual de desfase.",
+      "estado": "decidido"
+    },
+    {
+      "id": "OBJ-04",
+      "tipo": "objetivo",
+      "nombre": "Sensación nativa y cálida",
+      "descripcion": "Gestos, movimiento fluido y retroalimentación visual en cada operación; identidad propia (DEC-16).",
+      "estado": "decidido"
+    },
+    {
+      "id": "RES-01",
+      "tipo": "restriccion",
+      "nombre": "Sin conexión primero",
+      "descripcion": "Todo funciona sin red. La única red permitida es LRCLIB, y solo si el usuario la activa.",
+      "estado": "decidido"
+    },
+    {
+      "id": "RES-02",
+      "tipo": "restriccion",
+      "nombre": "Desarrollo con Claude Code",
+      "descripcion": "El código lo escribe Claude Code siguiendo tareas en ai/handoff; la sesión de diseño (consultor) escribe las tareas y revisa. Revisión humana de lo marcado.",
+      "estado": "decidido"
+    },
+    {
+      "id": "RES-03",
+      "tipo": "restriccion",
+      "nombre": "Una sola persona",
+      "descripcion": "Un desarrollador y su teléfono; sin backend ni cuentas.",
+      "estado": "decidido"
+    },
+    {
+      "id": "RES-04",
+      "tipo": "restriccion",
+      "nombre": "Android 11 o superior",
+      "descripcion": "minSdk 30 para que borrar canciones siempre pase por el aviso del sistema (DEC-08).",
+      "estado": "decidido"
+    },
+    {
+      "id": "RES-05",
+      "tipo": "restriccion",
+      "nombre": "Proyecto personal",
+      "descripcion": "Sin publicación en Play Store ni monetización; identidad propia de todos modos.",
+      "estado": "decidido"
+    },
+    {
+      "id": "ACT-01",
+      "tipo": "actor",
+      "nombre": "Usuario",
+      "descripcion": "Dueño del teléfono y de su música. Único rol humano.",
+      "estado": "decidido"
+    },
+    {
+      "id": "ACT-02",
+      "tipo": "actor",
+      "nombre": "LRCLIB",
+      "descripcion": "Servicio público de letras (lrclib.net). Solo lectura, sin cuenta ni llave. Se trata como no confiable: sus respuestas se validan.",
+      "estado": "decidido"
+    },
+    {
+      "id": "ACT-03",
+      "tipo": "actor",
+      "nombre": "Sistema Android",
+      "descripcion": "MediaStore, permisos, notificación multimedia, launcher (widget) y diálogo de borrado.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-KOTLIN",
+      "tipo": "tecnologia",
+      "nombre": "Kotlin + Jetpack Compose + Material 3",
+      "descripcion": "Interfaz nativa. Componentes M3 (kit de Figma «Material 3 Design Kit»).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-MEDIA3",
+      "tipo": "tecnologia",
+      "nombre": "Media3 (ExoPlayer + MediaSessionService)",
+      "descripcion": "Reproducción en segundo plano, notificación multimedia y controles del sistema.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-ROOM",
+      "tipo": "tecnologia",
+      "nombre": "Room + KSP",
+      "descripcion": "Listas, historial, letras guardadas y preferencias por canción.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-DATASTORE",
+      "tipo": "tecnologia",
+      "nombre": "DataStore (Preferences)",
+      "descripcion": "Ajustes del usuario.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-GLANCE",
+      "tipo": "tecnologia",
+      "nombre": "Jetpack Glance",
+      "descripcion": "Widget de pantalla de inicio.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-COIL",
+      "tipo": "tecnologia",
+      "nombre": "Coil",
+      "descripcion": "Carga de carátulas (incrustadas o del MediaStore).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-PALETTE",
+      "tipo": "tecnologia",
+      "nombre": "AndroidX Palette",
+      "descripcion": "Color dinámico a partir de la carátula (DEC-15).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-COROUTINES",
+      "tipo": "tecnologia",
+      "nombre": "Coroutines + Flow",
+      "descripcion": "Asincronía y estado reactivo.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-SPLASH",
+      "tipo": "tecnologia",
+      "nombre": "core-splashscreen",
+      "descripcion": "Splash del sistema (DEC-17).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-NAV",
+      "tipo": "tecnologia",
+      "nombre": "Navigation Compose",
+      "descripcion": "Navegación entre pantallas (DEC-03).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-FONTS",
+      "tipo": "tecnologia",
+      "nombre": "Fuentes Space Grotesk, Geist, Geist Mono",
+      "descripcion": "Incluidas en res/font, licencia OFL (DEC-16).",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-LRCLIB",
+      "tipo": "tecnologia",
+      "nombre": "API de LRCLIB",
+      "descripcion": "GET /api/get (título, artista, álbum, duración; tolerancia ±2 s) y GET /api/search. Requiere User-Agent propio.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-HTTP",
+      "tipo": "tecnologia",
+      "nombre": "Cliente HTTP",
+      "descripcion": "Por decidir en la tarea de letras: HttpURLConnection o una librería pequeña (lo mínimo que funcione).",
+      "estado": "propuesto"
+    },
+    {
+      "id": "TEC-CLAUDE",
+      "tipo": "tecnologia",
+      "nombre": "Claude Code",
+      "descripcion": "Implementa las tareas. Escritorio (pestaña Code) de preferencia; CLI cuando una herramienta lo necesite.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-SPECKIT",
+      "tipo": "tecnologia",
+      "nombre": "GitHub Spec Kit",
+      "descripcion": "Especificar → planear → tareas → implementar contra la especificación (/speckit.*). Carpeta .specify/.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-PONYTAIL",
+      "tipo": "tecnologia",
+      "nombre": "Ponytail",
+      "descripcion": "Plugin de Claude Code: código mínimo sin recortar seguridad. /ponytail:ponytail-review y /ponytail:ponytail-audit para revisar.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-FIGMA",
+      "tipo": "tecnologia",
+      "nombre": "Figma",
+      "descripcion": "Diseño de pantallas y kit de marca. Fuente de verdad visual.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-JUNIT",
+      "tipo": "tecnologia",
+      "nombre": "JUnit + pruebas de Compose",
+      "descripcion": "Pruebas unitarias y de interfaz en el emulador/teléfono.",
+      "estado": "decidido"
+    },
+    {
+      "id": "TEC-MAESTRO",
+      "tipo": "tecnologia",
+      "nombre": "Maestro",
+      "descripcion": "Flujos de punta a punta en el teléfono (sustituye a Playwright, que solo prueba web).",
+      "estado": "propuesto"
+    },
+    {
+      "id": "TEC-PLAYWRIGHT",
+      "tipo": "tecnologia",
+      "nombre": "Playwright",
+      "descripcion": "Descartado: prueba apps web, no apps nativas de Android.",
+      "estado": "descartado"
+    },
+    {
+      "id": "DEC-01",
+      "tipo": "decision",
+      "nombre": "Sin conexión primero",
+      "descripcion": "La música, listas, historial y letras guardadas viven en el teléfono. Sin cuentas, analítica ni publicidad. La única llamada de red es a LRCLIB, apagada por defecto hasta que el usuario la active.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-02",
+      "tipo": "decision",
+      "nombre": "Versiones de Android",
+      "descripcion": "minSdk 30 (Android 11), targetSdk y compileSdk la última estable instalada. Se comprueba la versión con Build.VERSION.SDK_INT solo donde una API lo requiera (p. ej. permisos de Android 13).",
+      "estado": "decidido",
+      "detalles": {
+        "sdk": {
+          "min": 30
+        }
+      }
+    },
+    {
+      "id": "DEC-03",
+      "tipo": "decision",
+      "nombre": "Navegación",
+      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-04",
+      "tipo": "decision",
+      "nombre": "Mini reproductor y gestos",
+      "descripcion": "Tarjeta redondeada encima de la barra de navegación con carátula, título, artista, siguiente y reproducir/pausa, más una línea de progreso. Gestos solo dentro de la tarjeta: deslizar a la izquierda = siguiente, a la derecha = anterior, hacia arriba = abre Reproduciendo (carátula completa), hacia abajo desde Reproduciendo = vuelve a la tarjeta. Con umbral de distancia y velocidad, interrumpible, y alternativa con botones para quien no use gestos.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-05",
+      "tipo": "decision",
+      "nombre": "Biblioteca y abecedario",
+      "descripcion": "Chips: Listas, Álbumes, Artistas, Canciones. Barra de abecedario vertical a la derecha solo en Biblioteca y en la hoja para agregar canciones (no en Buscar). Ilumina la letra visible al desplazarse; al tocar una letra salta a la primera coincidencia. Orden por título por defecto; botón de filtros para ordenar por artista, álbum, ascendente o descendente. Normalización: se quitan acentos para agrupar (Á→A), Ñ es letra propia, números y símbolos van en «#».",
+      "estado": "decidido",
+      "detalles": {
+        "detalles_pendientes": "PEND-05"
+      }
+    },
+    {
+      "id": "DEC-06",
+      "tipo": "decision",
+      "nombre": "Crear y llenar listas",
+      "descripcion": "Crear lista pide solo el nombre (diálogo). Al crearla se abre la lista y aparece una hoja inferior con buscador, abecedario y casillas para marcar canciones; un botón confirma cuántas se agregan. Lista vacía: mensaje + botón Agregar canciones. Con al menos una canción: botones Reproducir, Aleatorio y Agregar.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-07",
+      "tipo": "decision",
+      "nombre": "Menú de opciones de canción",
+      "descripcion": "Menú desplegable (M3 DropdownMenu) desde el botón ⋮ o pulsación larga. En una lista: Quitar de la lista, Añadir a la cola. En Biblioteca/Canciones y Buscar: Añadir a la cola, Añadir a una lista, Borrar del dispositivo.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-08",
+      "tipo": "decision",
+      "nombre": "Borrar del dispositivo",
+      "descripcion": "Se usa MediaStore.createDeleteRequest: Android muestra su propio aviso, así que la app no agrega otra confirmación. Al terminar: snackbar con el resultado. Se limpian las referencias en listas, cola e historial.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-09",
+      "tipo": "decision",
+      "nombre": "Retroalimentación visible",
+      "descripcion": "Toda operación del usuario muestra resultado: snackbar para acciones reversibles o informativas (con Deshacer cuando se pueda), diálogo para decisiones, indicador de progreso para esperas > 300 ms, estados vacíos con una acción clara.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-10",
+      "tipo": "decision",
+      "nombre": "Fuentes de letras",
+      "descripcion": "Orden: (1) letra guardada en la app, (2) archivo .lrc con el mismo nombre en la carpeta que el usuario eligió (acceso por selector del sistema, se recuerda el permiso; se sugieren rutas comunes como «SnapTube Audio», «Music» y «Download»), (3) LRCLIB si está activado. Se muestra tocando la carátula de la canción actual. Las letras sin tiempos se muestran como texto plano.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-11",
+      "tipo": "decision",
+      "nombre": "Coincidencia y desfase con LRCLIB",
+      "descripcion": "Antes de buscar se limpia el título (quita «(Official Video)», «[Lyrics]», «Artista - » al inicio, etc.). Se intenta /api/get con duración; si falla, /api/search. Si la duración de la letra difiere más de 2 s de la canción, aparece el botón «Cambiar letra» (hoja con otras opciones de /api/search). El usuario puede ajustar el desfase en pasos de 0.5 s; se guarda por canción.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-12",
+      "tipo": "decision",
+      "nombre": "LRCLIB apagado",
+      "descripcion": "Desde la carátula hay dos opciones: Buscar en el teléfono y Buscar en internet. Si LRCLIB está apagado, «Buscar en internet» lleva a Ajustes y el interruptor de LRCLIB parpadea con un borde (sin animación si el sistema pide reducir movimiento).",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-13",
+      "tipo": "decision",
+      "nombre": "Ajustes",
+      "descripcion": "Temporizador de apagado, notificaciones (ver PEND-01), escanear medios, buscar letras en internet (LRCLIB), letras descargadas, carpeta de letras, tema (Sistema/Oscuro/Claro, por defecto Oscuro), agregar widget, términos y condiciones con descargo, aviso de privacidad, licencias.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-14",
+      "tipo": "decision",
+      "nombre": "Widget",
+      "descripcion": "Widget con Glance: carátula, título, anterior, reproducir/pausa, siguiente. «Agregar widget» usa requestPinAppWidget; es idempotente: si ya hay uno (AppWidgetManager.getAppWidgetIds), el botón dice «Ya está en tu inicio». Si el launcher no admite agregarlo desde la app, se muestran instrucciones.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-15",
+      "tipo": "decision",
+      "nombre": "Tema y color dinámico",
+      "descripcion": "Oscuro como base, claro disponible. Sin color del fondo de pantalla (Material You apagado). La mini tarjeta y Reproduciendo toman el color de la carátula con Palette; el acento de marca queda en navegación, botones principales y el mosaico destacado. Todos los colores salen de tokens (INV-04).",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-16",
+      "tipo": "decision",
+      "nombre": "Identidad: Rola",
+      "descripcion": "Nombre «Rola». Símbolo: «r» apoyada en un disco (se lee «ro»). Acento lima #C7FF2E. Tipografía: Space Grotesk Bold (títulos), Geist (interfaz), Geist Mono (tiempos). Tokens, logos e ícono en docs/marca/README.md y en Figma (página «Rola · Kit de marca»).",
+      "estado": "decidido",
+      "detalles": {
+        "archivos": [
+          "docs/marca/README.md",
+          "docs/marca/*.svg"
+        ],
+        "tokens": {
+          "oscuro": {
+            "background": "#10100E",
+            "surface": "#1B1A17",
+            "surfaceContainer": "#262521",
+            "outline": "#34322D",
+            "onSurface": "#FAF8F2",
+            "onSurfaceVariant": "#A9A69C",
+            "primary": "#C7FF2E",
+            "onPrimary": "#10100E",
+            "primaryContainer": "#27310C",
+            "onPrimaryContainer": "#C7FF2E"
+          },
+          "claro": {
+            "background": "#F6F6F4",
+            "surface": "#FFFFFF",
+            "surfaceContainer": "#ECEBE6",
+            "outline": "#D9D7D0",
+            "onSurface": "#10100E",
+            "onSurfaceVariant": "#5C5A53",
+            "primary": "#3D5200",
+            "onPrimary": "#FFFFFF",
+            "primaryContainer": "#C7FF2E",
+            "onPrimaryContainer": "#10100E"
+          }
+        },
+        "descartados": [
+          "Coro (ámbar): muy parecido a la paleta de End Security",
+          "Oye (coral): tono de app de servicios",
+          "Surco: nombre ya usado por una app de DJ"
+        ]
+      }
+    },
+    {
+      "id": "DEC-17",
+      "tipo": "decision",
+      "nombre": "Splash",
+      "descripcion": "Solo la API de Splash Screen del sistema (core-splashscreen): fondo del tema y la capa frontal del ícono sobre círculo lima. Sin pantalla de splash propia ni demoras artificiales.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-18",
+      "tipo": "decision",
+      "nombre": "Onboarding y permisos",
+      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-19",
+      "tipo": "decision",
+      "nombre": "Estados vacíos",
+      "descripcion": "Diseño propio para: primera vez en Inicio (invita a reproducir), sin canciones en el teléfono, sin listas, lista vacía, búsqueda sin resultados, sin letra encontrada, sin permiso de audio, cola vacía.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-20",
+      "tipo": "decision",
+      "nombre": "Arquitectura",
+      "descripcion": "Un módulo app. Paquetes core/ (designsystem, media, data, lyrics) y feature/ (onboarding, home, library, playlist, search, player, lyrics, settings, widget). MVVM con flujo de datos en una sola dirección (StateFlow). La reproducción vive en un MediaSessionService; la interfaz se conecta con MediaController.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-21",
+      "tipo": "decision",
+      "nombre": "Forma de trabajo",
+      "descripcion": "La sesión de diseño escribe cada tarea en ai/handoff/siguiente.md y revisa ai/handoff/reporte.md. Claude Code implementa con pruebas, hace commits atómicos sin autoría de IA en la rama development y se detiene al terminar. Spec Kit para funciones nuevas (specify → plan → tasks → analyze → implement); Ponytail activo al programar y apagado en fases de diseño. Lo dudoso va a ai/handoff/revisiones-pendientes.md.",
+      "estado": "decidido",
+      "detalles": {
+        "archivos": [
+          "CLAUDE.md",
+          ".claude/settings.json",
+          ".specify/memory/constitution.md",
+          "ai/handoff/README.md"
+        ]
+      }
+    },
+    {
+      "id": "DEC-22",
+      "tipo": "decision",
+      "nombre": "Pruebas",
+      "descripcion": "Unitarias (JUnit) para lógica pura (normalización del abecedario, limpieza de títulos, parser LRC, desfase). Pruebas de Compose para pantallas. Maestro para flujos en el teléfono (propuesto). Playwright no aplica.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-23",
+      "tipo": "decision",
+      "nombre": "Legal",
+      "descripcion": "Términos con descargo (las letras pertenecen a sus autores; LRCLIB es de terceros; la app no distribuye música), aviso de privacidad (todo local, única red LRCLIB), licencias (OFL de las fuentes, licencias de librerías). En Ajustes.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-24",
+      "tipo": "decision",
+      "nombre": "Reproduciendo y cola",
+      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-25",
+      "tipo": "decision",
+      "nombre": "Buscar",
+      "descripcion": "Buscador general sobre canciones, álbumes, artistas y listas, con resultados agrupados. Sin abecedario (los resultados van por relevancia). Mismo menú de opciones que Biblioteca.",
+      "estado": "decidido"
+    },
+    {
+      "id": "DEC-26",
+      "tipo": "decision",
+      "nombre": "Escaneo de medios",
+      "descripcion": "La biblioteca se lee del MediaStore y se actualiza con su observador. «Escanear medios» fuerza un nuevo escaneo de las carpetas elegidas. Filtro de duración mínima propuesto (PEND-07) para ocultar notas de voz.",
+      "estado": "decidido"
+    },
+    {
+      "id": "INV-01",
+      "tipo": "invariante",
+      "nombre": "INV-01",
+      "descripcion": "La única red es LRCLIB, y solo con el interruptor encendido. Nada de analítica, publicidad ni rastreo.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-02",
+      "tipo": "invariante",
+      "nombre": "INV-02",
+      "descripcion": "Nunca se borra un archivo del usuario sin el aviso del sistema (MediaStore.createDeleteRequest).",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-03",
+      "tipo": "invariante",
+      "nombre": "INV-03",
+      "descripcion": "Ningún secreto en el repositorio: llaves, keystore.properties, local.properties.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-04",
+      "tipo": "invariante",
+      "nombre": "INV-04",
+      "descripcion": "Colores, tipografía, formas y espacios salen de los tokens del tema. Prohibido escribir colores hex dentro de pantallas o componentes.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-05",
+      "tipo": "invariante",
+      "nombre": "INV-05",
+      "descripcion": "Toda operación del usuario tiene retroalimentación visible (DEC-09).",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-06",
+      "tipo": "invariante",
+      "nombre": "INV-06",
+      "descripcion": "Accesibilidad: objetivos táctiles ≥ 48 dp, descripción en botones de solo ícono, texto con contraste ≥ 4.5:1, se respeta «reducir movimiento» y el tamaño de letra del sistema.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-07",
+      "tipo": "invariante",
+      "nombre": "INV-07",
+      "descripcion": "Commits atómicos, en español, sin líneas de autoría de IA (Co-Authored-By, Claude-Session) ni pies de «Generated with».",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-08",
+      "tipo": "invariante",
+      "nombre": "INV-08",
+      "descripcion": "Las decisiones mandan desde este grafo; lo visual, desde Figma. Si el código contradice a alguno, se pregunta antes de cambiar.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-09",
+      "tipo": "invariante",
+      "nombre": "INV-09",
+      "descripcion": "Lo que esté en fuera_de_alcance no se implementa sin aprobación. Los nodos propuesto/pendiente no se asumen.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-10",
+      "tipo": "invariante",
+      "nombre": "INV-10",
+      "descripcion": "Las respuestas de LRCLIB se validan (tamaño, formato LRC, tiempos) y nunca bloquean la reproducción; sin red, la app sigue igual.",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "INV-11",
+      "tipo": "invariante",
+      "nombre": "INV-11",
+      "descripcion": "La reproducción nunca se detiene por una acción de interfaz que no sea pausa/detener (p. ej. cambiar de pantalla, abrir letras, buscar).",
+      "estado": "obligatorio"
+    },
+    {
+      "id": "PEND-01",
+      "tipo": "pregunta_abierta",
+      "nombre": "Interruptor de notificaciones",
+      "descripcion": "Para reproducir en segundo plano, Android exige una notificación visible del servicio de reproducción: no se puede ocultar sin que la música se detenga al salir de la app. Propuesta: el interruptor controla los demás avisos (escaneo terminado, letra descargada) y la notificación multimedia se queda. Decide el dueño.",
+      "estado": "pendiente"
+    },
+    {
+      "id": "PEND-02",
+      "tipo": "pregunta_abierta",
+      "nombre": "Inyección de dependencias",
+      "descripcion": "Hilt (como en End Security) o construcción manual. Propuesta: manual mientras sea poco; Hilt si el grafo de objetos crece. Decidir en la tarea 02.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "PEND-03",
+      "tipo": "pregunta_abierta",
+      "nombre": "Neutros cálidos",
+      "descripcion": "Grises con un toque cálido (#10100E/#1B1A17) en lugar de neutros puros (#0F0F0F/#1A1A1A) para alejarse de la sensación cripto/Spotify. Tokens de DEC-16 ya escritos así; si se rechaza, solo cambian los hex.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "PEND-04",
+      "tipo": "pregunta_abierta",
+      "nombre": "Letras incrustadas en el audio",
+      "descripcion": "¿Leer también letras guardadas dentro del archivo (etiquetas USLT/SYLT)? Propuesta: sí, como fuente 0, si Media3 las expone sin librerías extra.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "PEND-05",
+      "tipo": "pregunta_abierta",
+      "nombre": "Artículos al ordenar",
+      "descripcion": "¿Ignorar «The», «El», «La» al ordenar por título/artista? Propuesta: no, por simplicidad.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "PEND-06",
+      "tipo": "pregunta_abierta",
+      "nombre": "Comando de errores de Spec Kit",
+      "descripcion": "El flujo pide «Spec Kit bug» para diagnosticar y corregir. Confirmar si existe en la versión instalada (o como extensión); si no, se usa specify → plan → tasks sobre el error.",
+      "estado": "pendiente"
+    },
+    {
+      "id": "PEND-07",
+      "tipo": "pregunta_abierta",
+      "nombre": "Duración mínima al escanear",
+      "descripcion": "Ocultar audios de menos de 30 s (notas de voz). Configurable en Ajustes.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "FDA-01",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Streaming y servicios en línea",
+      "descripcion": "Spotify, YouTube Music, radios, podcasts.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-02",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Cuentas y sincronización en la nube",
+      "descripcion": "Sin inicio de sesión ni respaldo remoto.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-03",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Ecualizador y efectos",
+      "descripcion": "Ni ecualizador propio ni crossfade en el MVP.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-04",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Editar etiquetas o letras",
+      "descripcion": "No se modifican metadatos ni se publican letras a LRCLIB.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-05",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Chromecast / Android Auto / Wear OS",
+      "descripcion": "Fuera del MVP.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-06",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Publicación en Play Store",
+      "descripcion": "Proyecto personal (RES-05).",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "FDA-07",
+      "tipo": "fuera_de_alcance",
+      "nombre": "Descargar música",
+      "descripcion": "La app no descarga audio de ningún sitio.",
+      "estado": "fuera_de_alcance"
+    },
+    {
+      "id": "MOD-ONB",
+      "tipo": "modulo",
+      "nombre": "Bienvenida y permisos",
+      "descripcion": "Splash, onboarding, permisos.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-HOME",
+      "tipo": "modulo",
+      "nombre": "Inicio",
+      "descripcion": "Escuchado hace poco, mosaicos bento, estado de primera vez.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-LIB",
+      "tipo": "modulo",
+      "nombre": "Biblioteca",
+      "descripcion": "Chips, listas de canciones/álbumes/artistas, abecedario, filtros.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-PLAYLIST",
+      "tipo": "modulo",
+      "nombre": "Listas",
+      "descripcion": "Crear, llenar, reproducir, quitar canciones.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-SEARCH",
+      "tipo": "modulo",
+      "nombre": "Buscar",
+      "descripcion": "Búsqueda general.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-PLAYER",
+      "tipo": "modulo",
+      "nombre": "Reproductor",
+      "descripcion": "Servicio, mini tarjeta, Reproduciendo, cola, temporizador.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-LYRICS",
+      "tipo": "modulo",
+      "nombre": "Letras",
+      "descripcion": "Fuentes, sincronización, cambio y desfase.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-SETTINGS",
+      "tipo": "modulo",
+      "nombre": "Ajustes y legal",
+      "descripcion": "Preferencias, escaneo, documentos.",
+      "estado": "decidido"
+    },
+    {
+      "id": "MOD-WIDGET",
+      "tipo": "modulo",
+      "nombre": "Widget",
+      "descripcion": "Glance.",
+      "estado": "decidido"
+    },
+    {
+      "id": "OP-01",
+      "tipo": "operacion",
+      "nombre": "Leer biblioteca",
+      "descripcion": "Operación del módulo MOD-LIB.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-02",
+      "tipo": "operacion",
+      "nombre": "Reproducir canción o colección",
+      "descripcion": "Operación del módulo MOD-PLAYER.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-03",
+      "tipo": "operacion",
+      "nombre": "Siguiente / anterior por gesto",
+      "descripcion": "Operación del módulo MOD-PLAYER.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-04",
+      "tipo": "operacion",
+      "nombre": "Añadir a la cola",
+      "descripcion": "Operación del módulo MOD-PLAYER.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-05",
+      "tipo": "operacion",
+      "nombre": "Crear lista",
+      "descripcion": "Operación del módulo MOD-PLAYLIST.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-06",
+      "tipo": "operacion",
+      "nombre": "Agregar canciones a lista",
+      "descripcion": "Operación del módulo MOD-PLAYLIST.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-07",
+      "tipo": "operacion",
+      "nombre": "Quitar canción de lista",
+      "descripcion": "Operación del módulo MOD-PLAYLIST.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-08",
+      "tipo": "operacion",
+      "nombre": "Borrar canción del dispositivo",
+      "descripcion": "Operación del módulo MOD-LIB.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-09",
+      "tipo": "operacion",
+      "nombre": "Buscar",
+      "descripcion": "Operación del módulo MOD-SEARCH.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-10",
+      "tipo": "operacion",
+      "nombre": "Mostrar letra",
+      "descripcion": "Operación del módulo MOD-LYRICS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-11",
+      "tipo": "operacion",
+      "nombre": "Buscar letra en el teléfono",
+      "descripcion": "Operación del módulo MOD-LYRICS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-12",
+      "tipo": "operacion",
+      "nombre": "Buscar letra en LRCLIB",
+      "descripcion": "Operación del módulo MOD-LYRICS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "LRCLIB",
+        "requiere_red": true
+      }
+    },
+    {
+      "id": "OP-13",
+      "tipo": "operacion",
+      "nombre": "Cambiar letra",
+      "descripcion": "Operación del módulo MOD-LYRICS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "LRCLIB",
+        "requiere_red": true
+      }
+    },
+    {
+      "id": "OP-14",
+      "tipo": "operacion",
+      "nombre": "Ajustar desfase",
+      "descripcion": "Operación del módulo MOD-LYRICS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-15",
+      "tipo": "operacion",
+      "nombre": "Temporizador de apagado",
+      "descripcion": "Operación del módulo MOD-PLAYER.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-16",
+      "tipo": "operacion",
+      "nombre": "Escanear medios",
+      "descripcion": "Operación del módulo MOD-SETTINGS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-17",
+      "tipo": "operacion",
+      "nombre": "Cambiar ajuste",
+      "descripcion": "Operación del módulo MOD-SETTINGS.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-18",
+      "tipo": "operacion",
+      "nombre": "Agregar widget",
+      "descripcion": "Operación del módulo MOD-WIDGET.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "OP-19",
+      "tipo": "operacion",
+      "nombre": "Conceder permisos",
+      "descripcion": "Operación del módulo MOD-ONB.",
+      "estado": "decidido",
+      "detalles": {
+        "actor": "usuario",
+        "lugar": "Local",
+        "requiere_red": false
+      }
+    },
+    {
+      "id": "MEDIASTORE",
+      "tipo": "tabla",
+      "nombre": "MediaStore.Audio (sistema)",
+      "descripcion": "Fuente de canciones, álbumes y artistas. Solo lectura salvo el borrado con aviso del sistema.",
+      "estado": "decidido",
+      "detalles": {
+        "almacen": "Android MediaStore"
+      }
+    },
+    {
+      "id": "TBL-PLAYLISTS",
+      "tipo": "tabla",
+      "nombre": "playlists",
+      "descripcion": "Listas del usuario.",
+      "estado": "propuesto",
+      "detalles": {
+        "almacen": "Room",
+        "campos": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ]
+      }
+    },
+    {
+      "id": "TBL-PLAYLIST-SONGS",
+      "tipo": "tabla",
+      "nombre": "playlist_songs",
+      "descripcion": "Canciones de cada lista, con orden.",
+      "estado": "propuesto",
+      "detalles": {
+        "almacen": "Room",
+        "campos": [
+          "playlist_id",
+          "media_id",
+          "position",
+          "added_at"
+        ]
+      }
+    },
+    {
+      "id": "TBL-HISTORY",
+      "tipo": "tabla",
+      "nombre": "play_history",
+      "descripcion": "Escuchado hace poco y conteo de reproducciones.",
+      "estado": "propuesto",
+      "detalles": {
+        "almacen": "Room",
+        "campos": [
+          "media_id",
+          "last_played_at",
+          "play_count"
+        ]
+      }
+    },
+    {
+      "id": "TBL-LYRICS",
+      "tipo": "tabla",
+      "nombre": "lyrics",
+      "descripcion": "Letras guardadas por canción.",
+      "estado": "propuesto",
+      "detalles": {
+        "almacen": "Room",
+        "campos": [
+          "media_id",
+          "source (local|lrclib|tags)",
+          "synced (bool)",
+          "content",
+          "offset_ms",
+          "lrclib_id",
+          "duration_s",
+          "saved_at"
+        ]
+      }
+    },
+    {
+      "id": "KV-DATASTORE",
+      "tipo": "almacen_clave_valor",
+      "nombre": "DataStore",
+      "descripcion": "Ajustes del usuario.",
+      "estado": "propuesto",
+      "detalles": {
+        "almacen": "DataStore Preferences",
+        "campos": [
+          "onboarding_completed",
+          "theme (system|dark|light)",
+          "lrclib_enabled",
+          "other_notifications_enabled",
+          "lyrics_folder_uri",
+          "min_duration_s",
+          "sort_order",
+          "sleep_timer_end"
+        ]
+      }
+    },
+    {
+      "id": "SCR-01",
+      "tipo": "pantalla",
+      "nombre": "Splash",
+      "descripcion": "Vista «Splash» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-02",
+      "tipo": "pantalla",
+      "nombre": "Onboarding 1 · Bienvenida",
+      "descripcion": "Vista «Onboarding 1 · Bienvenida» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-03",
+      "tipo": "pantalla",
+      "nombre": "Onboarding 2 · Letras",
+      "descripcion": "Vista «Onboarding 2 · Letras» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-04",
+      "tipo": "pantalla",
+      "nombre": "Onboarding 3 · Sin conexión",
+      "descripcion": "Vista «Onboarding 3 · Sin conexión» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-05",
+      "tipo": "pantalla",
+      "nombre": "Permisos",
+      "descripcion": "Vista «Permisos» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-06",
+      "tipo": "pantalla",
+      "nombre": "Permiso denegado",
+      "descripcion": "Vista «Permiso denegado» del módulo MOD-ONB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-10",
+      "tipo": "pantalla",
+      "nombre": "Inicio",
+      "descripcion": "Vista «Inicio» del módulo MOD-HOME.",
+      "estado": "decidido",
+      "detalles": {
+        "figma_nodo": "7:130",
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-11",
+      "tipo": "pantalla",
+      "nombre": "Inicio · primera vez",
+      "descripcion": "Vista «Inicio · primera vez» del módulo MOD-HOME.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-12",
+      "tipo": "pantalla",
+      "nombre": "Sin canciones en el teléfono",
+      "descripcion": "Vista «Sin canciones en el teléfono» del módulo MOD-HOME.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-20",
+      "tipo": "pantalla",
+      "nombre": "Biblioteca · Canciones",
+      "descripcion": "Vista «Biblioteca · Canciones» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-21",
+      "tipo": "pantalla",
+      "nombre": "Biblioteca · Álbumes",
+      "descripcion": "Vista «Biblioteca · Álbumes» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-22",
+      "tipo": "pantalla",
+      "nombre": "Biblioteca · Artistas",
+      "descripcion": "Vista «Biblioteca · Artistas» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-23",
+      "tipo": "pantalla",
+      "nombre": "Biblioteca · Listas",
+      "descripcion": "Vista «Biblioteca · Listas» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-24",
+      "tipo": "pantalla",
+      "nombre": "Detalle de álbum",
+      "descripcion": "Vista «Detalle de álbum» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-25",
+      "tipo": "pantalla",
+      "nombre": "Detalle de artista",
+      "descripcion": "Vista «Detalle de artista» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-26",
+      "tipo": "pantalla",
+      "nombre": "Hoja de filtros y orden",
+      "descripcion": "Vista «Hoja de filtros y orden» del módulo MOD-LIB.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-30",
+      "tipo": "pantalla",
+      "nombre": "Crear lista (diálogo)",
+      "descripcion": "Vista «Crear lista (diálogo)» del módulo MOD-PLAYLIST.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-31",
+      "tipo": "pantalla",
+      "nombre": "Lista vacía",
+      "descripcion": "Vista «Lista vacía» del módulo MOD-PLAYLIST.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-32",
+      "tipo": "pantalla",
+      "nombre": "Lista con canciones",
+      "descripcion": "Vista «Lista con canciones» del módulo MOD-PLAYLIST.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-33",
+      "tipo": "pantalla",
+      "nombre": "Hoja · agregar canciones",
+      "descripcion": "Vista «Hoja · agregar canciones» del módulo MOD-PLAYLIST.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-40",
+      "tipo": "pantalla",
+      "nombre": "Buscar",
+      "descripcion": "Vista «Buscar» del módulo MOD-SEARCH.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-41",
+      "tipo": "pantalla",
+      "nombre": "Buscar · sin resultados",
+      "descripcion": "Vista «Buscar · sin resultados» del módulo MOD-SEARCH.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-50",
+      "tipo": "pantalla",
+      "nombre": "Mini reproductor",
+      "descripcion": "Vista «Mini reproductor» del módulo MOD-PLAYER.",
+      "estado": "decidido",
+      "detalles": {
+        "figma_nodo": "5:51",
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-51",
+      "tipo": "pantalla",
+      "nombre": "Reproduciendo",
+      "descripcion": "Vista «Reproduciendo» del módulo MOD-PLAYER.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-52",
+      "tipo": "pantalla",
+      "nombre": "Cola",
+      "descripcion": "Vista «Cola» del módulo MOD-PLAYER.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-53",
+      "tipo": "pantalla",
+      "nombre": "Temporizador (hoja)",
+      "descripcion": "Vista «Temporizador (hoja)» del módulo MOD-PLAYER.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-54",
+      "tipo": "pantalla",
+      "nombre": "Menú de opciones de canción",
+      "descripcion": "Vista «Menú de opciones de canción» del módulo MOD-PLAYER.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-60",
+      "tipo": "pantalla",
+      "nombre": "Letras",
+      "descripcion": "Vista «Letras» del módulo MOD-LYRICS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-61",
+      "tipo": "pantalla",
+      "nombre": "Opciones de letra (carátula)",
+      "descripcion": "Vista «Opciones de letra (carátula)» del módulo MOD-LYRICS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-62",
+      "tipo": "pantalla",
+      "nombre": "Hoja · cambiar letra",
+      "descripcion": "Vista «Hoja · cambiar letra» del módulo MOD-LYRICS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": true,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-63",
+      "tipo": "pantalla",
+      "nombre": "Sin letra",
+      "descripcion": "Vista «Sin letra» del módulo MOD-LYRICS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-70",
+      "tipo": "pantalla",
+      "nombre": "Ajustes",
+      "descripcion": "Vista «Ajustes» del módulo MOD-SETTINGS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-71",
+      "tipo": "pantalla",
+      "nombre": "Letras descargadas",
+      "descripcion": "Vista «Letras descargadas» del módulo MOD-SETTINGS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-72",
+      "tipo": "pantalla",
+      "nombre": "Términos y condiciones",
+      "descripcion": "Vista «Términos y condiciones» del módulo MOD-SETTINGS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-73",
+      "tipo": "pantalla",
+      "nombre": "Aviso de privacidad",
+      "descripcion": "Vista «Aviso de privacidad» del módulo MOD-SETTINGS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-74",
+      "tipo": "pantalla",
+      "nombre": "Licencias",
+      "descripcion": "Vista «Licencias» del módulo MOD-SETTINGS.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    },
+    {
+      "id": "SCR-80",
+      "tipo": "pantalla",
+      "nombre": "Widget",
+      "descripcion": "Vista «Widget» del módulo MOD-WIDGET.",
+      "estado": "pendiente",
+      "detalles": {
+        "figma_nodo": null,
+        "requiere_red": false,
+        "tema": "oscuro (base) y claro"
+      }
+    }
+  ],
+  "aristas": [
+    {
+      "de": "PRY-01",
+      "a": "OBJ-01",
+      "relacion": "persigue"
+    },
+    {
+      "de": "PRY-01",
+      "a": "OBJ-02",
+      "relacion": "persigue"
+    },
+    {
+      "de": "PRY-01",
+      "a": "OBJ-03",
+      "relacion": "persigue"
+    },
+    {
+      "de": "PRY-01",
+      "a": "OBJ-04",
+      "relacion": "persigue"
+    },
+    {
+      "de": "PRY-01",
+      "a": "RES-01",
+      "relacion": "limitado_por"
+    },
+    {
+      "de": "PRY-01",
+      "a": "RES-02",
+      "relacion": "limitado_por"
+    },
+    {
+      "de": "PRY-01",
+      "a": "RES-03",
+      "relacion": "limitado_por"
+    },
+    {
+      "de": "PRY-01",
+      "a": "RES-04",
+      "relacion": "limitado_por"
+    },
+    {
+      "de": "PRY-01",
+      "a": "RES-05",
+      "relacion": "limitado_por"
+    },
+    {
+      "de": "TEC-PLAYWRIGHT",
+      "a": "DEC-22",
+      "relacion": "reemplazada_en"
+    },
+    {
+      "de": "DEC-01",
+      "a": "TEC-ROOM",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-01",
+      "a": "TEC-DATASTORE",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-03",
+      "a": "TEC-NAV",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-08",
+      "a": "TEC-KOTLIN",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-10",
+      "a": "TEC-ROOM",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-10",
+      "a": "TEC-LRCLIB",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-11",
+      "a": "TEC-LRCLIB",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-13",
+      "a": "TEC-DATASTORE",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-14",
+      "a": "TEC-GLANCE",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-15",
+      "a": "TEC-PALETTE",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-15",
+      "a": "TEC-KOTLIN",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-16",
+      "a": "TEC-FONTS",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-16",
+      "a": "TEC-FIGMA",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-17",
+      "a": "TEC-SPLASH",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-20",
+      "a": "TEC-MEDIA3",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-20",
+      "a": "TEC-COROUTINES",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-21",
+      "a": "TEC-CLAUDE",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-21",
+      "a": "TEC-SPECKIT",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-21",
+      "a": "TEC-PONYTAIL",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-22",
+      "a": "TEC-JUNIT",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-22",
+      "a": "TEC-MAESTRO",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-08",
+      "a": "DEC-09",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-11",
+      "a": "DEC-10",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-12",
+      "a": "DEC-13",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-15",
+      "a": "DEC-16",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-17",
+      "a": "DEC-16",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-04",
+      "a": "DEC-03",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-06",
+      "a": "DEC-05",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-14",
+      "a": "DEC-20",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-24",
+      "a": "DEC-04",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "RES-01",
+      "a": "DEC-01",
+      "relacion": "motiva"
+    },
+    {
+      "de": "RES-04",
+      "a": "DEC-02",
+      "relacion": "motiva"
+    },
+    {
+      "de": "RES-04",
+      "a": "DEC-08",
+      "relacion": "motiva"
+    },
+    {
+      "de": "RES-02",
+      "a": "DEC-21",
+      "relacion": "motiva"
+    },
+    {
+      "de": "RES-03",
+      "a": "DEC-01",
+      "relacion": "motiva"
+    },
+    {
+      "de": "DEC-24",
+      "a": "OBJ-01",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-14",
+      "a": "OBJ-01",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-05",
+      "a": "OBJ-02",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-06",
+      "a": "OBJ-02",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-25",
+      "a": "OBJ-02",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-10",
+      "a": "OBJ-03",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-11",
+      "a": "OBJ-03",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-04",
+      "a": "OBJ-04",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-09",
+      "a": "OBJ-04",
+      "relacion": "cumple"
+    },
+    {
+      "de": "DEC-16",
+      "a": "OBJ-04",
+      "relacion": "cumple"
+    },
+    {
+      "de": "INV-01",
+      "a": "DEC-01",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-02",
+      "a": "DEC-08",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-03",
+      "a": "DEC-21",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-04",
+      "a": "DEC-16",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-05",
+      "a": "DEC-09",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-06",
+      "a": "DEC-04",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-07",
+      "a": "DEC-21",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-08",
+      "a": "DEC-21",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-09",
+      "a": "DEC-21",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-10",
+      "a": "DEC-11",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "INV-11",
+      "a": "DEC-20",
+      "relacion": "deriva_de"
+    },
+    {
+      "de": "PEND-01",
+      "a": "DEC-13",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-02",
+      "a": "DEC-20",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-03",
+      "a": "DEC-16",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-04",
+      "a": "DEC-10",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-05",
+      "a": "DEC-05",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-06",
+      "a": "DEC-21",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-07",
+      "a": "DEC-26",
+      "relacion": "afina"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-01",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-01",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-02",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-02",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-03",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-03",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-04",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-04",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-05",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-05",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-06",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-06",
+      "a": "RES-05",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "DEC-01",
+      "a": "FDA-07",
+      "relacion": "excluye"
+    },
+    {
+      "de": "FDA-07",
+      "a": "RES-01",
+      "relacion": "excluido_por"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-ONB",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-HOME",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-LIB",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-PLAYLIST",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-SEARCH",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-PLAYER",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-LYRICS",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-SETTINGS",
+      "relacion": "contiene"
+    },
+    {
+      "de": "PRY-01",
+      "a": "MOD-WIDGET",
+      "relacion": "contiene"
+    },
+    {
+      "de": "OP-01",
+      "a": "MOD-LIB",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-01",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-01",
+      "a": "DEC-26",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-01",
+      "a": "MEDIASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-02",
+      "a": "MOD-PLAYER",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-02",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-02",
+      "a": "DEC-20",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-02",
+      "a": "TBL-HISTORY",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-03",
+      "a": "MOD-PLAYER",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-03",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-03",
+      "a": "DEC-04",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-04",
+      "a": "MOD-PLAYER",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-04",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-04",
+      "a": "DEC-07",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-04",
+      "a": "DEC-09",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-05",
+      "a": "MOD-PLAYLIST",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-05",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-05",
+      "a": "DEC-06",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-05",
+      "a": "DEC-09",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-05",
+      "a": "TBL-PLAYLISTS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-06",
+      "a": "MOD-PLAYLIST",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-06",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-06",
+      "a": "DEC-06",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-06",
+      "a": "DEC-09",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-06",
+      "a": "TBL-PLAYLIST-SONGS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-07",
+      "a": "MOD-PLAYLIST",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-07",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-07",
+      "a": "DEC-07",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-07",
+      "a": "DEC-09",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-07",
+      "a": "TBL-PLAYLIST-SONGS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-08",
+      "a": "MOD-LIB",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-08",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-08",
+      "a": "DEC-08",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-08",
+      "a": "DEC-09",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-08",
+      "a": "MEDIASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-08",
+      "a": "TBL-PLAYLIST-SONGS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-08",
+      "a": "TBL-HISTORY",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-08",
+      "a": "TBL-LYRICS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-09",
+      "a": "MOD-SEARCH",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-09",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-09",
+      "a": "DEC-25",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-09",
+      "a": "MEDIASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-09",
+      "a": "TBL-PLAYLISTS",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-10",
+      "a": "MOD-LYRICS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-10",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-10",
+      "a": "DEC-10",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-10",
+      "a": "TBL-LYRICS",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-11",
+      "a": "MOD-LYRICS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-11",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-11",
+      "a": "DEC-10",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-11",
+      "a": "KV-DATASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-11",
+      "a": "TBL-LYRICS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-12",
+      "a": "MOD-LYRICS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-12",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-12",
+      "a": "DEC-11",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-12",
+      "a": "DEC-12",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-12",
+      "a": "KV-DATASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-12",
+      "a": "TBL-LYRICS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-13",
+      "a": "MOD-LYRICS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-13",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-13",
+      "a": "DEC-11",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-13",
+      "a": "TBL-LYRICS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-14",
+      "a": "MOD-LYRICS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-14",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-14",
+      "a": "DEC-11",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-14",
+      "a": "TBL-LYRICS",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-15",
+      "a": "MOD-PLAYER",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-15",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-15",
+      "a": "DEC-13",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-16",
+      "a": "MOD-SETTINGS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-16",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-16",
+      "a": "DEC-26",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-16",
+      "a": "KV-DATASTORE",
+      "relacion": "lee"
+    },
+    {
+      "de": "OP-17",
+      "a": "MOD-SETTINGS",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-17",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-17",
+      "a": "DEC-13",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-17",
+      "a": "KV-DATASTORE",
+      "relacion": "escribe"
+    },
+    {
+      "de": "OP-18",
+      "a": "MOD-WIDGET",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-18",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-18",
+      "a": "DEC-14",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-19",
+      "a": "MOD-ONB",
+      "relacion": "pertenece_a"
+    },
+    {
+      "de": "OP-19",
+      "a": "ACT-01",
+      "relacion": "ejecutada_por"
+    },
+    {
+      "de": "OP-19",
+      "a": "DEC-18",
+      "relacion": "regida_por"
+    },
+    {
+      "de": "OP-19",
+      "a": "KV-DATASTORE",
+      "relacion": "escribe"
+    },
+    {
+      "de": "TBL-PLAYLISTS",
+      "a": "DEC-01",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "TBL-PLAYLIST-SONGS",
+      "a": "DEC-01",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "TBL-HISTORY",
+      "a": "DEC-01",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "TBL-LYRICS",
+      "a": "DEC-01",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "TBL-PLAYLIST-SONGS",
+      "a": "TBL-PLAYLISTS",
+      "relacion": "referencia"
+    },
+    {
+      "de": "KV-DATASTORE",
+      "a": "DEC-13",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "SCR-01",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-02",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-03",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-04",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-05",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-06",
+      "a": "MOD-ONB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-10",
+      "a": "MOD-HOME",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-11",
+      "a": "MOD-HOME",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-12",
+      "a": "MOD-HOME",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-20",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-21",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-22",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-23",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-24",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-25",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-26",
+      "a": "MOD-LIB",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-30",
+      "a": "MOD-PLAYLIST",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-31",
+      "a": "MOD-PLAYLIST",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-32",
+      "a": "MOD-PLAYLIST",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-33",
+      "a": "MOD-PLAYLIST",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-40",
+      "a": "MOD-SEARCH",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-41",
+      "a": "MOD-SEARCH",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-50",
+      "a": "MOD-PLAYER",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-51",
+      "a": "MOD-PLAYER",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-52",
+      "a": "MOD-PLAYER",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-53",
+      "a": "MOD-PLAYER",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-54",
+      "a": "MOD-PLAYER",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-60",
+      "a": "MOD-LYRICS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-61",
+      "a": "MOD-LYRICS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-62",
+      "a": "MOD-LYRICS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-63",
+      "a": "MOD-LYRICS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-70",
+      "a": "MOD-SETTINGS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-71",
+      "a": "MOD-SETTINGS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-72",
+      "a": "MOD-SETTINGS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-73",
+      "a": "MOD-SETTINGS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-74",
+      "a": "MOD-SETTINGS",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-80",
+      "a": "MOD-WIDGET",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-01",
+      "a": "SCR-02",
+      "relacion": "navega_a",
+      "nota": "primera vez"
+    },
+    {
+      "de": "SCR-01",
+      "a": "SCR-10",
+      "relacion": "navega_a",
+      "nota": "ya hizo onboarding"
+    },
+    {
+      "de": "SCR-02",
+      "a": "SCR-03",
+      "relacion": "navega_a",
+      "nota": "Siguiente"
+    },
+    {
+      "de": "SCR-03",
+      "a": "SCR-04",
+      "relacion": "navega_a",
+      "nota": "Siguiente"
+    },
+    {
+      "de": "SCR-04",
+      "a": "SCR-05",
+      "relacion": "navega_a",
+      "nota": "Comenzar"
+    },
+    {
+      "de": "SCR-05",
+      "a": "SCR-11",
+      "relacion": "navega_a",
+      "nota": "permiso concedido"
+    },
+    {
+      "de": "SCR-05",
+      "a": "SCR-06",
+      "relacion": "navega_a",
+      "nota": "permiso negado"
+    },
+    {
+      "de": "SCR-10",
+      "a": "SCR-20",
+      "relacion": "navega_a",
+      "nota": "píldora Biblioteca"
+    },
+    {
+      "de": "SCR-10",
+      "a": "SCR-40",
+      "relacion": "navega_a",
+      "nota": "píldora Buscar"
+    },
+    {
+      "de": "SCR-10",
+      "a": "SCR-70",
+      "relacion": "navega_a",
+      "nota": "ícono Ajustes"
+    },
+    {
+      "de": "SCR-20",
+      "a": "SCR-26",
+      "relacion": "navega_a",
+      "nota": "botón filtros"
+    },
+    {
+      "de": "SCR-23",
+      "a": "SCR-30",
+      "relacion": "navega_a",
+      "nota": "Nueva lista"
+    },
+    {
+      "de": "SCR-30",
+      "a": "SCR-31",
+      "relacion": "navega_a",
+      "nota": "Crear"
+    },
+    {
+      "de": "SCR-31",
+      "a": "SCR-33",
+      "relacion": "navega_a",
+      "nota": "abre sola"
+    },
+    {
+      "de": "SCR-33",
+      "a": "SCR-32",
+      "relacion": "navega_a",
+      "nota": "Agregar (n)"
+    },
+    {
+      "de": "SCR-21",
+      "a": "SCR-24",
+      "relacion": "navega_a",
+      "nota": "toca álbum"
+    },
+    {
+      "de": "SCR-22",
+      "a": "SCR-25",
+      "relacion": "navega_a",
+      "nota": "toca artista"
+    },
+    {
+      "de": "SCR-40",
+      "a": "SCR-41",
+      "relacion": "navega_a",
+      "nota": "sin coincidencias"
+    },
+    {
+      "de": "SCR-50",
+      "a": "SCR-51",
+      "relacion": "navega_a",
+      "nota": "deslizar arriba / tocar"
+    },
+    {
+      "de": "SCR-51",
+      "a": "SCR-50",
+      "relacion": "navega_a",
+      "nota": "deslizar abajo"
+    },
+    {
+      "de": "SCR-51",
+      "a": "SCR-52",
+      "relacion": "navega_a",
+      "nota": "botón cola"
+    },
+    {
+      "de": "SCR-51",
+      "a": "SCR-60",
+      "relacion": "navega_a",
+      "nota": "tocar carátula"
+    },
+    {
+      "de": "SCR-60",
+      "a": "SCR-61",
+      "relacion": "navega_a",
+      "nota": "opciones"
+    },
+    {
+      "de": "SCR-61",
+      "a": "SCR-70",
+      "relacion": "navega_a",
+      "nota": "internet con LRCLIB apagado (parpadeo)"
+    },
+    {
+      "de": "SCR-60",
+      "a": "SCR-62",
+      "relacion": "navega_a",
+      "nota": "Cambiar letra"
+    },
+    {
+      "de": "SCR-70",
+      "a": "SCR-71",
+      "relacion": "navega_a",
+      "nota": "Letras descargadas"
+    },
+    {
+      "de": "SCR-70",
+      "a": "SCR-72",
+      "relacion": "navega_a",
+      "nota": "Términos"
+    },
+    {
+      "de": "SCR-70",
+      "a": "SCR-73",
+      "relacion": "navega_a",
+      "nota": "Privacidad"
+    },
+    {
+      "de": "SCR-70",
+      "a": "SCR-74",
+      "relacion": "navega_a",
+      "nota": "Licencias"
+    },
+    {
+      "de": "SCR-20",
+      "a": "OP-01",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-20",
+      "a": "OP-08",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-54",
+      "a": "OP-04",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-54",
+      "a": "OP-07",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-54",
+      "a": "OP-08",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-30",
+      "a": "OP-05",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-33",
+      "a": "OP-06",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-40",
+      "a": "OP-09",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-50",
+      "a": "OP-02",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-50",
+      "a": "OP-03",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-60",
+      "a": "OP-10",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-61",
+      "a": "OP-11",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-61",
+      "a": "OP-12",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-62",
+      "a": "OP-13",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-60",
+      "a": "OP-14",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-53",
+      "a": "OP-15",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-70",
+      "a": "OP-16",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-70",
+      "a": "OP-17",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-70",
+      "a": "OP-18",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-05",
+      "a": "OP-19",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-80",
+      "a": "OP-02",
+      "relacion": "invoca"
+    }
+  ]
+}
