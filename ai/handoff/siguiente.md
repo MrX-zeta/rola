@@ -1,6 +1,6 @@
 # Tarea 02b · Mantenimiento, ajustes de la revisión, esqueletos y movimiento
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.4.0 · Sin Spec Kit (es mantenimiento y pulido, no una función nueva).
