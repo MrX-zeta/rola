@@ -1,0 +1,60 @@
+#  Rola · .gitignore
+
+# --- Gradle / Kotlin (cachés y compilación) ---
+.gradle/
+**/build/
+.kotlin/
+.externalNativeBuild/
+.cxx/
+captures/
+*.hprof
+
+# --- Configuración local de la máquina ---
+local.properties
+
+# --- Android Studio / IntelliJ ---
+# Se ignora todo .idea menos el estilo de código compartido.
+.idea/*
+!.idea/codeStyles/
+*.iml
+*.ipr
+*.iws
+out/
+
+# --- Artefactos de compilación ---
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+/app/release/
+/app/debug/
+/app/demo/
+
+# --- Firma y secretos (nunca al repositorio) ---
+keystore.properties
+*.jks
+*.keystore
+*.p12
+release-keys/
+google-services.json
+.env
+.env.*
+secrets.properties
+
+# --- Registros y temporales ---
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# --- Herramientas de IA (solo lo local de cada máquina) ---
+.claude/settings.local.json
+.claude/worktrees/
