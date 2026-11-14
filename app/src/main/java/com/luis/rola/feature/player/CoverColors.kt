@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.palette.graphics.Palette
 import coil3.imageLoader
@@ -32,7 +33,10 @@ data class CoverColors(
 /** Colores de la portada con Palette; sin portada o sin colores útiles, [fallback]. */
 fun coverColors(bitmap: Bitmap, fallback: CoverColors): CoverColors {
     val p = Palette.from(bitmap).generate()
-    val bg = (p.darkMutedSwatch ?: p.darkVibrantSwatch)?.rgb?.let(::Color) ?: return fallback
+    // DEC-15: si solo hay un tono vivo, se oscurece un paso para acercarse a Figma.
+    val bg = p.darkMutedSwatch?.rgb?.let(::Color)
+        ?: p.darkVibrantSwatch?.rgb?.let { lerp(Color(it), Color.Black, 0.45f) }
+        ?: return fallback
     val vivo = (p.lightVibrantSwatch ?: p.vibrantSwatch ?: p.lightMutedSwatch)?.rgb?.let(::Color) ?: fallback.accent
     val accent = ensureContrast(vivo, bg, 3.0) // 3:1 para el botón y la línea (componentes, no texto)
     val content = ensureContrast(fallback.content, bg)
