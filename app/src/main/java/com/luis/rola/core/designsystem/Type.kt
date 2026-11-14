@@ -25,8 +25,9 @@ val Geist = FontFamily(
 
 val GeistMono = FontFamily(variable(R.font.geist_mono, FontWeight.Medium))
 
-private fun TextStyle.titulo() = copy(fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold)
-private fun TextStyle.interfaz() = copy(fontFamily = Geist)
+// letterSpacing 0 en todos los estilos, como Figma (DEC-16).
+private fun TextStyle.titulo() = copy(fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, letterSpacing = 0.sp)
+private fun TextStyle.interfaz() = copy(fontFamily = Geist, letterSpacing = 0.sp)
 
 private val base = Typography()
 

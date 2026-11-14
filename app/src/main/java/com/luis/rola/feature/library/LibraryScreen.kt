@@ -100,7 +100,7 @@ private fun SongRow(song: Song, isCurrent: Boolean, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(RolaSpacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Cover(song, Modifier.size(48.dp))
+        Cover(song, Modifier.size(48.dp), MaterialTheme.shapes.extraSmall)
         Column {
             Text(
                 song.title,

@@ -5,6 +5,7 @@ import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
 val RolaShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp), // portadas pequeñas de lista (DEC-16)
     small = RoundedCornerShape(12.dp),
     medium = RoundedCornerShape(20.dp),
     large = RoundedCornerShape(24.dp),
