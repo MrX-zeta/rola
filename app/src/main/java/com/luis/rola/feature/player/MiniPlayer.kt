@@ -1,5 +1,14 @@
 package com.luis.rola.feature.player
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,16 +36,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.luis.rola.R
+import com.luis.rola.core.data.Song
+import com.luis.rola.core.designsystem.LocalReduceMotion
+import com.luis.rola.core.designsystem.RolaMotion
 import com.luis.rola.core.designsystem.RolaSpacing
 import com.luis.rola.core.media.PlayerState
 import com.luis.rola.core.media.formatDuration
 import com.luis.rola.feature.library.Cover
 
-/** Mini reproductor (SCR-50). Sin canción cargada no dibuja nada. Tocar la tarjeta no hace nada todavía (tarea 03). */
+/**
+ * Mini reproductor (SCR-50). Sin canción cargada no ocupa espacio.
+ * Entra desde abajo y sale por abajo, más rápido (DEC-28); con reducir movimiento solo hay fundido.
+ * Tocar la tarjeta no hace nada todavía (tarea 03).
+ */
 @Composable
 fun MiniPlayer(state: PlayerState, onToggle: () -> Unit, onNext: () -> Unit, modifier: Modifier = Modifier) {
-    val song = state.current ?: return
+    val reduce = LocalReduceMotion.current
+    AnimatedContent(
+        targetState = state,
+        contentKey = { it.current != null }, // cambiar de canción no anima: solo aparecer y desaparecer
+        transitionSpec = {
+            val entra = if (reduce) {
+                fadeIn(tween(RolaMotion.MEDIA))
+            } else {
+                slideInVertically(tween(RolaMotion.LENTA, easing = RolaMotion.EaseOut)) { it } + fadeIn(tween(RolaMotion.MEDIA))
+            }
+            val sale = if (reduce) {
+                fadeOut(tween(RolaMotion.RAPIDA))
+            } else {
+                slideOutVertically(tween(200, easing = RolaMotion.EaseOut)) { it } + fadeOut(tween(RolaMotion.RAPIDA))
+            }
+            (entra togetherWith sale).using(
+                SizeTransform(clip = false) { _, _ -> RolaMotion.o(reduce, tween(RolaMotion.LENTA, easing = RolaMotion.EaseOut)) },
+            )
+        },
+        modifier = modifier,
+        label = "mini",
+    ) { s ->
+        val song = s.current ?: return@AnimatedContent
+        Tarjeta(s, song, onToggle, onNext, Modifier.padding(bottom = RolaSpacing.sm))
+    }
+}
+
+@Composable
+private fun Tarjeta(state: PlayerState, song: Song, onToggle: () -> Unit, onNext: () -> Unit, modifier: Modifier) {
     val c = rememberCoverColors(song)
+    val reduce = LocalReduceMotion.current
     Column(modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(c.container)) {
         Row(
             Modifier.padding(RolaSpacing.xs),
@@ -69,11 +114,21 @@ fun MiniPlayer(state: PlayerState, onToggle: () -> Unit, onNext: () -> Unit, mod
             }
             IconButton(onToggle) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(c.accent), Alignment.Center) {
-                    Icon(
-                        painterResource(if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
-                        stringResource(if (state.isPlaying) R.string.pausar else R.string.reproducir),
-                        tint = c.onAccent,
-                    )
+                    AnimatedContent(
+                        state.isPlaying,
+                        transitionSpec = {
+                            val entra = fadeIn(tween(RolaMotion.MEDIA))
+                            (if (reduce) entra else entra + scaleIn(tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut), 0.9f))
+                                .togetherWith(fadeOut(tween(RolaMotion.RAPIDA)))
+                        },
+                        label = "reproducir",
+                    ) { sonando ->
+                        Icon(
+                            painterResource(if (sonando) R.drawable.ic_pause else R.drawable.ic_play),
+                            stringResource(if (sonando) R.string.pausar else R.string.reproducir),
+                            tint = c.onAccent,
+                        )
+                    }
                 }
             }
         }
