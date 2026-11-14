@@ -92,7 +92,8 @@ fun RolaNavHost(container: AppContainer) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MiniPlayer(playerState, player::togglePlayPause, player::next)
-            RolaNavBar(ruta, onSelect = { d ->
+            // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
+            RolaNavBar(ruta ?: Destino.Biblioteca.ruta, onSelect = { d ->
                 nav.navigate(d.ruta) {
                     popUpTo(nav.graph.findStartDestination().id) { saveState = true }
                     launchSingleTop = true
