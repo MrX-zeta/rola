@@ -22,4 +22,8 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 - Ver el grafo. No bloquean nada todavía.
 
 ## Revisión humana de código
-_(Claude Code agrega aquí lo marcado como «REQUIERE REVISIÓN HUMANA».)_
+### Tarea 01 (2026-11-14)
+- `.claude/settings.json`: atribución vacía y lecturas denegadas de secretos (no cubre `local.properties`).
+- `.githooks/commit-msg` y `.gitattributes`: respaldo de INV-07; hay que correr `git config core.hooksPath .githooks` al clonar.
+- Spec Kit sin instalar (`uv`, `specify`): bloquea el Paso 2 y PEND-06.
+- Íconos temáticos (capa monocroma): verlos en el teléfono; el emulador no los mostró.

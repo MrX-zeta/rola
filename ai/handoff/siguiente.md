@@ -1,6 +1,6 @@
 # Tarea 01 · Fundaciones: herramientas, Claude Code, tema y marca
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-13 · sesión de diseño
 **Rama:** `development` (créala desde `main` si no existe)
 
