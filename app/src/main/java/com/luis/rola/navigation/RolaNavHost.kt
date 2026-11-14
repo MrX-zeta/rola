@@ -1,9 +1,9 @@
 package com.luis.rola.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,6 +37,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.luis.rola.AppContainer
 import com.luis.rola.R
+import com.luis.rola.core.designsystem.RolaMotion
 import com.luis.rola.core.designsystem.RolaSpacing
 import com.luis.rola.feature.library.LibraryScreen
 import com.luis.rola.feature.library.LibraryViewModel
@@ -62,8 +63,9 @@ fun RolaNavHost(container: AppContainer) {
         NavHost(
             nav,
             startDestination = Destino.Biblioteca.ruta, // DEC-03 temporal: Inicio todavía no existe
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
+            // Fundido corto entre pestañas hermanas, sin desplazamiento (DEC-28); válido también con reducir movimiento.
+            enterTransition = { fadeIn(tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut)) },
+            exitTransition = { fadeOut(tween(RolaMotion.RAPIDA)) },
         ) {
             composable(Destino.Inicio.ruta) { ComingSoonScreen() }
             composable(Destino.Biblioteca.ruta) {
@@ -87,7 +89,6 @@ fun RolaNavHost(container: AppContainer) {
                 .navigationBarsPadding()
                 .padding(start = RolaSpacing.md, end = RolaSpacing.md, top = RolaSpacing.xs, bottom = RolaSpacing.sm)
                 .onSizeChanged { abajoPx = it.height },
-            verticalArrangement = Arrangement.spacedBy(RolaSpacing.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MiniPlayer(playerState, player::togglePlayPause, player::next)
