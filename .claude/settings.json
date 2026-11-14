@@ -11,6 +11,8 @@
       "Read(./**/*.jks)",
       "Read(./**/*.keystore)",
       "Read(./**/*.p12)",
+      "Read(./local.properties)",
+      "Read(./**/local.properties)",
       "Read(./.env*)",
       "Read(./**/.env*)"
     ]
