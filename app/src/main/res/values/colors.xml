@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#C7FF2E</color>
+    <color name="marca_tinta">#10100E</color>
     <color name="splash_fondo">#10100E</color>
 </resources>
