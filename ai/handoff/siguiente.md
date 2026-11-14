@@ -1,6 +1,6 @@
 # Tarea 02 · Reproductor base: escuchar tu música con Rola
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. Si trabajas en un worktree, actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.3.0
