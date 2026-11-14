@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Símbolo sobre fondo oscuro (docs/marca/rola-simbolo-oscuro.svg): «r» blanca y disco lima. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:pathData="M56,208 V128 A64,64 0 0 1 120,64"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="40"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="@color/ic_launcher_background"
+        android:fillType="evenOdd"
+        android:pathData="M220,152 A56,56 0 1 1 108,152 A56,56 0 1 1 220,152 Z M178,152 A14,14 0 1 0 150,152 A14,14 0 1 0 178,152 Z" />
+</vector>

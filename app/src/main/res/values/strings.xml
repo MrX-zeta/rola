@@ -1,5 +1,47 @@
 <resources>
     <string name="app_name">Rola</string>
     <string name="marca_palabra">rola</string>
-    <string name="fundaciones_listas">Fundaciones listas</string>
+
+    <!-- Permisos (SCR-05) -->
+    <string name="permisos_titulo">Un permiso y listo.</string>
+    <string name="permisos_cuerpo">Para mostrar tu música, Rola necesita leer los audios de tu teléfono. Nada más.</string>
+    <string name="permiso_musica">Música y audio</string>
+    <string name="permiso_musica_detalle">Para encontrar y reproducir tus canciones.</string>
+    <string name="permiso_notificaciones">Notificaciones</string>
+    <string name="permiso_notificaciones_detalle">Para los controles de reproducción. Te lo pedimos al dar play.</string>
+    <string name="etiqueta_ahora">Ahora</string>
+    <string name="etiqueta_despues">Después</string>
+    <string name="nota_privacidad">Rola no sube, no comparte ni vende tus archivos.</string>
+    <string name="permitir_acceso">Permitir acceso</string>
+
+    <!-- Permiso denegado (SCR-06) -->
+    <string name="denegado_titulo">Sin acceso a tu música</string>
+    <string name="denegado_cuerpo">Sin el permiso de «Música y audio» no podemos encontrar tus canciones. Actívalo en:</string>
+    <string name="denegado_ruta">Ajustes › Apps › Rola › Permisos</string>
+    <string name="abrir_ajustes">Abrir Ajustes</string>
+    <string name="intentar_de_nuevo">Intentar de nuevo</string>
+
+    <!-- Navegación (DEC-03) -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_biblioteca">Biblioteca</string>
+    <string name="nav_buscar">Buscar</string>
+    <string name="proximamente">Próximamente</string>
+
+    <!-- Biblioteca (SCR-20) -->
+    <string name="chip_canciones">Canciones</string>
+    <plurals name="resumen_canciones">
+        <item quantity="one">%1$d canción · Título A–Z</item>
+        <item quantity="many">%1$d canciones · Título A–Z</item>
+        <item quantity="other">%1$d canciones · Título A–Z</item>
+    </plurals>
+    <string name="aleatorio">Aleatorio</string>
+    <string name="sin_canciones">No encontramos canciones en tu teléfono.</string>
+    <string name="artista_desconocido">Artista desconocido</string>
+
+    <!-- Mini reproductor (SCR-50) -->
+    <string name="reproducir">Reproducir</string>
+    <string name="pausar">Pausar</string>
+    <string name="siguiente">Siguiente</string>
+    <string name="progreso">%1$s de %2$s</string>
+    <string name="error_reproducir">No se pudo reproducir esta canción</string>
 </resources>
