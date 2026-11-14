@@ -1,6 +1,6 @@
 # Tarea 01b · Spec Kit, tokens nuevos y pendientes de la 01
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. Si trabajas en un worktree, al final sube tu rama a `origin development` como en la tarea 01.
 **Grafo:** 1.2.1
