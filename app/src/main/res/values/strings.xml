@@ -35,6 +35,7 @@
         <item quantity="other">%1$d canciones · Título A–Z</item>
     </plurals>
     <string name="aleatorio">Aleatorio</string>
+    <string name="cargando_canciones">Cargando canciones</string>
     <string name="sin_canciones">No encontramos canciones en tu teléfono.</string>
     <string name="artista_desconocido">Artista desconocido</string>
 

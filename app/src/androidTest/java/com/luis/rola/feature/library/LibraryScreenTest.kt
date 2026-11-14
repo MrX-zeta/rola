@@ -8,6 +8,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.data.SongRepository
 import com.luis.rola.core.designsystem.RolaTheme
+import androidx.compose.ui.test.onNodeWithContentDescription
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
@@ -41,5 +44,23 @@ class LibraryScreenTest {
         compose.onNodeWithText("Brillo").assertIsDisplayed()
         compose.onNodeWithText("Calle ocho").assertIsDisplayed()
         compose.onNodeWithText("Artista desconocido").assertIsDisplayed()
+    }
+
+    @Test
+    fun muestraEsqueletoMientrasNoHayDatos() {
+        val vm = LibraryViewModel(object : SongRepository {
+            override fun songs() = flow<List<Song>> { awaitCancellation() }
+        })
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            RolaTheme {
+                val songs by vm.songs.collectAsStateWithLifecycle()
+                LibraryScreen(songs, currentId = null, onSongClick = {}, onShuffle = {})
+            }
+        }
+        compose.mainClock.advanceTimeBy(100)
+        compose.onNodeWithContentDescription("Cargando canciones").assertDoesNotExist() // sin parpadeo antes de 300 ms
+        compose.mainClock.advanceTimeBy(400)
+        compose.onNodeWithContentDescription("Cargando canciones").assertExists()
     }
 }
