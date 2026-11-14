@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
  * Oscuro: valores de DEC-27 tal cual. Claro: DEC-27 solo da rangos (negro 10–16 %, luz 80–90 %);
  * se tomó negro 12 % y luz 85 % hasta que Figma fije los valores exactos.
  */
-object RolaRelief
-
 @Composable
 private fun esOscuro() = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
