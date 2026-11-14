@@ -26,6 +26,14 @@ android {
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
         }
+        // Como release pero con la llave de depuración: para juzgar la fluidez (DEC-28 `fluidez`).
+        create("perfil") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
+            isDebuggable = false
+            isProfileable = true
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
