@@ -29,6 +29,12 @@ class ContrastTest {
     }
 
     @Test
+    fun `onAccent sobre accent cumple 4_5`() {
+        val c = RolaColors()
+        assertTrue(contrastRatio(c.onAccent, c.accent) >= 4.5)
+    }
+
+    @Test
     fun `contrastRatio coincide con los extremos de WCAG`() {
         assertEquals(21.0, contrastRatio(Color.Black, Color.White), 0.01)
         assertEquals(1.0, contrastRatio(Color.White, Color.White), 0.001)

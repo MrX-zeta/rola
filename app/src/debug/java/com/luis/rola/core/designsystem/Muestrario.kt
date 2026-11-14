@@ -38,6 +38,8 @@ private fun Columna(modifier: Modifier) {
         "onSurface" to c.onSurface, "onSurfaceVariant" to c.onSurfaceVariant,
         "primary" to c.primary, "onPrimary" to c.onPrimary,
         "primaryContainer" to c.primaryContainer, "onPrimaryContainer" to c.onPrimaryContainer,
+        "accent" to RolaTheme.colors.accent, "onAccent" to RolaTheme.colors.onAccent,
+        "error" to c.error, "errorContainer" to c.errorContainer,
     )
     Surface(modifier, color = c.background) {
         Column(Modifier.padding(RolaSpacing.md), verticalArrangement = Arrangement.spacedBy(RolaSpacing.md)) {

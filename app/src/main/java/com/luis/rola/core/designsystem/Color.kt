@@ -3,6 +3,8 @@ package com.luis.rola.core.designsystem
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 // Neutros cálidos de DEC-16 (docs/marca/README.md). Único lugar con hex (INV-04).
@@ -37,10 +39,14 @@ val RolaDarkColors: ColorScheme = darkColorScheme(
     onTertiary = Color(0xFF10100E),
     tertiaryContainer = Color(0xFF27310C),
     onTertiaryContainer = Color(0xFFC7FF2E),
-    surfaceTint = Color(0xFFC7FF2E),
+    surfaceTint = Color.Transparent,
     inverseSurface = Color(0xFFFAF8F2),
     inverseOnSurface = Color(0xFF10100E),
     inversePrimary = Color(0xFF3D5200),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
 )
 
 val RolaLightColors: ColorScheme = lightColorScheme(
@@ -71,8 +77,21 @@ val RolaLightColors: ColorScheme = lightColorScheme(
     onTertiary = Color(0xFFFFFFFF),
     tertiaryContainer = Color(0xFFC7FF2E),
     onTertiaryContainer = Color(0xFF10100E),
-    surfaceTint = Color(0xFF3D5200),
+    surfaceTint = Color.Transparent,
     inverseSurface = Color(0xFF10100E),
     inverseOnSurface = Color(0xFFFAF8F2),
     inversePrimary = Color(0xFFC7FF2E),
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
 )
+
+/** Colores de marca que M3 no tiene: relleno de acciones principales (DEC-16). Iguales en claro y oscuro. */
+@Immutable
+data class RolaColors(
+    val accent: Color = Color(0xFFC7FF2E),
+    val onAccent: Color = Color(0xFF10100E),
+)
+
+val LocalRolaColors = staticCompositionLocalOf { RolaColors() }
