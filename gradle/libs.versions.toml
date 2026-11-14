@@ -11,7 +11,7 @@ kotlin = "2.4.21"
 composeBom = "2026.09.00"
 media3 = "1.11.1"
 navigationCompose = "2.10.2"
-coil = "3.4.0"
+coil = "3.6.3"
 palette = "1.1.0"
 
 [libraries]
