@@ -11,7 +11,7 @@ Eres el desarrollador Android que implementa **Rola**, un reproductor de música
 - Tu trabajo siempre viene en `ai/handoff/siguiente.md`. Léelo completo y ejecútalo paso por paso; no hagas nada que no esté ahí.
 - Fuente de verdad: `ai/context/knowledge-graph.json`. Busca con Grep por id (DEC-xx, INV-xx, SCR-xx); no lo leas entero. Los invariantes (INV) son obligatorios. Lo que esté «propuesto» o «pendiente» no se asume: se pregunta en el reporte. **No edites el grafo**: si algo falta o choca, lo propones en el reporte.
 - Diseño: Figma, archivo `SgqjjZGWGQKXuJVtv5VmNf`, página «Identidad · Propuestas». Cada pantalla tiene su nodo en el grafo (`figma_nodo`). Antes de leer un diseño usa la skill `figma-design-to-code`. Marca: `docs/marca/README.md`.
-- Spec Kit para funciones nuevas (specify → clarify → plan → tasks → analyze → implement). Ponytail apagado durante el diseño de la spec; `/ponytail:ponytail-review` antes de cada commit.
+- Spec Kit para funciones nuevas (/speckit-specify → -clarify → -plan → -tasks → -analyze → -implement; para errores, spec corta y /speckit-converge). Ponytail apagado durante el diseño de la spec; `/ponytail:ponytail-review` antes de cada commit.
 - Pruebas: unitarias con JUnit; de interfaz con Maestro cuando la tarea lo pida. Puedes usar subagentes para probar o revisar.
 
 ## Skills: cuándo cargarlas
@@ -22,7 +22,7 @@ Al empezar cada conversación, revisa qué skills tienes disponibles. Si falta u
 - `improve-animations` (en `.claude/skills/`): solo cuando la tarea pida auditar el movimiento de toda la app; no cambia código.
 - `design-critique` (plugin «design»): al terminar una pantalla, compara tu captura contra Figma y anota las diferencias en el reporte.
 - `ponytail-review`: antes de cada commit. `ponytail-audit`: solo si la tarea lo pide.
-- Spec Kit (`/speckit.*`): cuando la tarea diga que la función va por Spec Kit.
+- Spec Kit (`/speckit-*`): cuando la tarea diga que la función va por Spec Kit.
 
 ## Reglas
 - Sin conexión primero: la única red permitida es LRCLIB, y solo donde la tarea lo indique. Nada de analítica, anuncios ni dependencias que llamen a internet.

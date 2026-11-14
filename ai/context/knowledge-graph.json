@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "actualizado": "2026-11-14",
-    "fase": "Tarea 01 revisada. Siguiente: tarea 01b (Spec Kit y pendientes).",
+    "fase": "Tarea 02: reproductor base.",
     "historial": [
       {
         "version": "1.0.0",
@@ -24,6 +24,21 @@
         "version": "1.2.1",
         "fecha": "2026-11-14",
         "cambio": "Revisión de la tarea 01: INV-03 con local.properties, DEC-17 (IconBackground y splash oscuro), roles M3 derivados en DEC-16."
+      },
+      {
+        "version": "1.2.2",
+        "fecha": "2026-11-14",
+        "cambio": "Revisión 01b: PEND-06 resuelto (comandos /speckit-* con guion, sin comando de errores); valores exactos del relieve claro en DEC-27."
+      },
+      {
+        "version": "1.2.3",
+        "fecha": "2026-11-14",
+        "cambio": "DEC-17: círculo del splash dibujado en el ícono por HyperOS."
+      },
+      {
+        "version": "1.3.0",
+        "fecha": "2026-11-14",
+        "cambio": "PEND-02 resuelto: inyección manual con AppContainer. Se escribe la tarea 02."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -539,8 +554,30 @@
       "id": "DEC-17",
       "tipo": "decision",
       "nombre": "Splash",
-      "descripcion": "Solo la API de Splash Screen del sistema (core-splashscreen): fondo del tema y la capa frontal del ícono sobre círculo lima. Sin pantalla de splash propia ni demoras artificiales. El tema del splash hereda de Theme.SplashScreen.IconBackground (si no, no se dibuja el círculo lima). Hasta que exista el ajuste de tema, el fondo del splash es siempre oscuro (#10100E) para no saltar de claro a oscuro.",
-      "estado": "decidido"
+      "descripcion": "Solo la API de Splash Screen del sistema (core-splashscreen): fondo del tema y la capa frontal del ícono sobre círculo lima. Sin pantalla de splash propia ni demoras artificiales. El tema del splash hereda de Theme.SplashScreen.IconBackground (si no, no se dibuja el círculo lima). Hasta que exista el ajuste de tema, el fondo del splash es siempre oscuro (#10100E) para no saltar de claro a oscuro. CORRECCIÓN (2026-11-14): HyperOS (Redmi Note 13 Pro+) dibuja el fondo del ícono del splash cuadrado. Por eso el círculo lima va dibujado dentro del propio ícono del splash (vector de 288 dp con círculo de 160 dp y la «ro» centrada) y el tema hereda de Theme.SplashScreen sin windowSplashScreenIconBackgroundColor.",
+      "estado": "decidido",
+      "detalles": {
+        "vector_splash": {
+          "viewport": 288,
+          "circulo": {
+            "centro": [
+              144,
+              144
+            ],
+            "radio": 80,
+            "color": "#C7FF2E"
+          },
+          "simbolo": {
+            "escala": 0.628,
+            "traslacion": [
+              63.616,
+              58.592
+            ],
+            "color": "#10100E",
+            "nota": "mismos trazos del símbolo en viewBox 256 (docs/marca)"
+          }
+        }
+      }
     },
     {
       "id": "DEC-18",
@@ -560,7 +597,7 @@
       "id": "DEC-20",
       "tipo": "decision",
       "nombre": "Arquitectura",
-      "descripcion": "Un módulo app. Paquetes core/ (designsystem, media, data, lyrics) y feature/ (onboarding, home, library, playlist, search, player, lyrics, settings, widget). MVVM con flujo de datos en una sola dirección (StateFlow). La reproducción vive en un MediaSessionService; la interfaz se conecta con MediaController.",
+      "descripcion": "Un módulo app. Paquetes core/ (designsystem, media, data, lyrics) y feature/ (onboarding, home, library, playlist, search, player, lyrics, settings, widget). MVVM con flujo de datos en una sola dirección (StateFlow). La reproducción vive en un MediaSessionService; la interfaz se conecta con MediaController. Dependencias por construcción manual (AppContainer en la Application, PEND-02).",
       "estado": "decidido"
     },
     {
@@ -701,8 +738,8 @@
       "id": "PEND-02",
       "tipo": "pregunta_abierta",
       "nombre": "Inyección de dependencias",
-      "descripcion": "Hilt (como en End Security) o construcción manual. Propuesta: manual mientras sea poco; Hilt si el grafo de objetos crece. Decidir en la tarea 02.",
-      "estado": "propuesto"
+      "descripcion": "Hilt (como en End Security) o construcción manual. Propuesta: manual mientras sea poco; Hilt si el grafo de objetos crece. Decidir en la tarea 02. RESUELTO (2026-11-14): construcción manual. Un AppContainer creado en la clase Application arma una sola vez los repositorios y la conexión con el reproductor; los ViewModel los reciben por su factory. Sin Hilt.",
+      "estado": "resuelto"
     },
     {
       "id": "PEND-03",
@@ -729,8 +766,8 @@
       "id": "PEND-06",
       "tipo": "pregunta_abierta",
       "nombre": "Comando de errores de Spec Kit",
-      "descripcion": "El flujo pide «Spec Kit bug» para diagnosticar y corregir. Confirmar si existe en la versión instalada (o como extensión); si no, se usa specify → plan → tasks sobre el error.",
-      "estado": "pendiente"
+      "descripcion": "El flujo pide «Spec Kit bug» para diagnosticar y corregir. Confirmar si existe en la versión instalada (o como extensión); si no, se usa specify → plan → tasks sobre el error. RESUELTO (2026-11-14): Spec Kit no tiene comando de errores; para un error se hace una spec corta y /speckit-converge. Los comandos llevan guion: /speckit-constitution, -specify, -clarify, -plan, -tasks, -analyze, -checklist, -implement, -converge.",
+      "estado": "resuelto"
     },
     {
       "id": "PEND-07",
@@ -1694,7 +1731,23 @@
           ]
         },
         "figma_modo_claro": "Rola claro (variables con los hex claros de DEC-16)",
-        "efectos_claro": "Estilos «Neumorfismo claro/Elevado|Hundido|Acento»: sombra negra 10–16% y luz blanca 80–90%."
+        "efectos_claro": {
+          "elevado": [
+            "sombra negra 12% (6,8) desenfoque 18",
+            "sombra blanca 90% (-5,-5) desenfoque 14",
+            "brillo interior blanco 60% (0,1)"
+          ],
+          "hundido": [
+            "sombra interior negra 10% (2,3) desenfoque 6",
+            "sombra interior blanca 90% (-2,-2) desenfoque 5"
+          ],
+          "acento": [
+            "sombra negra 16% (0,8) desenfoque 18",
+            "sombra blanca 80% (-4,-4) desenfoque 12",
+            "brillo interior blanco 60% (0,1.5)",
+            "sombra interior negra 8% (0,-3) desenfoque 6"
+          ]
+        }
       }
     },
     {
