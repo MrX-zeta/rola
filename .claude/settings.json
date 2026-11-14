@@ -16,5 +16,8 @@
       "Read(./.env*)",
       "Read(./**/.env*)"
     ]
+  },
+  "enabledPlugins": {
+    "figma@claude-plugins-official": true
   }
 }
