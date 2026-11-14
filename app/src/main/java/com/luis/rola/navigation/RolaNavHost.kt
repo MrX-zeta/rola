@@ -1,10 +1,5 @@
 package com.luis.rola.navigation
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
@@ -24,18 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -62,20 +54,6 @@ fun RolaNavHost(container: AppContainer) {
     val errorTexto = stringResource(R.string.error_reproducir)
     LaunchedEffect(Unit) { player.errors.collect { snackbar.showSnackbar(errorTexto) } }
 
-    // DEC-18: notificaciones al reproducir por primera vez; negarlo no impide sonar.
-    // shortcut: «primera vez» = una vez por ejecución, sin persistencia hasta que exista DataStore.
-    val context = LocalContext.current
-    var notifPedido by remember { mutableStateOf(false) }
-    val notifLauncher = rememberLauncherForActivityResult(RequestPermission()) { }
-    val antesDeSonar = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notifPedido &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            notifPedido = true
-            notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
     var abajoPx by remember { mutableIntStateOf(0) }
     val abajo = with(LocalDensity.current) { abajoPx.toDp() }
     val fondo = MaterialTheme.colorScheme.background
@@ -83,7 +61,7 @@ fun RolaNavHost(container: AppContainer) {
     Box(Modifier.fillMaxSize().background(fondo)) {
         NavHost(
             nav,
-            startDestination = Destino.Inicio.ruta,
+            startDestination = Destino.Biblioteca.ruta, // DEC-03 temporal: Inicio todavía no existe
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
         ) {
@@ -94,14 +72,8 @@ fun RolaNavHost(container: AppContainer) {
                 LibraryScreen(
                     songs = songs,
                     currentId = playerState.current?.id,
-                    onSongClick = { i ->
-                        antesDeSonar()
-                        songs?.let { player.play(it, i) }
-                    },
-                    onShuffle = {
-                        antesDeSonar()
-                        songs?.let { player.shuffle(it) }
-                    },
+                    onSongClick = { i -> songs?.let { player.play(it, i) } },
+                    onShuffle = { songs?.let { player.shuffle(it) } },
                     contentPadding = PaddingValues(bottom = abajo),
                 )
             }
