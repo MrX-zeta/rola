@@ -1,0 +1,4 @@
+#!/bin/sh
+# Respaldo de INV-07: quita líneas de autoría de IA del mensaje de commit.
+# Activar con: git config core.hooksPath .githooks
+sed -i -E '/^[Cc]o-[Aa]uthored-[Bb]y:.*[Aa]nthropic/d; /^Claude-Session:/d; /Generated with.*Claude/d' "$1"

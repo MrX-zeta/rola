@@ -1,0 +1,18 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "permissions": {
+    "deny": [
+      "Read(./keystore.properties)",
+      "Read(./**/keystore.properties)",
+      "Read(./**/*.jks)",
+      "Read(./**/*.keystore)",
+      "Read(./**/*.p12)",
+      "Read(./.env*)",
+      "Read(./**/.env*)"
+    ]
+  }
+}
