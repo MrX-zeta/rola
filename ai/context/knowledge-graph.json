@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "actualizado": "2026-11-14",
-    "fase": "Tarea 02: reproductor base.",
+    "fase": "Tarea 02 revisada. Siguiente: tarea 02b (mantenimiento, ajustes, esqueletos y movimiento).",
     "historial": [
       {
         "version": "1.0.0",
@@ -39,6 +39,11 @@
         "version": "1.3.0",
         "fecha": "2026-11-14",
         "cambio": "PEND-02 resuelto: inyección manual con AppContainer. Se escribe la tarea 02."
+      },
+      {
+        "version": "1.4.0",
+        "fecha": "2026-11-14",
+        "cambio": "Revisión tarea 02: abrir en Biblioteca (temporal), sin POST_NOTIFICATIONS al reproducir, esqueletos (DEC-09), letterSpacing 0 y radio de portada 8 (DEC-16), fondo de mini tarjeta más oscuro (DEC-15), DEC-28 movimiento."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -102,15 +107,15 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 158,
-      "aristas": 276,
+      "nodos": 159,
+      "aristas": 278,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
         "restriccion": 5,
         "actor": 3,
         "tecnologia": 20,
-        "decision": 27,
+        "decision": 28,
         "invariante": 11,
         "pregunta_abierta": 8,
         "fuera_de_alcance": 7,
@@ -394,7 +399,7 @@
       "id": "DEC-03",
       "tipo": "decision",
       "nombre": "Navegación",
-      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña.",
+      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña. TEMPORAL (2026-11-14): mientras Inicio no exista, la app abre en Biblioteca.",
       "estado": "decidido"
     },
     {
@@ -439,7 +444,7 @@
       "id": "DEC-09",
       "tipo": "decision",
       "nombre": "Retroalimentación visible",
-      "descripcion": "Toda operación del usuario muestra resultado: snackbar para acciones reversibles o informativas (con Deshacer cuando se pueda), diálogo para decisiones, indicador de progreso para esperas > 300 ms, estados vacíos con una acción clara.",
+      "descripcion": "Toda operación del usuario muestra resultado: snackbar para acciones reversibles o informativas (con Deshacer cuando se pueda), diálogo para decisiones, indicador de progreso para esperas > 300 ms, estados vacíos con una acción clara. Las listas y portadas que tardan muestran un esqueleto de carga con la forma del contenido (sin brillo animado si el sistema pide reducir movimiento).",
       "estado": "decidido"
     },
     {
@@ -481,7 +486,7 @@
       "id": "DEC-15",
       "tipo": "decision",
       "nombre": "Tema y color dinámico",
-      "descripcion": "Oscuro como base, claro disponible. Sin color del fondo de pantalla (Material You apagado). La mini tarjeta y Reproduciendo toman el color de la carátula con Palette; el acento de marca queda en navegación, botones principales y el mosaico destacado. Todos los colores salen de tokens (INV-04).",
+      "descripcion": "Oscuro como base, claro disponible. Sin color del fondo de pantalla (Material You apagado). La mini tarjeta y Reproduciendo toman el color de la carátula con Palette; el acento de marca queda en navegación, botones principales y el mosaico destacado. Todos los colores salen de tokens (INV-04). Si la paleta solo da un tono vivo para el fondo de la mini tarjeta, se oscurece un paso para acercarse a Figma.",
       "estado": "decidido"
     },
     {
@@ -547,7 +552,9 @@
           "surfaceTint": "transparente (sin tinte por elevación)",
           "error": "oscuro #FFB4AB / onError #690005 · claro #BA1A1A / onError #FFFFFF",
           "errorContainer": "oscuro #93000A / on #FFDAD6 · claro #FFDAD6 / on #410002"
-        }
+        },
+        "tipografia_letterSpacing": "0 en todos los estilos (como Figma)",
+        "radio_portada_pequena": "8 dp (portadas de 40–56 dp en listas)"
       }
     },
     {
@@ -583,7 +590,7 @@
       "id": "DEC-18",
       "tipo": "decision",
       "nombre": "Onboarding y permisos",
-      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema.",
+      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. Se pedirá solo cuando exista algo de «Otros avisos».",
       "estado": "decidido"
     },
     {
@@ -1756,6 +1763,13 @@
       "nombre": "Alcance del color de la portada",
       "descripcion": "Propuesta: el color sacado de la portada solo se usa en Reproduciendo, Cola, Letras y mini reproductor; el lima en el resto. Alternativas: (B) toda la app cambia de acento con la canción; (C) lima siempre y la portada solo tiñe el fondo del reproductor. RESUELTO (2026-11-14): opción A.",
       "estado": "resuelto"
+    },
+    {
+      "id": "DEC-28",
+      "tipo": "decision",
+      "nombre": "Movimiento",
+      "descripcion": "Las animaciones explican cambios, no decoran. Duración de la interfaz ≤ 300 ms (salidas más cortas que entradas), resortes interrumpibles para lo que se arrastra o cambia de estado, y nada se mueve si el sistema pide reducir movimiento (solo cambios instantáneos o fundidos cortos). Se planean con improve-animations y se construyen con animate. Primeros casos: la píldora activa de la barra se desliza entre pestañas, los íconos de la barra reaccionan al cambiar de sección, entrada y salida de la mini tarjeta, reproducir/pausa, esqueletos de carga.",
+      "estado": "decidido"
     }
   ],
   "aristas": [
@@ -3167,6 +3181,16 @@
       "relacion": "afina",
       "de": "PEND-08",
       "a": "DEC-15"
+    },
+    {
+      "de": "DEC-28",
+      "a": "DEC-03",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-28",
+      "a": "INV-06",
+      "relacion": "depende_de"
     }
   ]
 }
