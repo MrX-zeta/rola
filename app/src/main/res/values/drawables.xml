@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Media3 usa este nombre para el ícono pequeño de su notificación: el monocromo de Rola. -->
+    <drawable name="media3_notification_small_icon" tools:ignore="UnusedResources">@drawable/ic_launcher_monochrome</drawable>
+</resources>
