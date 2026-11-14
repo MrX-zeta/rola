@@ -1,6 +1,6 @@
 # Tarea 02c · Barra de navegación fluida
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.4.1 · Sin Spec Kit (es un arreglo).
