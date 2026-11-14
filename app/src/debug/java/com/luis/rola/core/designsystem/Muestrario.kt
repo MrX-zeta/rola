@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 
 // Solo vista previa (source set debug): no entra al APK de release.
 
-@Preview(name = "Muestrario", widthDp = 800, heightDp = 1300)
+@Preview(name = "Muestrario", widthDp = 800, heightDp = 1450)
 @Composable
 private fun Muestrario() {
     Row(horizontalArrangement = Arrangement.spacedBy(RolaSpacing.md)) {
@@ -63,6 +63,13 @@ private fun Columna(modifier: Modifier) {
                 listOf(s.small, s.medium, s.large, s.extraLarge, s.pill).forEach {
                     Box(Modifier.size(width = 56.dp, height = 40.dp).background(c.primaryContainer, it))
                 }
+            }
+            Text("relieve", style = t.labelLarge, color = c.onSurfaceVariant)
+            Row(Modifier.padding(RolaSpacing.xs), horizontalArrangement = Arrangement.spacedBy(RolaSpacing.lg)) {
+                val f = s.large
+                Box(Modifier.size(80.dp).elevado(f).background(c.surfaceContainer, f))
+                Box(Modifier.size(80.dp).background(c.surfaceContainer, f).hundido(f))
+                Box(Modifier.size(80.dp).acento(f).background(RolaTheme.colors.accent, f))
             }
         }
     }
