@@ -1,7 +1,7 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "actualizado": "2026-11-14",
     "fase": "Tarea 02 revisada. Siguiente: tarea 02b (mantenimiento, ajustes, esqueletos y movimiento).",
     "historial": [
@@ -49,6 +49,11 @@
         "version": "1.4.1",
         "fecha": "2026-11-14",
         "cambio": "DEC-28: cómo debe animarse la barra de navegación para que sea fluida."
+      },
+      {
+        "version": "1.4.2",
+        "fecha": "2026-11-14",
+        "cambio": "DEC-28: despliegue en cascada de Biblioteca y plan B de la barra sin texto."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -1777,7 +1782,9 @@
       "estado": "decidido",
       "detalles": {
         "barra_navegacion": "La selección cambia al instante al tocar (sin esperar a la navegación). La barra tiene ancho fijo; un solo valor animado por pestaña (0→1) decide su ancho, la opacidad de su etiqueta y la posición del fondo lima, todo en el mismo cuadro. Sin expandHorizontally ni medidas de un cuadro atrasado.",
-        "fluidez": "Las animaciones se juzgan en una compilación no depurable (las de depuración van más lentas en Compose)."
+        "fluidez": "Las animaciones se juzgan en una compilación no depurable (las de depuración van más lentas en Compose).",
+        "despliegue_listas": "Al entrar a Biblioteca (cada vez que se cambia a esa pestaña, no al desplazar) las filas visibles aparecen en cascada: fundido + subida de 8 dp, máximo 8 filas, 25–30 ms entre filas, total ≤ 300 ms. Con reducir movimiento, sin cascada.",
+        "barra_sin_texto": "Plan B autorizado por Brian: si medir demuestra que la etiqueta causa el retraso, la píldora queda solo con íconos (pestañas de igual ancho, el fondo lima se desliza) y el nombre queda solo para accesibilidad."
       }
     }
   ],

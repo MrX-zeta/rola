@@ -1,40 +1,39 @@
-# Tarea 02c · Barra de navegación fluida
+# Tarea 02d · Medir el retraso de la barra y despliegue de Biblioteca
 
-**Estado:** esperando revisión
+**Estado:** lista
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
-**Grafo:** 1.4.1 · Sin Spec Kit (es un arreglo).
+**Grafo:** 1.4.2 · Sin Spec Kit.
 
-## Problema (lo vio Brian en su Redmi)
-Al tocar otra pestaña hay un pequeño retraso y la transición no se siente 100 % fluida, sobre todo por el texto.
-
-## Causas que encontró la sesión de diseño en `RolaNavBar.kt` / `RolaNavHost.kt`
-1. **Retraso:** la pestaña activa sale de `currentBackStackEntryAsState()`, que cambia hasta que la navegación se confirma. La barra reacciona tarde.
-2. **El fondo persigue un blanco que se mueve:** el destino del fondo lima se mide con `onGloballyPositioned` (llega un cuadro tarde) mientras la etiqueta crece con `expandHorizontally` (250 ms); cada cuadro relanza el `LaunchedEffect` con otro destino.
-3. **Toda la barra se mueve de lado:** su ancho depende del texto activo («Inicio», «Biblioteca», «Buscar» miden distinto) y está centrada, así que se recentra mientras anima.
-4. Las animaciones se probaron en compilación de depuración, que en Compose va más lenta.
+## Lo que vio Brian en el Redmi (tipo `perfil`)
+- La 02c mejoró, pero la píldora todavía se retrasa un poco **al salir de Biblioteca** (Biblioteca → Buscar o Biblioteca → Inicio). **Al entrar** a Biblioteca (Buscar → Biblioteca) se siente fluida.
+- Que sea solo en una dirección apunta a trabajo en el hilo principal al salir de Biblioteca (desmontar la lista, cancelar portadas, Palette, el fundido con dos pantallas a la vez…), no al texto. Hay que **medir antes de cambiar**.
+- La lista de canciones aparece una vez y queda estática para siempre; Brian quiere un despliegue al entrar.
 
 ## Paso 0 · Comprobación
-- `git log --oneline -3` incluye `docs: sesión de diseño tarea 02c`. Si no, detente.
+- `git log --oneline -3` incluye `docs: sesión de diseño tarea 02d`. Si no, detente.
 
-## Paso 1 · Rehacer la animación de la barra (`animate`, DEC-28 `detalles.barra_navegacion`)
-- **Selección inmediata:** estado local de la pestaña elegida que cambia en el mismo toque (antes de navegar) y se sincroniza con la navegación (atrás del sistema, etc.).
-- **Ancho fijo de la barra:** el que necesita la pestaña con el texto más largo; ya no se recentra.
-- **Un solo valor por pestaña:** `progreso` 0→1 animado con el resorte de `RolaMotion`. Con un `Layout` propio, en el mismo cuadro: ancho de cada pestaña = lerp(ancho solo ícono, ancho con texto, progreso); opacidad de la etiqueta = progreso (sin `AnimatedVisibility` ni `expandHorizontally`); el fondo lima se dibuja con esos mismos valores (sin `onGloballyPositioned`).
-- La etiqueta no cambia de tamaño: solo se recorta por el ancho de su pestaña y aparece con su opacidad.
-- Se conserva lo demás de DEC-28: rebote corto del ícono, color animado, ≤ 300 ms percibidos, interrumpible si se toca otra pestaña a mitad, y con reducir movimiento todo salta.
-- Pruebas de Compose: la selección cambia en el primer cuadro tras el toque; con reducir movimiento la barra queda en su estado final de inmediato; el ancho total de la barra no cambia entre pestañas.
-- Commit: `fix(motion): barra de navegación fluida`.
+## Paso 1 · Medir (tipo `perfil`, en el Redmi si está conectado; si no, en el emulador)
+- Para cada dirección (Biblioteca→Buscar, Buscar→Biblioteca, Biblioteca→Inicio, Inicio→Biblioteca), 10 cambios: `adb shell dumpsys gfxinfo com.luis.rola reset`, los toques con `adb shell input tap`, y luego `dumpsys gfxinfo com.luis.rola framestats`. Anota cuadros totales, cuadros lentos (> 16 ms) y percentiles 90/95/99 por dirección.
+- Si hay cuadros lentos, toma un trazo con Perfetto (o `Debug.startMethodTracing` en un build temporal no versionado) y encuentra qué ocupa el hilo principal en esos cuadros.
+- Escribe la tabla en el reporte **antes** de cambiar código.
 
-## Paso 2 · Fundido entre pestañas
-- Revisa que el fundido de contenido (150 ms entrada / 100 ms salida) no retrase la respuesta visible de la barra; si lo hace, que empiecen a la vez.
+## Paso 2 · Corregir la causa medida
+- Arregla lo que el trazo señale. Ejemplos de lo que podría ser: que Biblioteca se desmonte y vuelva a armar (conservar su estado con `saveState/restoreState` o mantener la lista viva), cancelaciones de Coil o Palette en el hilo principal, el fundido de 150/100 ms con las dos pantallas dibujando, o recomposiciones de toda la pantalla por leer estado de la barra.
+- **Plan B autorizado (DEC-28 `barra_sin_texto`):** solo si la medida demuestra que la etiqueta de la píldora es la causa, cambia la barra a solo íconos: tres pestañas del mismo ancho, el fondo lima se desliza, el nombre queda solo para accesibilidad. Explica en el reporte con números por qué.
+- Repite la medida del Paso 1 y pon el antes/después en el reporte.
+- Commit: `perf(navegacion): …` o `fix(motion): …` según la causa.
 
-## Paso 3 · Probar en compilación no depurable
-- Agrega un tipo de compilación `perfil` (`initWith(release)`, firmado con la llave de **depuración**, `profileable`, sin depurar). No leas ni uses `keystore.properties` ni llaves de release.
-- Graba `t02c-barra.mp4` en el emulador con el tipo `perfil`. Si Brian conecta el Redmi por USB, instálale ese tipo y avísale.
-- Commit: `build: tipo perfil para probar fluidez`.
+## Paso 3 · Despliegue de Biblioteca (`animate`, DEC-28 `despliegue_listas`)
+- Cada vez que se entra a la pestaña Biblioteca (no al desplazar, no al volver de rotar): las filas visibles aparecen en cascada con fundido + subida de 8 dp, máximo 8 filas, 25–30 ms entre filas, total ≤ 300 ms. Las filas que llegan al desplazar aparecen normales.
+- No debe retrasar el primer cuadro ni competir con la píldora: empieza junto con el fundido de la pestaña.
+- Si los esqueletos se están mostrando, la cascada ocurre cuando llegan los datos (sin doble animación).
+- Con reducir movimiento: sin cascada.
+- Prueba de Compose: con reducir movimiento todas las filas visibles están en su estado final en el primer cuadro.
+- Commit: `feat(motion): despliegue de Biblioteca`.
 
 ## Paso 4 · Comprobaciones y reporte
-- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y las de Compose. Resultados reales.
-- `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`.
-- Reporte con antes/después y estado «esperando revisión». No empieces la tarea 03.
+- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y las de Compose.
+- Graba `t02d-barra.mp4` y `t02d-despliegue.mp4` con `perfil`. Si el Redmi está conectado, instálale `perfil`.
+- Corrige de paso el comentario viejo de `RolaNavHost.kt` («sin animaciones entre pestañas»).
+- `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`. Reporte con las tablas de medidas y estado «esperando revisión».
