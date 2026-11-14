@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">rola</string>
+    <string name="app_name">Rola</string>
+    <string name="marca_palabra">rola</string>
+    <string name="fundaciones_listas">Fundaciones listas</string>
 </resources>
