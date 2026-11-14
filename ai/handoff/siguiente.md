@@ -1,155 +1,59 @@
-# Tarea 01 · Fundaciones: herramientas, Claude Code, tema y marca
+# Tarea 01b · Spec Kit, tokens nuevos y pendientes de la 01
 
-**Estado:** esperando revisión
-**Escrita:** 2026-11-13 · sesión de diseño
-**Rama:** `development` (créala desde `main` si no existe)
+**Estado:** lista
+**Escrita:** 2026-11-14 · sesión de diseño
+**Rama:** `development`. Si trabajas en un worktree, al final sube tu rama a `origin development` como en la tarea 01.
+**Grafo:** 1.2.1
 
-Es la primera tarea: deja el proyecto listo para trabajar con Spec Kit y Ponytail, con la identidad de Rola aplicada (tema, ícono y splash). **No se construyen pantallas reales todavía.**
-
----
-
-## Antes de empezar (lo hace Brian, una sola vez)
-1. **Node.js** instalado y en el PATH (`node -v`): lo necesitan los ganchos de Ponytail.
-2. **uv** (instalador de Python): `winget install astral-sh.uv`.
-3. **CLI de Spec Kit**, en una terminal: `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git`.
-4. **Ponytail**, dentro de Claude Code (escritorio o CLI), en **dos mensajes separados**:
-   - `/plugin marketplace add DietrichGebert/ponytail`
-   - `/plugin install ponytail@ponytail`
-5. Abrir Claude Code en la raíz del proyecto y escribir: *«Lee ai/handoff/siguiente.md y ejecútala.»*
-
-Si el paso 3 o el 4 no está hecho, Claude Code lo anota en el reporte y sigue con lo demás.
-
----
+## Antes de empezar (lo hace Brian)
+- [x] `uv` y `specify` instalados (Git Bash).
+- [ ] Commit y push de la sesión de diseño (ver «Paso 0»). Sin esto, un worktree no ve esta tarea.
+- [ ] Ponytail en **off** durante el Paso 1; en **full** desde el Paso 2.
 
 ## Lectura obligatoria
-- Del grafo `ai/context/knowledge-graph.json`, todos los nodos `invariante` y **DEC-02, DEC-15, DEC-16, DEC-17, DEC-20, DEC-21**. Usa Grep por id; no leas el archivo completo.
-- `docs/marca/README.md`: tokens, fuentes, reglas del logo.
-- `ai/handoff/README.md`: cómo reportar.
+- Grafo: INV-01…INV-11, DEC-16 (tokens `accent`/`onAccent` y roles M3 derivados), DEC-17, DEC-27 (relieve, oscuro y claro), PEND-06.
+- `ai/handoff/revisiones-pendientes.md` y el reporte de la tarea 01 (está en el historial: `git show ec6c4a9:ai/handoff/reporte.md`).
 
----
+## Paso 0 · Comprobación
+- `git log --oneline -3` debe mostrar el commit `docs: sesión de diseño 2026-11-14`. Si no está, o si este archivo no dice «Tarea 01b», detente y avisa en el reporte.
 
-## Paso 0 · Commit de lo que dejó la sesión de diseño
-- Crea la rama `development` desde `main`.
-- Commit con `ai/`, `docs/marca/` y el `.gitignore` tal cual están: `docs: contexto del proyecto y kit de marca`.
+## Paso 1 · Spec Kit (PEND-06)
+- Corre `specify --help` y `specify init --help` y anota en el reporte las opciones reales de tu versión.
+- Inicializa en la raíz: `specify init --here --ai claude --script sh` (si tu versión usa `--integration`, usa esa opción). Scripts **sh**: en Windows Claude Code y Brian usan Git Bash.
+- Si `init` quiere reemplazar `CLAUDE.md` u otro archivo existente, no lo sobrescribas: conserva el nuestro y agrega solo lo necesario.
+- `/speckit.constitution` con artículos cortos en español que citen ids del grafo: INV-01…INV-11, DEC-01 (sin conexión), DEC-20 (arquitectura), DEC-21 (forma de trabajo), DEC-22 (pruebas), DEC-27 (estilo). Debe decir que si una spec contradice al grafo, manda el grafo.
+- PEND-06: lista en el reporte los comandos `/speckit.*` disponibles y si alguno sirve para corregir errores. No edites el grafo.
+- Commit: `chore(speckit): inicialización y constitución`.
 
-## Paso 1 · Configuración de Claude Code (DEC-21, INV-07)
-- **`CLAUDE.md`** en la raíz, en español, de menos de 150 líneas. Debe incluir:
-  - qué es Rola, en 2 líneas;
-  - dónde está la verdad: grafo (decisiones), Figma (visual), `docs/marca` (marca), `ai/handoff` (tareas);
-  - el ciclo de `ai/handoff/README.md`;
-  - los invariantes en una línea cada uno, con su id;
-  - los comandos de Gradle en Windows (`.\gradlew …`);
-  - las convenciones:
-    - Kotlin y Compose;
-    - textos de interfaz en `strings.xml` y en español;
-    - nada de colores hex fuera de `core/designsystem`;
-    - paquetes según DEC-20;
-  - las reglas de commit: atómicos, en español, con el formato `tipo(área): descripción`, sin autoría de IA;
-  - cuándo usar Spec Kit y Ponytail (la tabla de `ai/handoff/README.md`).
-- **`.claude/settings.json`** (versionado):
-  - `"attribution": { "commit": "", "pr": "", "sessionUrl": false }`;
-  - `permissions.deny` para leer `keystore.properties`, `**/*.jks`, `**/*.keystore`, `**/*.p12` y `.env*`.
-- **Respaldo por si la configuración falla:** gancho `.githooks/commit-msg` (sh) que borre las líneas `Co-Authored-By:` con `anthropic`, las `Claude-Session:` y las de «Generated with Claude Code».
-  - Actívalo con `git config core.hooksPath .githooks`.
-  - Esa configuración es local y no viaja con el repositorio: anota en `CLAUDE.md` que hay que correrla al clonar.
-- **REQUIERE REVISIÓN HUMANA:** `settings.json` y el gancho.
+## Paso 2 · Colores nuevos (DEC-16)
+- `accent` = `#C7FF2E` y `onAccent` = `#10100E`, **iguales en claro y oscuro**: relleno de acciones principales (botón principal, pestaña activa, chip activo, botón de reproducir). `ColorScheme` de M3 no tiene ese rol: crea `RolaColors` (data class) con `accent` y `onAccent`, expuesto con un `CompositionLocal` y `RolaTheme.colors`.
+- Completa los roles M3 que quedaron derivados o por defecto con los valores de `DEC-16.detalles.roles_m3_derivados` (incluido `error`).
+- `BrandTokensTest`: agrega `accent` y `onAccent` en ambos temas. `ContrastTest`: `onAccent` sobre `accent` ≥ 4.5.
+- Muestrario: agrega `accent`.
+- Commit: `feat(designsystem): color accent y roles M3 completos`.
 
-## Paso 2 · Spec Kit
-- Corre primero `specify init --help`. Las versiones recientes usan `--integration` y las anteriores `--ai`; usa la que exista:
-  - `specify init --here --ai claude --script ps`, o
-  - `specify init --here --integration claude --script ps`.
-- **No sobrescribas** `.gitignore` ni `CLAUDE.md`. Si Spec Kit trae los suyos, combina el contenido.
-- Comprueba que existan los comandos `/speckit.*` (en `.claude/commands/` o como skills).
-- Ejecuta `/speckit.constitution` con estos principios:
-  - El grafo manda. La constitución **cita** ids (INV-01…INV-11, DEC-21) en lugar de copiar decisiones.
-  - Sin conexión primero (INV-01).
-  - Tokens obligatorios (INV-04).
-  - Accesibilidad (INV-06).
-  - Retroalimentación visible (INV-05).
-  - Pruebas para toda lógica nueva (DEC-22).
-  - Código mínimo sin recortar seguridad ni accesibilidad (Ponytail).
-  - Todo en español (interfaz, commits, documentos).
-- **PEND-06:** lista los comandos que trae tu versión e indica en el reporte si existe uno para corregir errores (bug o fix), y cómo se llama.
+## Paso 3 · Relieve (DEC-27)
+- `RolaRelief` en `core/designsystem` con tres modificadores: `elevado`, `hundido`, `acento`. Cada uno con su versión oscura y clara (valores en DEC-27: `detalles.efectos` y `efectos_claro`) elegida según el tema.
+- Usa `Modifier.dropShadow` e `innerShadow` de Compose (si tu versión de la BOM no los trae, dilo en el reporte y usa `drawBehind`; no agregues librerías).
+- Solo se usarán en onboarding, Sin canciones, Buscar y Sin letra. No los apliques a nada todavía; muéstralos en el Muestrario.
+- Commit: `feat(designsystem): relieve acotado`.
 
-## Paso 3 · Gradle (DEC-02)
-- `minSdk = 30`. `compileSdk` y `targetSdk` se quedan en 37.
-- `versionName = "0.1.0"`, `versionCode = 1`.
-- Actualiza a la última versión estable las dependencias viejas de la plantilla: `core-ktx 1.10.1`, `lifecycle 2.6.1`, `activity-compose 1.8.0`, `junit-ext`, `espresso`. Comprueba qué versiones existen; no las inventes.
-- Agrega **solo** `androidx.core:core-splashscreen`. Media3, Room, Glance y las demás se agregan en la tarea que las use.
-- `app_name` = «Rola».
+## Paso 4 · Splash siempre oscuro (DEC-17)
+- `splash_fondo` = `#10100E` también en `values/` (quita la diferencia con `values-night/`). El círculo lima no cambia.
+- Comprueba en el emulador con el sistema en **claro** que ya no hay salto de claro a oscuro. Captura: `t01b-splash-sistema-claro.png`.
+- Commit: `fix(marca): splash oscuro mientras no haya ajuste de tema`.
 
-## Paso 4 · Tema en `core/designsystem` (DEC-15, DEC-16, INV-04)
-- Mueve `ui/theme` a `com.luis.rola.core.designsystem` y borra los colores morados de la plantilla.
-- **Color:**
-  - `darkColorScheme` y `lightColorScheme` completos con los hex de DEC-16, que también están en `docs/marca/README.md` (neutros cálidos);
-  - `dynamicColor` apagado: sin colores del fondo de pantalla.
-  - Por ahora `RolaTheme(darkTheme = true)` por defecto: oscuro es la base. El ajuste Sistema/Oscuro/Claro llega con Ajustes.
-- **Fuentes en `res/font/`**, sin el proveedor de Google Fonts descargable porque necesita red (INV-01):
-  - Space Grotesk Bold; Geist Regular, Medium y SemiBold; Geist Mono Medium.
-  - Descárgalas de sus repositorios oficiales (Google Fonts en GitHub o Vercel). Si solo existe la versión variable, úsala con `FontVariation`.
-  - Copia cada `OFL.txt` a `docs/legal/licencias/`.
-- **Tipografía M3:**
-  - display, headline y titleLarge con Space Grotesk Bold;
-  - el resto con Geist;
-  - un estilo extra `time` con Geist Mono Medium, expuesto como extensión o `CompositionLocal`, para los tiempos.
-- **Formas:** small 12, medium 20, large 24 y extraLarge 28; además `pill` totalmente redonda.
-- **Espacios:** objeto `RolaSpacing` con 4, 8, 12, 16, 20, 24 y 32.
-- **Muestrario:** un `@Preview` llamado «Muestrario» con colores, tipos y formas en oscuro y en claro. Solo vista previa; no va a la app.
+## Paso 5 · Configuración (INV-03)
+- Agrega `local.properties` a `permissions.deny` en `.claude/settings.json`.
+- Commit: `chore(claude): denegar lectura de local.properties`. **REQUIERE REVISIÓN HUMANA.**
 
-## Paso 5 · Ícono adaptativo y splash (DEC-16, DEC-17)
-- Convierte `docs/marca/ic_launcher_foreground.svg` y `ic_launcher_monochrome.svg` a Vector Drawable en `res/drawable/`.
-  - Conserva el trazo redondeado de la «r» y la regla `evenodd` del disco.
-  - Revísalos a 48 dp: la «r» y el agujero del disco deben verse.
-- **Fondo:** color `#C7FF2E` como recurso `ic_launcher_background`.
-- **`mipmap-anydpi/ic_launcher.xml` y `ic_launcher_round.xml`:** fondo, frente y la **monocroma nueva**. Hoy la plantilla usa el frente como monocroma.
-- Borra los `.webp` de `mipmap-*dpi`: con minSdk 30 el ícono adaptativo basta.
-- **Splash:**
-  - `Theme.Rola.Starting` hereda de `Theme.SplashScreen`;
-  - fondo `#F6F6F4` en `values/` y `#10100E` en `values-night/`;
-  - ícono animado = el frente del ícono, con `windowSplashScreenIconBackgroundColor` = `#C7FF2E` y `postSplashScreenTheme` = `Theme.Rola`;
-  - `installSplashScreen()` antes de `super.onCreate`;
-  - sin demoras artificiales.
-- `Theme.Rola` debe tener la ventana del color de fondo del tema para que no haya destello blanco al abrir en oscuro.
+## Paso 6 · Comprobaciones
+- `./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug` (Git Bash). Anota resultados reales.
+- `/ponytail:ponytail-review` sobre todo lo de esta tarea antes del último commit.
+- Revisa con `git log` que ningún mensaje tenga autoría de IA. Push a `origin development`. Sin PR.
 
-## Paso 6 · Pantalla temporal
-- `MainActivity` con `enableEdgeToEdge()` y `RolaTheme`: fondo `background`, la palabra «rola» en `displayLarge` y debajo, en `bodyMedium` / `onSurfaceVariant`, «Fundaciones listas».
-- Es temporal: Inicio (SCR-10) llega en otra tarea.
-
-## Paso 7 · Pruebas (DEC-22)
-- Reemplaza `ExampleUnitTest` y `ExampleInstrumentedTest`.
-- Función pura `contrastRatio(a, b)` en `core/designsystem` (WCAG 2.x).
-- **`ContrastTest`:** en ambos esquemas, ≥ 4.5 en onSurface/background, onSurfaceVariant/surface, onSurfaceVariant/surfaceContainer, primary/background y onPrimaryContainer/primaryContainer.
-- **`BrandTokensTest`:** `primary` oscuro = `0xFFC7FF2E` y `background` oscuro = `0xFF10100E`, para detectar si alguien los cambia por error.
-- **Corre:**
-  - `.\gradlew :app:assembleDebug`
-  - `.\gradlew :app:testDebugUnitTest`
-  - `.\gradlew :app:lintDebug`
-- **En el emulador o el teléfono, guarda en `ai/handoff/capturas/`:**
-  - `t01-splash-oscuro.png` y `t01-splash-claro.png`;
-  - `t01-icono-launcher.png`, y si el launcher lo permite, `t01-icono-tematico.png`;
-  - `t01-pantalla-temporal.png`.
-
-## Paso 8 · Revisión y commits
-- Corre `/ponytail:ponytail-review` sobre el diff de la tarea. Aplica lo razonable y anota en el reporte lo que no apliques, con el porqué.
-- **Commits atómicos sugeridos:**
-  1. `chore(claude): CLAUDE.md, ajustes y gancho de commits`
-  2. `chore(speckit): Spec Kit y constitución`
-  3. `build: minSdk 30, versiones y splashscreen`
-  4. `feat(designsystem): colores, tipografía, formas y espacios de Rola`
-  5. `feat(marca): ícono adaptativo y splash`
-  6. `test(designsystem): contraste y tokens de marca`
-- Comprueba con `git log -8 --format=%B` que ningún mensaje tenga líneas de autoría.
-- Haz push a `origin development`. **No** abras PR ni fusiones a `main`.
-
-## Paso 9 · Reporte y detente
-- Llena `ai/handoff/reporte.md` con el formato de ese archivo:
-  - números reales de Gradle, rutas y capturas;
-  - si existe el comando de errores de Spec Kit (PEND-06);
-  - qué marcaste como **REQUIERE REVISIÓN HUMANA**;
-  - cambios que propongas al grafo.
-- Cambia el estado de este archivo a **hecha** y **detente**.
-
----
+## Paso 7 · Reporte y detente
+- `ai/handoff/reporte.md` con el formato de siempre. Estado de esta tarea: «esperando revisión». No empieces la tarea 02.
 
 ## Fuera de esta tarea
-Navegación, Media3, Room, DataStore, pantallas reales, widget y LRCLIB.
+- Pantallas reales, reproducción, Room, navegación: llegan en la tarea 02.

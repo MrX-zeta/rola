@@ -1,14 +1,29 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.0.0",
-    "actualizado": "2026-11-13",
-    "fase": "Identidad lista (DEC-16). Siguiente: tarea 01, fundaciones del proyecto.",
+    "version": "1.2.1",
+    "actualizado": "2026-11-14",
+    "fase": "Tarea 01 revisada. Siguiente: tarea 01b (Spec Kit y pendientes).",
     "historial": [
       {
         "version": "1.0.0",
         "fecha": "2026-11-13",
         "cambio": "Alcance, identidad Rola, decisiones de UX y técnicas, invariantes, pendientes y mapa de pantallas."
+      },
+      {
+        "version": "1.1.0",
+        "fecha": "2026-11-14",
+        "cambio": "Nodos de Figma de las 37 pantallas + SCR-75; PEND-01 y PEND-03 resueltos; DEC-27 (plano con relieve acotado); PEND-08 (alcance del color de portada). La navegación del prototipo vive en Figma. PEND-08 resuelto con la opción A."
+      },
+      {
+        "version": "1.2.0",
+        "fecha": "2026-11-14",
+        "cambio": "Versiones claras (figma_nodo_claro); tokens accent/onAccent en DEC-16; acento dinámico en claro; estilos de relieve claros en DEC-27."
+      },
+      {
+        "version": "1.2.1",
+        "fecha": "2026-11-14",
+        "cambio": "Revisión de la tarea 01: INV-03 con local.properties, DEC-17 (IconBackground y splash oscuro), roles M3 derivados en DEC-16."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -72,23 +87,23 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 155,
-      "aristas": 273,
+      "nodos": 158,
+      "aristas": 276,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
         "restriccion": 5,
         "actor": 3,
         "tecnologia": 20,
-        "decision": 26,
+        "decision": 27,
         "invariante": 11,
-        "pregunta_abierta": 7,
+        "pregunta_abierta": 8,
         "fuera_de_alcance": 7,
         "modulo": 9,
         "operacion": 19,
         "tabla": 5,
         "almacen_clave_valor": 1,
-        "pantalla": 37
+        "pantalla": 38
       }
     }
   },
@@ -437,7 +452,7 @@
       "id": "DEC-13",
       "tipo": "decision",
       "nombre": "Ajustes",
-      "descripcion": "Temporizador de apagado, notificaciones (ver PEND-01), escanear medios, buscar letras en internet (LRCLIB), letras descargadas, carpeta de letras, tema (Sistema/Oscuro/Claro, por defecto Oscuro), agregar widget, términos y condiciones con descargo, aviso de privacidad, licencias.",
+      "descripcion": "Temporizador de apagado, «Otros avisos» (PEND-01 resuelto), escanear medios, buscar letras en internet (LRCLIB), letras descargadas, carpeta de letras, tema (Sistema/Oscuro/Claro, por defecto Oscuro), agregar widget, términos y condiciones con descargo, aviso de privacidad, licencias.",
       "estado": "decidido"
     },
     {
@@ -458,7 +473,7 @@
       "id": "DEC-16",
       "tipo": "decision",
       "nombre": "Identidad: Rola",
-      "descripcion": "Nombre «Rola». Símbolo: «r» apoyada en un disco (se lee «ro»). Acento lima #C7FF2E. Tipografía: Space Grotesk Bold (títulos), Geist (interfaz), Geist Mono (tiempos). Tokens, logos e ícono en docs/marca/README.md y en Figma (página «Rola · Kit de marca»).",
+      "descripcion": "Nombre «Rola». Símbolo: «r» apoyada en un disco (se lee «ro»). Acento lima #C7FF2E. Tipografía: Space Grotesk Bold (títulos), Geist (interfaz), Geist Mono (tiempos). Tokens, logos e ícono en docs/marca/README.md y en Figma (página «Rola · Kit de marca»). Rellenos de acción principal (botón principal, pestaña activa, chip activo, botón de reproducir) usan el token accent (lima en ambos temas) con onAccent; primary queda para texto, íconos, casillas, radios e interruptores (oliva #3D5200 en claro).",
       "estado": "decidido",
       "detalles": {
         "archivos": [
@@ -489,20 +504,42 @@
             "onPrimary": "#FFFFFF",
             "primaryContainer": "#C7FF2E",
             "onPrimaryContainer": "#10100E"
+          },
+          "ambos": {
+            "accent": "#C7FF2E",
+            "onAccent": "#10100E"
           }
         },
         "descartados": [
           "Coro (ámbar): muy parecido a la paleta de End Security",
           "Oye (coral): tono de app de servicios",
           "Surco: nombre ya usado por una app de DJ"
-        ]
+        ],
+        "acento_dinamico_claro": {
+          "contenedor": "#DCE3FF",
+          "acento": "#2F4BB8",
+          "nota": "Ejemplo con portada azul; en código lo calcula Palette (PEND-08 opción A)."
+        },
+        "roles_m3_derivados": {
+          "secondary/tertiary": "iguales a primary y sus pares (on/container)",
+          "surfaceContainerLowest/Low": "= surface",
+          "surfaceContainerHigh/Highest": "= surfaceContainer",
+          "surfaceVariant": "= surfaceContainer",
+          "outlineVariant": "= outline",
+          "inverseSurface": "= onSurface",
+          "inverseOnSurface": "= background",
+          "inversePrimary": "oscuro #3D5200 · claro #C7FF2E",
+          "surfaceTint": "transparente (sin tinte por elevación)",
+          "error": "oscuro #FFB4AB / onError #690005 · claro #BA1A1A / onError #FFFFFF",
+          "errorContainer": "oscuro #93000A / on #FFDAD6 · claro #FFDAD6 / on #410002"
+        }
       }
     },
     {
       "id": "DEC-17",
       "tipo": "decision",
       "nombre": "Splash",
-      "descripcion": "Solo la API de Splash Screen del sistema (core-splashscreen): fondo del tema y la capa frontal del ícono sobre círculo lima. Sin pantalla de splash propia ni demoras artificiales.",
+      "descripcion": "Solo la API de Splash Screen del sistema (core-splashscreen): fondo del tema y la capa frontal del ícono sobre círculo lima. Sin pantalla de splash propia ni demoras artificiales. El tema del splash hereda de Theme.SplashScreen.IconBackground (si no, no se dibuja el círculo lima). Hasta que exista el ajuste de tema, el fondo del splash es siempre oscuro (#10100E) para no saltar de claro a oscuro.",
       "estado": "decidido"
     },
     {
@@ -594,7 +631,7 @@
       "id": "INV-03",
       "tipo": "invariante",
       "nombre": "INV-03",
-      "descripcion": "Ningún secreto en el repositorio: llaves, keystore.properties, local.properties.",
+      "descripcion": "Ningún secreto en el repositorio: llaves, keystore.properties, local.properties. Claude Code tiene denegada la lectura de keystore.properties, *.jks, *.keystore, *.p12, .env* y local.properties en .claude/settings.json.",
       "estado": "obligatorio"
     },
     {
@@ -657,8 +694,8 @@
       "id": "PEND-01",
       "tipo": "pregunta_abierta",
       "nombre": "Interruptor de notificaciones",
-      "descripcion": "Para reproducir en segundo plano, Android exige una notificación visible del servicio de reproducción: no se puede ocultar sin que la música se detenga al salir de la app. Propuesta: el interruptor controla los demás avisos (escaneo terminado, letra descargada) y la notificación multimedia se queda. Decide el dueño.",
-      "estado": "pendiente"
+      "descripcion": "Para reproducir en segundo plano, Android exige una notificación visible del servicio de reproducción: no se puede ocultar sin que la música se detenga al salir de la app. Propuesta: el interruptor controla los demás avisos (escaneo terminado, letra descargada) y la notificación multimedia se queda. Decide el dueño. RESUELTO (2026-11-14): el interruptor se llama «Otros avisos» y apaga solo los avisos de la app; la notificación del reproductor siempre se muestra porque Android la exige.",
+      "estado": "resuelto"
     },
     {
       "id": "PEND-02",
@@ -671,8 +708,8 @@
       "id": "PEND-03",
       "tipo": "pregunta_abierta",
       "nombre": "Neutros cálidos",
-      "descripcion": "Grises con un toque cálido (#10100E/#1B1A17) en lugar de neutros puros (#0F0F0F/#1A1A1A) para alejarse de la sensación cripto/Spotify. Tokens de DEC-16 ya escritos así; si se rechaza, solo cambian los hex.",
-      "estado": "propuesto"
+      "descripcion": "Grises con un toque cálido (#10100E/#1B1A17) en lugar de neutros puros (#0F0F0F/#1A1A1A) para alejarse de la sensación cripto/Spotify. Tokens de DEC-16 ya escritos así; si se rechaza, solo cambian los hex. RESUELTO (2026-11-14): se aprueban los neutros cálidos de DEC-16.",
+      "estado": "resuelto"
     },
     {
       "id": "PEND-04",
@@ -1144,11 +1181,12 @@
       "tipo": "pantalla",
       "nombre": "Splash",
       "descripcion": "Vista «Splash» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "25:367",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "25:387"
       }
     },
     {
@@ -1156,11 +1194,12 @@
       "tipo": "pantalla",
       "nombre": "Onboarding 1 · Bienvenida",
       "descripcion": "Vista «Onboarding 1 · Bienvenida» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "22:276",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:1848"
       }
     },
     {
@@ -1168,11 +1207,12 @@
       "tipo": "pantalla",
       "nombre": "Onboarding 2 · Letras",
       "descripcion": "Vista «Onboarding 2 · Letras» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "22:323",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:1895"
       }
     },
     {
@@ -1180,11 +1220,12 @@
       "tipo": "pantalla",
       "nombre": "Onboarding 3 · Sin conexión",
       "descripcion": "Vista «Onboarding 3 · Sin conexión» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "22:383",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:1955"
       }
     },
     {
@@ -1192,11 +1233,12 @@
       "tipo": "pantalla",
       "nombre": "Permisos",
       "descripcion": "Vista «Permisos» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "23:332",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2001"
       }
     },
     {
@@ -1204,11 +1246,12 @@
       "tipo": "pantalla",
       "nombre": "Permiso denegado",
       "descripcion": "Vista «Permiso denegado» del módulo MOD-ONB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "23:391",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2054"
       }
     },
     {
@@ -1218,9 +1261,10 @@
       "descripcion": "Vista «Inicio» del módulo MOD-HOME.",
       "estado": "decidido",
       "detalles": {
-        "figma_nodo": "7:130",
+        "figma_nodo": "30:408",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2090"
       }
     },
     {
@@ -1228,11 +1272,12 @@
       "tipo": "pantalla",
       "nombre": "Inicio · primera vez",
       "descripcion": "Vista «Inicio · primera vez» del módulo MOD-HOME.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "30:447",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2217"
       }
     },
     {
@@ -1240,11 +1285,12 @@
       "tipo": "pantalla",
       "nombre": "Sin canciones en el teléfono",
       "descripcion": "Vista «Sin canciones en el teléfono» del módulo MOD-HOME.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "30:512",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2302"
       }
     },
     {
@@ -1252,11 +1298,12 @@
       "tipo": "pantalla",
       "nombre": "Biblioteca · Canciones",
       "descripcion": "Vista «Biblioteca · Canciones» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "32:581",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2359"
       }
     },
     {
@@ -1264,11 +1311,12 @@
       "tipo": "pantalla",
       "nombre": "Biblioteca · Álbumes",
       "descripcion": "Vista «Biblioteca · Álbumes» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "32:801",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2577"
       }
     },
     {
@@ -1276,11 +1324,12 @@
       "tipo": "pantalla",
       "nombre": "Biblioteca · Artistas",
       "descripcion": "Vista «Biblioteca · Artistas» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "32:961",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2737"
       }
     },
     {
@@ -1288,11 +1337,12 @@
       "tipo": "pantalla",
       "nombre": "Biblioteca · Listas",
       "descripcion": "Vista «Biblioteca · Listas» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "32:1128",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:2902"
       }
     },
     {
@@ -1300,11 +1350,12 @@
       "tipo": "pantalla",
       "nombre": "Detalle de álbum",
       "descripcion": "Vista «Detalle de álbum» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "33:836",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3035"
       }
     },
     {
@@ -1312,11 +1363,12 @@
       "tipo": "pantalla",
       "nombre": "Detalle de artista",
       "descripcion": "Vista «Detalle de artista» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "33:950",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3147"
       }
     },
     {
@@ -1324,11 +1376,12 @@
       "tipo": "pantalla",
       "nombre": "Hoja de filtros y orden",
       "descripcion": "Vista «Hoja de filtros y orden» del módulo MOD-LIB.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "33:1070",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3267"
       }
     },
     {
@@ -1336,11 +1389,12 @@
       "tipo": "pantalla",
       "nombre": "Crear lista (diálogo)",
       "descripcion": "Vista «Crear lista (diálogo)» del módulo MOD-PLAYLIST.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "34:1103",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3585"
       }
     },
     {
@@ -1348,11 +1402,12 @@
       "tipo": "pantalla",
       "nombre": "Lista vacía",
       "descripcion": "Vista «Lista vacía» del módulo MOD-PLAYLIST.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "34:1032",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3514"
       }
     },
     {
@@ -1360,11 +1415,12 @@
       "tipo": "pantalla",
       "nombre": "Lista con canciones",
       "descripcion": "Vista «Lista con canciones» del módulo MOD-PLAYLIST.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "34:1345",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3943"
       }
     },
     {
@@ -1372,11 +1428,12 @@
       "tipo": "pantalla",
       "nombre": "Hoja · agregar canciones",
       "descripcion": "Vista «Hoja · agregar canciones» del módulo MOD-PLAYLIST.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "34:1180",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:3731"
       }
     },
     {
@@ -1384,11 +1441,12 @@
       "tipo": "pantalla",
       "nombre": "Buscar",
       "descripcion": "Vista «Buscar» del módulo MOD-SEARCH.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "35:1288",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4081"
       }
     },
     {
@@ -1396,11 +1454,12 @@
       "tipo": "pantalla",
       "nombre": "Buscar · sin resultados",
       "descripcion": "Vista «Buscar · sin resultados» del módulo MOD-SEARCH.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "35:1392",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4183"
       }
     },
     {
@@ -1412,7 +1471,7 @@
       "detalles": {
         "figma_nodo": "5:51",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro listo; claro pendiente"
       }
     },
     {
@@ -1420,11 +1479,12 @@
       "tipo": "pantalla",
       "nombre": "Reproduciendo",
       "descripcion": "Vista «Reproduciendo» del módulo MOD-PLAYER.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "36:1465",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4482"
       }
     },
     {
@@ -1432,11 +1492,12 @@
       "tipo": "pantalla",
       "nombre": "Cola",
       "descripcion": "Vista «Cola» del módulo MOD-PLAYER.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "36:1557",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4570"
       }
     },
     {
@@ -1444,11 +1505,12 @@
       "tipo": "pantalla",
       "nombre": "Temporizador (hoja)",
       "descripcion": "Vista «Temporizador (hoja)» del módulo MOD-PLAYER.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "36:1651",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4662"
       }
     },
     {
@@ -1456,11 +1518,12 @@
       "tipo": "pantalla",
       "nombre": "Menú de opciones de canción",
       "descripcion": "Vista «Menú de opciones de canción» del módulo MOD-PLAYER.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "35:1458",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4249"
       }
     },
     {
@@ -1468,11 +1531,12 @@
       "tipo": "pantalla",
       "nombre": "Letras",
       "descripcion": "Vista «Letras» del módulo MOD-LYRICS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "38:1574",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4780"
       }
     },
     {
@@ -1480,11 +1544,12 @@
       "tipo": "pantalla",
       "nombre": "Opciones de letra (carátula)",
       "descripcion": "Vista «Opciones de letra (carátula)» del módulo MOD-LYRICS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "38:1690",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4894"
       }
     },
     {
@@ -1492,11 +1557,12 @@
       "tipo": "pantalla",
       "nombre": "Hoja · cambiar letra",
       "descripcion": "Vista «Hoja · cambiar letra» del módulo MOD-LYRICS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "38:1771",
         "requiere_red": true,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5014"
       }
     },
     {
@@ -1504,11 +1570,12 @@
       "tipo": "pantalla",
       "nombre": "Sin letra",
       "descripcion": "Vista «Sin letra» del módulo MOD-LYRICS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "38:1634",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:4840"
       }
     },
     {
@@ -1516,11 +1583,12 @@
       "tipo": "pantalla",
       "nombre": "Ajustes",
       "descripcion": "Vista «Ajustes» del módulo MOD-SETTINGS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "40:1674",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5129"
       }
     },
     {
@@ -1528,11 +1596,12 @@
       "tipo": "pantalla",
       "nombre": "Letras descargadas",
       "descripcion": "Vista «Letras descargadas» del módulo MOD-SETTINGS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "40:1971",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5439"
       }
     },
     {
@@ -1540,11 +1609,12 @@
       "tipo": "pantalla",
       "nombre": "Términos y condiciones",
       "descripcion": "Vista «Términos y condiciones» del módulo MOD-SETTINGS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "41:1778",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5538"
       }
     },
     {
@@ -1552,11 +1622,12 @@
       "tipo": "pantalla",
       "nombre": "Aviso de privacidad",
       "descripcion": "Vista «Aviso de privacidad» del módulo MOD-SETTINGS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "41:1810",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5570"
       }
     },
     {
@@ -1564,11 +1635,12 @@
       "tipo": "pantalla",
       "nombre": "Licencias",
       "descripcion": "Vista «Licencias» del módulo MOD-SETTINGS.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "41:1842",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5602"
       }
     },
     {
@@ -1576,12 +1648,61 @@
       "tipo": "pantalla",
       "nombre": "Widget",
       "descripcion": "Vista «Widget» del módulo MOD-WIDGET.",
-      "estado": "pendiente",
+      "estado": "decidido",
       "detalles": {
-        "figma_nodo": null,
+        "figma_nodo": "41:1888",
         "requiere_red": false,
-        "tema": "oscuro (base) y claro"
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5648"
       }
+    },
+    {
+      "id": "SCR-75",
+      "tipo": "pantalla",
+      "nombre": "Ajustes · LRCLIB resaltado",
+      "descripcion": "Estado de Ajustes al llegar desde «Buscar en internet» con LRCLIB apagado: la fila del interruptor parpadea con borde lima (DEC-12).",
+      "estado": "decidido",
+      "detalles": {
+        "figma_nodo": "40:1829",
+        "requiere_red": false,
+        "tema": "oscuro y claro listos",
+        "figma_nodo_claro": "51:5284"
+      }
+    },
+    {
+      "id": "DEC-27",
+      "tipo": "decision",
+      "nombre": "Estilo visual: plano con bento y relieve acotado",
+      "descripcion": "Toda la app es plana (flat), minimalista y en bento: tarjetas de color sólido sin sombras. El relieve (neumorfismo suave) solo se usa en el onboarding (SCR-02 a SCR-04, Permisos SCR-05 y Permiso denegado SCR-06, salvo los íconos de permisos y la ruta de Ajustes), Sin canciones (SCR-12), Buscar (SCR-40, SCR-41) y Sin letra (SCR-63). En Figma son los estilos de efecto «Neumorfismo/Elevado», «Neumorfismo/Hundido» y «Neumorfismo/Acento».",
+      "estado": "decidido",
+      "detalles": {
+        "efectos": {
+          "elevado": [
+            "sombra negra 75% (6,8) desenfoque 20",
+            "sombra blanca 6% (-4,-4) desenfoque 12",
+            "brillo interior blanco 8% (0,1)"
+          ],
+          "hundido": [
+            "sombra interior negra 70% (2,3) desenfoque 6",
+            "sombra interior blanca 6% (-1,-2) desenfoque 4"
+          ],
+          "acento": [
+            "sombra negra 60% (0,8) desenfoque 20",
+            "sombra blanca 5% (-4,-4) desenfoque 12",
+            "brillo interior blanco 45% (0,1.5)",
+            "sombra interior negra 14% (0,-3) desenfoque 6"
+          ]
+        },
+        "figma_modo_claro": "Rola claro (variables con los hex claros de DEC-16)",
+        "efectos_claro": "Estilos «Neumorfismo claro/Elevado|Hundido|Acento»: sombra negra 10–16% y luz blanca 80–90%."
+      }
+    },
+    {
+      "id": "PEND-08",
+      "tipo": "pregunta_abierta",
+      "nombre": "Alcance del color de la portada",
+      "descripcion": "Propuesta: el color sacado de la portada solo se usa en Reproduciendo, Cola, Letras y mini reproductor; el lima en el resto. Alternativas: (B) toda la app cambia de acento con la canción; (C) lima siempre y la portada solo tiñe el fondo del reproductor. RESUELTO (2026-11-14): opción A.",
+      "estado": "resuelto"
     }
   ],
   "aristas": [
@@ -2978,6 +3099,21 @@
       "de": "SCR-80",
       "a": "OP-02",
       "relacion": "invoca"
+    },
+    {
+      "relacion": "parte_de",
+      "de": "SCR-75",
+      "a": "MOD-SETTINGS"
+    },
+    {
+      "relacion": "depende_de",
+      "de": "DEC-27",
+      "a": "DEC-16"
+    },
+    {
+      "relacion": "afina",
+      "de": "PEND-08",
+      "a": "DEC-15"
     }
   ]
 }
