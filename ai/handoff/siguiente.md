@@ -1,6 +1,6 @@
 # Tarea 03 · Reproductor completo: Reproduciendo, cola, gestos y temporizador
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.5.0 · **Spec Kit:** `specs/002-reproductor-completo/`.

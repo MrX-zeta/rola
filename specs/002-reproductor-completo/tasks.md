@@ -28,20 +28,20 @@ description: "Tareas de implementación del reproductor completo"
 
 ## Fase 1: Preparación
 
-- [ ] T001 Descargar de Figma (nodos de SCR-51, SCR-52, SCR-53) los íconos keyboard_arrow_down, skip_previous_filled, repeat, timer, queue, drag_handle y delete, y convertirlos a vectores de 24 dp con relleno blanco como `res/drawable/ic_skip_next.xml`: `res/drawable/ic_cerrar.xml`, `ic_skip_previous.xml`, `ic_repeat.xml`, `ic_timer.xml`, `ic_queue.xml`, `ic_drag_handle.xml`, `ic_delete.xml`. Buscar `repeat_one` en la librería de Figma → `res/drawable/ic_repeat_one.xml`; si no existe, anotarlo para el reporte y no inventarlo
-- [ ] T002 [P] Agregar a `res/values/strings.xml` los textos de Reproduciendo, Cola, Temporizador y descripciones accesibles (cerrar reproductor, anterior, aleatorio encendido/apagado, repetir apagado/toda la cola/una canción, temporizador activo con restante, abrir cola, «Sonando ahora», «A continuación · %d», sin más canciones, «Quitaste «%s» de la cola», Deshacer, Subir, Bajar, Quitar de la cola, asa para mover, opciones del temporizador, «La música se pausará sola.», «Iniciar temporizador», avisos de inicio y cancelación)
+- [X] T001 Descargar de Figma (nodos de SCR-51, SCR-52, SCR-53) los íconos keyboard_arrow_down, skip_previous_filled, repeat, timer, queue, drag_handle y delete, y convertirlos a vectores de 24 dp con relleno blanco como `res/drawable/ic_skip_next.xml`: `res/drawable/ic_cerrar.xml`, `ic_skip_previous.xml`, `ic_repeat.xml`, `ic_timer.xml`, `ic_queue.xml`, `ic_drag_handle.xml`, `ic_delete.xml`. Buscar `repeat_one` en la librería de Figma → `res/drawable/ic_repeat_one.xml`; si no existe, anotarlo para el reporte y no inventarlo
+- [X] T002 [P] Agregar a `res/values/strings.xml` los textos de Reproduciendo, Cola, Temporizador y descripciones accesibles (cerrar reproductor, anterior, aleatorio encendido/apagado, repetir apagado/toda la cola/una canción, temporizador activo con restante, abrir cola, «Sonando ahora», «A continuación · %d», sin más canciones, «Quitaste «%s» de la cola», Deshacer, Subir, Bajar, Quitar de la cola, asa para mover, opciones del temporizador, «La música se pausará sola.», «Iniciar temporizador», avisos de inicio y cancelación)
 
 ---
 
 ## Fase 2: Base (bloquea todas las historias)
 
-- [ ] T003 [P] Crear `rola/core/media/QueueOrder.kt` (puro): `upNext(current, next: (Int) -> Int)`, `move(order, currentPos, from, to)`, `shuffledStartingWith(current, size, random)`, `isPermutation(order, size)` según contracts/interfaces.md; prueba `test/core/media/QueueOrderTest.kt` (mover arriba/abajo, extremos, permutación válida e inválida, aleatorio empieza en la actual y no repite)
-- [ ] T004 [P] Crear `rola/core/media/SleepTimer.kt` (puro): `SleepTimerOption` (`OFF`, `M15`, `M30`, `M45`, `H1`, `END_OF_SONG`) y `SleepTimer` con `start(option, now)`, `endsAt`, `isDue(now)`, `onSongEnded()` («`endsAt = ahora + minutos`; al llegar, pausa y vuelve a `OFF`»; «Pausa al terminar la canción que suena; luego `OFF`»); prueba `test/core/media/SleepTimerTest.kt` con cada opción, cancelar, reemplazar y fin de canción
-- [ ] T005 [P] Crear `rola/feature/player/Swipe.kt` (puro): `swipeDecision(offset, velocity, travel, density)` → `COMMIT` si distancia ≥ 35 % del recorrido o velocidad ≥ 700 dp/s en la dirección del gesto, `CANCEL` con velocidad en contra o por debajo de ambos; prueba `test/feature/player/SwipeTest.kt`
-- [ ] T006 Ampliar `rola/core/media/PlayerState` en `PlayerConnection.kt` con `positionAtMs`, `shuffle`, `repeat` (`Repeat.OFF/ALL/ONE`) y `timer`; quitar el ticker de 500 ms (publicar solo en eventos); agregar `previous()`, `seekTo()`, `toggleShuffle()`, `cycleRepeat()` y `queue: StateFlow<QueueState>` recalculado solo con cambios de línea de tiempo, canción actual o aleatorio
-- [ ] T007 Crear `rememberProgress(state)` en `rola/feature/player/SeekBar.kt`: bucle `withFrameMillis` solo mientras suena, extrapola desde `positionAtMs`, limitado a la duración; redondeo al segundo con `LocalReduceMotion`; la línea de la mini tarjeta en `rola/feature/player/MiniPlayer.kt` lo lee en `drawBehind` (plan 006)
-- [ ] T008 Ampliar `rola/feature/player/CoverColors.kt`: variante clara (DEC-16 `acento_dinamico_claro`) según el tema, con `ensureContrast` sobre el contenedor (4.5:1 texto, 3:1 componentes), y fundido `animateColorAsState(tween(RolaMotion.MEDIA))` de cada color. Palette necesita Android: el contraste lo cubre `test/core/designsystem/EnsureContrastTest.kt` y la variante clara se verifica en el paso 13 del quickstart
-- [ ] T009 Commit `feat(media): estado ampliado del reproductor y progreso continuo` (tras `/ponytail:ponytail-review`)
+- [X] T003 [P] Crear `rola/core/media/QueueOrder.kt` (puro): `upNext(current, next: (Int) -> Int)`, `move(order, currentPos, from, to)`, `shuffledStartingWith(current, size, random)`, `isPermutation(order, size)` según contracts/interfaces.md; prueba `test/core/media/QueueOrderTest.kt` (mover arriba/abajo, extremos, permutación válida e inválida, aleatorio empieza en la actual y no repite)
+- [X] T004 [P] Crear `rola/core/media/SleepTimer.kt` (puro): `SleepTimerOption` (`OFF`, `M15`, `M30`, `M45`, `H1`, `END_OF_SONG`) y `SleepTimer` con `start(option, now)`, `endsAt`, `isDue(now)`, `onSongEnded()` («`endsAt = ahora + minutos`; al llegar, pausa y vuelve a `OFF`»; «Pausa al terminar la canción que suena; luego `OFF`»); prueba `test/core/media/SleepTimerTest.kt` con cada opción, cancelar, reemplazar y fin de canción
+- [X] T005 [P] Crear `rola/feature/player/Swipe.kt` (puro): `swipeDecision(offset, velocity, travel, density)` → `COMMIT` si distancia ≥ 35 % del recorrido o velocidad ≥ 700 dp/s en la dirección del gesto, `CANCEL` con velocidad en contra o por debajo de ambos; prueba `test/feature/player/SwipeTest.kt`
+- [X] T006 Ampliar `rola/core/media/PlayerState` en `PlayerConnection.kt` con `positionAtMs`, `shuffle`, `repeat` (`Repeat.OFF/ALL/ONE`) y `timer`; quitar el ticker de 500 ms (publicar solo en eventos); agregar `previous()`, `seekTo()`, `toggleShuffle()`, `cycleRepeat()` y `queue: StateFlow<QueueState>` recalculado solo con cambios de línea de tiempo, canción actual o aleatorio
+- [X] T007 Crear `rememberProgress(state)` en `rola/feature/player/SeekBar.kt`: bucle `withFrameMillis` solo mientras suena, extrapola desde `positionAtMs`, limitado a la duración; redondeo al segundo con `LocalReduceMotion`; la línea de la mini tarjeta en `rola/feature/player/MiniPlayer.kt` lo lee en `drawBehind` (plan 006)
+- [X] T008 Ampliar `rola/feature/player/CoverColors.kt`: variante clara (DEC-16 `acento_dinamico_claro`) según el tema, con `ensureContrast` sobre el contenedor (4.5:1 texto, 3:1 componentes), y fundido `animateColorAsState(tween(RolaMotion.MEDIA))` de cada color. Palette necesita Android: el contraste lo cubre `test/core/designsystem/EnsureContrastTest.kt` y la variante clara se verifica en el paso 13 del quickstart
+- [X] T009 Commit `feat(media): estado ampliado del reproductor y progreso continuo` (tras `/ponytail:ponytail-review`)
 
 **Punto de control**: compila, pruebas verdes, la mini tarjeta avanza sin saltos.
 
@@ -53,14 +53,14 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart pasos 1–5 y 14.
 
-- [ ] T010 [P] [US1] Crear `rola/feature/player/SeekBar.kt` `SeekBar`: pista 4 dp (`track`), avance y control 16 dp (`accent`), alto táctil 48 dp, tocar y arrastrar con posición local, `onSeek` al soltar, semántica `progressBarRangeInfo` + `setProgress`, deshabilitada con duración 0; tiempos con `Typography.time` y `formatDuration`
-- [ ] T011 [US1] Crear `rola/feature/player/NowPlayingScreen.kt` (SCR-51, nodos 36:1465 y 51:4482) con `figma-design-to-code`: barra superior (cerrar, «REPRODUCIENDO DESDE» / «Biblioteca»), portada 348 dp radio 28 dp sin sombra (DEC-27), título `Space Grotesk` 28 sp, artista, `SeekBar`, controles (aleatorio, anterior 56 dp, reproducir/pausa 80 dp con `accent`, siguiente, repetir), acciones (temporizador, cola); sin pista ni botón «Letra», sin ⋮ ni «Añadir a una lista» (FR-008); fondo degradado `container` → `background` en 560 dp; `testTag("reproduciendo")`
-- [ ] T012 [US1] Crear `rola/feature/player/PlayerSheet.kt`: capa con `expansion` (`Animatable`), recorte interpolado entre los límites de la tarjeta y la pantalla en `graphicsLayer`, fundidos de tarjeta (0–30 %) y Reproduciendo (30–100 %), apertura con `resorte()` tras `withFrameNanos {}`, cierre por flecha/Atrás con `tween(200, EaseOut)`, arrastre vertical hacia abajo con `swipeDecision`, `BackHandler`, estado abierto/cerrado con `rememberSaveable` (rotación y tema); con `LocalReduceMotion`: sin recorte ni seguimiento, fundido `MEDIA`/`RAPIDA` (FR-005); usar la skill `animate`
-- [ ] T013 [US1] Modificar `rola/feature/player/MiniPlayer.kt`: tocar la tarjeta abre; arrastre vertical hacia arriba (un `pointerInput` con eje dominante) maneja `expansion`; medir `boundsInRoot`; `alpha = 0` mientras `expansion > 0`; quitar el comentario «no hace nada todavía»
-- [ ] T014 [US1] Integrar en `rola/navigation/RolaNavHost.kt`: `PlayerSheet` encima del `NavHost` y la barra; `SnackbarHost` encima de la capa; cerrar la capa si `current == null`
-- [ ] T015 [P] [US1] Prueba `androidTest/feature/player/NowPlayingTest.kt`: título, tiempos «m:ss» y descripciones de aleatorio/repetir según el estado
-- [ ] T016 [P] [US1] Prueba `androidTest/feature/player/PlayerSheetTest.kt`: con `LocalReduceMotion = true` y reloj manual, a mitad de la transición el nodo `reproduciendo` ya está en su posición final (no se desplaza)
-- [ ] T017 [US1] Commits `feat(player): pantalla Reproduciendo` y `feat(motion): abrir y cerrar Reproduciendo desde la mini tarjeta`
+- [X] T010 [P] [US1] Crear `rola/feature/player/SeekBar.kt` `SeekBar`: pista 4 dp (`track`), avance y control 16 dp (`accent`), alto táctil 48 dp, tocar y arrastrar con posición local, `onSeek` al soltar, semántica `progressBarRangeInfo` + `setProgress`, deshabilitada con duración 0; tiempos con `Typography.time` y `formatDuration`
+- [X] T011 [US1] Crear `rola/feature/player/NowPlayingScreen.kt` (SCR-51, nodos 36:1465 y 51:4482) con `figma-design-to-code`: barra superior (cerrar, «REPRODUCIENDO DESDE» / «Biblioteca»), portada 348 dp radio 28 dp sin sombra (DEC-27), título `Space Grotesk` 28 sp, artista, `SeekBar`, controles (aleatorio, anterior 56 dp, reproducir/pausa 80 dp con `accent`, siguiente, repetir), acciones (temporizador, cola); sin pista ni botón «Letra», sin ⋮ ni «Añadir a una lista» (FR-008); fondo degradado `container` → `background` en 560 dp; `testTag("reproduciendo")`
+- [X] T012 [US1] Crear `rola/feature/player/PlayerSheet.kt`: capa con `expansion` (`Animatable`), recorte interpolado entre los límites de la tarjeta y la pantalla en `graphicsLayer`, fundidos de tarjeta (0–30 %) y Reproduciendo (30–100 %), apertura con `resorte()` tras `withFrameNanos {}`, cierre por flecha/Atrás con `tween(200, EaseOut)`, arrastre vertical hacia abajo con `swipeDecision`, `BackHandler`, estado abierto/cerrado con `rememberSaveable` (rotación y tema); con `LocalReduceMotion`: sin recorte ni seguimiento, fundido `MEDIA`/`RAPIDA` (FR-005); usar la skill `animate`
+- [X] T013 [US1] Modificar `rola/feature/player/MiniPlayer.kt`: tocar la tarjeta abre; arrastre vertical hacia arriba (un `pointerInput` con eje dominante) maneja `expansion`; medir `boundsInRoot`; `alpha = 0` mientras `expansion > 0`; quitar el comentario «no hace nada todavía»
+- [X] T014 [US1] Integrar en `rola/navigation/RolaNavHost.kt`: `PlayerSheet` encima del `NavHost` y la barra; `SnackbarHost` encima de la capa; cerrar la capa si `current == null`
+- [X] T015 [P] [US1] Prueba `androidTest/feature/player/NowPlayingTest.kt`: título, tiempos «m:ss» y descripciones de aleatorio/repetir según el estado
+- [X] T016 [P] [US1] Prueba `androidTest/feature/player/PlayerSheetTest.kt`: con `LocalReduceMotion = true` y reloj manual, a mitad de la transición el nodo `reproduciendo` ya está en su posición final (no se desplaza)
+- [X] T017 [US1] Commits `feat(player): pantalla Reproduciendo` y `feat(motion): abrir y cerrar Reproduciendo desde la mini tarjeta`
 
 **Punto de control**: US1 completa y probable por sí sola.
 
@@ -72,9 +72,9 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart pasos 6 y 7.
 
-- [ ] T018 [US2] En `rola/core/media/PlaybackService.kt`: al encender el aleatorio o cargar lista nueva con él (`onMediaItemTransition` con `PLAYLIST_CHANGED`), `setShuffleOrder(DefaultShuffleOrder(QueueOrder.shuffledStartingWith(...), semilla))`
-- [ ] T019 [US2] En `rola/feature/player/NowPlayingScreen.kt`: aleatorio con `accent` si está encendido, repetir con `ic_repeat`/`ic_repeat_one` y `accent` si no está apagado; descripciones con el estado (FR-016); conectar `toggleShuffle()` y `cycleRepeat()`; comprobar en el emulador que siguiente/anterior desde la notificación respetan los modos (FR-017)
-- [ ] T020 [US2] Commit `feat(media): modos aleatorio y repetir`
+- [X] T018 [US2] En `rola/core/media/PlaybackService.kt`: al encender el aleatorio o cargar lista nueva con él (`onMediaItemTransition` con `PLAYLIST_CHANGED`), `setShuffleOrder(DefaultShuffleOrder(QueueOrder.shuffledStartingWith(...), semilla))`
+- [X] T019 [US2] En `rola/feature/player/NowPlayingScreen.kt`: aleatorio con `accent` si está encendido, repetir con `ic_repeat`/`ic_repeat_one` y `accent` si no está apagado; descripciones con el estado (FR-016); conectar `toggleShuffle()` y `cycleRepeat()`; comprobar en el emulador que siguiente/anterior desde la notificación respetan los modos (FR-017)
+- [X] T020 [US2] Commit `feat(media): modos aleatorio y repetir`
 
 ---
 
@@ -84,8 +84,8 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart paso 8.
 
-- [ ] T021 [US3] En `rola/feature/player/MiniPlayer.kt`: eje horizontal del mismo detector; `translationX` sigue al dedo; bajo el umbral vuelve con `resorte()`; al confirmar sale con `tween(200, EaseOut)`, llama `next()`/`previous()` y el contenido entra con fundido `MEDIA`; sin siguiente, solo regresa; con `LocalReduceMotion`, sin seguir al dedo y solo fundido
-- [ ] T022 [US3] Commit `feat(motion): gestos de la mini tarjeta`
+- [X] T021 [US3] En `rola/feature/player/MiniPlayer.kt`: eje horizontal del mismo detector; `translationX` sigue al dedo; bajo el umbral vuelve con `resorte()`; al confirmar sale con `tween(200, EaseOut)`, llama `next()`/`previous()` y el contenido entra con fundido `MEDIA`; sin siguiente, solo regresa; con `LocalReduceMotion`, sin seguir al dedo y solo fundido
+- [X] T022 [US3] Commit `feat(motion): gestos de la mini tarjeta`
 
 ---
 
@@ -95,12 +95,12 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart paso 9.
 
-- [ ] T023 [US4] En `rola/core/media/PlaybackService.kt`: `onConnect` agrega `rola.ORDEN_ALEATORIO` solo para el propio paquete; `onCustomCommand` valida «Permutación exacta de `0 until mediaItemCount`» y aplica `setShuffleOrder`
-- [ ] T024 [US4] En `rola/core/media/PlayerConnection.kt`: `moveUpNext(from, to)` (sin aleatorio `moveMediaItem`; con aleatorio orden por comando), `removeUpNext(position): Removed?` y `undoRemove(removed)` («Deshacer reinserta en `index` y, si había aleatorio y el tamaño coincide, reenvía `orderBefore`»)
-- [ ] T025 [US4] Crear `rola/feature/player/QueueScreen.kt` (SCR-52, nodos 36:1557 y 51:4570) con `figma-design-to-code`: barra (flecha, «Cola»), «SONANDO AHORA» con fila `container`/título `accent` y ecualizador estático, «A CONTINUACIÓN · N», filas con asa (reordenar con vista previa temporal y `animateItem`), `SwipeToDismissBox` solo de fin a inicio con fondo `surfaceContainer` e ícono de borrar, acciones del lector «Subir/Bajar/Quitar de la cola», texto sin más canciones; sin «Limpiar»; `testTag("cola")`
-- [ ] T026 [US4] En `rola/feature/player/PlayerSheet.kt`: Cola encima de Reproduciendo, abierta/cerrada con `rememberSaveable` (entra desde abajo `LENTA` `EaseOut`, sale en 200 ms; reducir movimiento: fundido), Atrás la cierra primero; aviso «Quitaste «título» de la cola» con Deshacer (colores de Figma) por el `SnackbarHost` de `RolaNavHost`
-- [ ] T027 [P] [US4] Prueba `androidTest/feature/player/QueueScreenTest.kt`: la canción actual aparece bajo «Sonando ahora» y las siguientes con su número
-- [ ] T028 [US4] Commits `feat(media): operaciones de cola` y `feat(player): pantalla Cola`
+- [X] T023 [US4] En `rola/core/media/PlaybackService.kt`: `onConnect` agrega `rola.ORDEN_ALEATORIO` solo para el propio paquete; `onCustomCommand` valida «Permutación exacta de `0 until mediaItemCount`» y aplica `setShuffleOrder`
+- [X] T024 [US4] En `rola/core/media/PlayerConnection.kt`: `moveUpNext(from, to)` (sin aleatorio `moveMediaItem`; con aleatorio orden por comando), `removeUpNext(position): Removed?` y `undoRemove(removed)` («Deshacer reinserta en `index` y, si había aleatorio y el tamaño coincide, reenvía `orderBefore`»)
+- [X] T025 [US4] Crear `rola/feature/player/QueueScreen.kt` (SCR-52, nodos 36:1557 y 51:4570) con `figma-design-to-code`: barra (flecha, «Cola»), «SONANDO AHORA» con fila `container`/título `accent` y ecualizador estático, «A CONTINUACIÓN · N», filas con asa (reordenar con vista previa temporal y `animateItem`), `SwipeToDismissBox` solo de fin a inicio con fondo `surfaceContainer` e ícono de borrar, acciones del lector «Subir/Bajar/Quitar de la cola», texto sin más canciones; sin «Limpiar»; `testTag("cola")`
+- [X] T026 [US4] En `rola/feature/player/PlayerSheet.kt`: Cola encima de Reproduciendo, abierta/cerrada con `rememberSaveable` (entra desde abajo `LENTA` `EaseOut`, sale en 200 ms; reducir movimiento: fundido), Atrás la cierra primero; aviso «Quitaste «título» de la cola» con Deshacer (colores de Figma) por el `SnackbarHost` de `RolaNavHost`
+- [X] T027 [P] [US4] Prueba `androidTest/feature/player/QueueScreenTest.kt`: la canción actual aparece bajo «Sonando ahora» y las siguientes con su número
+- [X] T028 [US4] Commits `feat(media): operaciones de cola` y `feat(player): pantalla Cola`
 
 ---
 
@@ -110,10 +110,10 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart pasos 10 y 11.
 
-- [ ] T029 [US5] En `rola/core/media/PlaybackService.kt`: comando `rola.TEMPORIZADOR` (solo propio paquete, nombre válido), `SleepTimer` + `Handler.postDelayed` → `pause()`; «al terminar la canción» con `setPauseAtEndOfMediaItems(true)` y apagado en `END_OF_MEDIA_ITEM`; extras `temporizador`/`terminaEn`; cancelar en `onDestroy`
-- [ ] T030 [US5] En `rola/core/media/PlayerConnection.kt`: `setSleepTimer(option)` y lectura de extras (`onExtrasChanged`) a `PlayerState.timer`
-- [ ] T031 [US5] Crear `rola/feature/player/SleepTimerSheet.kt` (SCR-53, nodos 36:1651 y 51:4662) con `figma-design-to-code`: `ModalBottomSheet` con colores del tema, asa 36×4 dp, título, subtítulo (o restante si hay temporizador), radios, botón `accent` «Iniciar temporizador»; botón del temporizador activo con `accent` y descripción con restante; avisos de inicio y cancelación
-- [ ] T032 [US5] Commit `feat(player): temporizador de apagado`
+- [X] T029 [US5] En `rola/core/media/PlaybackService.kt`: comando `rola.TEMPORIZADOR` (solo propio paquete, nombre válido), `SleepTimer` + `Handler.postDelayed` → `pause()`; «al terminar la canción» con `setPauseAtEndOfMediaItems(true)` y apagado en `END_OF_MEDIA_ITEM`; extras `temporizador`/`terminaEn`; cancelar en `onDestroy`
+- [X] T030 [US5] En `rola/core/media/PlayerConnection.kt`: `setSleepTimer(option)` y lectura de extras (`onExtrasChanged`) a `PlayerState.timer`
+- [X] T031 [US5] Crear `rola/feature/player/SleepTimerSheet.kt` (SCR-53, nodos 36:1651 y 51:4662) con `figma-design-to-code`: `ModalBottomSheet` con colores del tema, asa 36×4 dp, título, subtítulo (o restante si hay temporizador), radios, botón `accent` «Iniciar temporizador»; botón del temporizador activo con `accent` y descripción con restante; avisos de inicio y cancelación
+- [X] T032 [US5] Commit `feat(player): temporizador de apagado`
 
 ---
 
@@ -123,19 +123,19 @@ description: "Tareas de implementación del reproductor completo"
 
 **Prueba independiente**: quickstart paso 13 y portadas variadas.
 
-- [ ] T033 [US6] Verificar que `NowPlayingScreen`, `QueueScreen` y `MiniPlayer` usan `rememberCoverColors` (T008) y que la hoja y el aviso usan el tema (FR-040); ajustar lo que falte
-- [ ] T034 [US6] Commit `feat(player): color de portada en claro y fundido` (si hubo cambios aparte de T008)
+- [X] T033 [US6] Verificar que `NowPlayingScreen`, `QueueScreen` y `MiniPlayer` usan `rememberCoverColors` (T008) y que la hoja y el aviso usan el tema (FR-040); ajustar lo que falte
+- [X] T034 [US6] Commit `feat(player): color de portada en claro y fundido` (si hubo cambios aparte de T008)
 
 ---
 
 ## Fase 9: Pulido y cierre
 
-- [ ] T035 `design-critique` de SCR-51, SCR-52 y SCR-53 contra Figma en oscuro y claro; diferencias al reporte
-- [ ] T036 Comprobaciones del Paso 7: `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `:app:connectedDebugAndroidTest`
-- [ ] T037 Recorrido manual de `quickstart.md` en el emulador (temporizador de 1 min solo local); capturas y videos `t03-*` en `ai/handoff/capturas/`
-- [ ] T038 Si el Redmi está conectado, instalar `perfil`
-- [ ] T039 `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`
-- [ ] T040 `ai/handoff/reporte.md` y estado «esperando revisión» en `ai/handoff/siguiente.md`
+- [X] T035 `design-critique` de SCR-51, SCR-52 y SCR-53 contra Figma en oscuro y claro; diferencias al reporte
+- [X] T036 Comprobaciones del Paso 7: `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `:app:connectedDebugAndroidTest`
+- [X] T037 Recorrido manual de `quickstart.md` en el emulador (temporizador de 1 min solo local); capturas y videos `t03-*` en `ai/handoff/capturas/`
+- [X] T038 Si el Redmi está conectado, instalar `perfil`
+- [X] T039 `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`
+- [X] T040 `ai/handoff/reporte.md` y estado «esperando revisión» en `ai/handoff/siguiente.md`
 
 ---
 
