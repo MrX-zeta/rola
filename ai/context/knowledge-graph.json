@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.6.1",
+    "version": "1.7.0",
     "actualizado": "2026-11-14",
-    "fase": "Reproductor base y pulido listos (tareas 02–02e). Siguiente: tarea 03, reproductor completo.",
+    "fase": "Reproductor completo. Siguiente: tarea 04 (cola con librería y onboarding).",
     "historial": [
       {
         "version": "1.0.0",
@@ -74,6 +74,11 @@
         "version": "1.6.1",
         "fecha": "2026-11-15",
         "cambio": "Revisión 03b: reglas del arrastre en la cola (DEC-24) y de la marquesina (DEC-04)."
+      },
+      {
+        "version": "1.7.0",
+        "fecha": "2026-11-15",
+        "cambio": "Arrastre de la cola sigue fallando arriba (video de Brian): se pasa a la librería reorderable. Onboarding adelantado a la tarea 04 (DEC-18). Plan de tareas reordenado."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -157,14 +162,14 @@
       }
     },
     "plan_de_tareas": {
-      "03": "Reproductor completo: SCR-51, SCR-52, SCR-53, gestos DEC-04, progreso continuo",
-      "04": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
-      "05": "Listas y Room: SCR-23, 30–33, SCR-54, OP-08",
-      "06": "Inicio y Buscar: SCR-10–12, 40, 41",
-      "07": "Onboarding y Ajustes: SCR-02–04, 70, 72–75, DataStore, tema",
-      "08": "Letras: SCR-60–63, 71, LRCLIB",
-      "09": "Widget: SCR-80",
-      "10": "Correcciones finales y Maestro"
+      "04": "Cola sin fugas (librería reorderable) + Onboarding completo con DataStore: SCR-02–06",
+      "05": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
+      "06": "Listas y Room: SCR-23, 30–33, SCR-54, OP-08",
+      "07": "Inicio y Buscar: SCR-10–12, 40, 41",
+      "08": "Ajustes y legal: SCR-70, 72–75, tema seleccionable",
+      "09": "Letras: SCR-60–63, 71, LRCLIB",
+      "10": "Widget: SCR-80",
+      "11": "Correcciones finales y Maestro"
     }
   },
   "nodos": [
@@ -631,7 +636,7 @@
       "id": "DEC-18",
       "tipo": "decision",
       "nombre": "Onboarding y permisos",
-      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. Se pedirá solo cuando exista algo de «Otros avisos».",
+      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. Se pedirá solo cuando exista algo de «Otros avisos». Onboarding: 3 pantallas con deslizar horizontal entre ellas (solo dentro del onboarding), «Omitir» lleva a Permisos, «Empezar» en la tercera. Se muestra una sola vez (onboarding_completed en DataStore); si ya se completó y el permiso está concedido, la app abre directo.",
       "estado": "decidido"
     },
     {
@@ -681,7 +686,7 @@
       "id": "DEC-24",
       "tipo": "decision",
       "nombre": "Reproduciendo y cola",
-      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo). Arrastre en la cola: la fila se queda siempre bajo el dedo; en los bordes la lista se desplaza sola y se detiene al llegar al inicio o al final; la fila nunca sale de los límites de la lista.",
+      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo). Arrastre en la cola: la fila se queda siempre bajo el dedo; en los bordes la lista se desplaza sola y se detiene al llegar al inicio o al final; la fila nunca sale de los límites de la lista. Si la cola cambia a mitad del arrastre (termina la canción), el arrastre sigue y el movimiento se aplica sobre la cola nueva.",
       "estado": "decidido"
     },
     {
