@@ -225,6 +225,8 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **FR-029**: La cola NO se recuerda al cerrar la app (Room llega en la tarea 05).
 - **FR-052**: Tocar una fila de «A continuación» DEBE reproducir esa canción.
 - **FR-053**: Al arrastrar una fila cerca del borde superior o inferior de la lista, la lista DEBE desplazarse sola en esa dirección. Una fila arrastrada NUNCA debe perderse ni ocupar el lugar de otra al llegar al tope: se coloca en la posición válida más cercana.
+- **FR-056**: Mientras se arrastra una fila de la cola, la fila DEBE quedarse siempre bajo el dedo, también al intercambiarse con la primera fila visible (DEC-24).
+- **FR-057**: El desplazamiento automático al arrastrar DEBE detenerse al llegar al inicio o al final de la lista; la fila arrastrada NUNCA sale de los límites de la lista ni pasa del primer o el último lugar (DEC-24).
 - **FR-054**: «Limpiar» en la barra de Cola DEBE quitar todas las canciones de «A continuación» y dejar la actual, con un aviso y «Deshacer» que las devuelve en su orden. Sin canciones siguientes, «Limpiar» queda deshabilitado.
 
 **Temporizador (SCR-53, OP-15)**

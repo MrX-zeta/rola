@@ -174,3 +174,9 @@ Revisión de Brian en el Redmi (tarea 03b, grafo 1.6.0). Cada tarea cita el requ
 - [X] T051 Sin portada en tema claro, el botón de reproducir usa `accent` con `onAccent`; la barra de avance y el título siguen en `primary` (`feature/player/CoverColors.kt` y quien pinte el botón) per FR-039 (partial)
 - [X] T052 Título de la mini tarjeta como marquesina (`basicMarquee`) solo si no cabe; estático con puntos suspensivos si cabe o con reducir movimiento (`feature/player/MiniPlayer.kt`) per FR-051, US3/AC7 (missing)
 - [X] T053 Pruebas nuevas: umbral desde el centro de la tarjeta (JUnit `SwipeTest` y Compose), cierre que nunca queda a medias (`PlayerSheetTest`), tocar fila de la cola, «Limpiar» + Deshacer (`QueueScreenTest`), marquesina estática con reducir movimiento (`MiniPlayerTest`) per SC-011, SC-012, FR-051, FR-052, FR-054 (missing)
+
+## Fase 11: Convergencia
+
+- [ ] T054 Al intercambiar con la primera fila visible, conservar la posición de la lista en el mismo cuadro (`requestScrollToItem`, sin corrutina) para que la fila arrastrada siga bajo el dedo (`feature/player/QueueScreen.kt`) per FR-056 (partial)
+- [ ] T055 Limitar la fila arrastrada a la lista (ni arriba de la primera posición ni abajo de la última ni fuera de la vista) y detener el desplazamiento automático cuando la lista no puede avanzar (`feature/player/QueueScreen.kt`) per FR-057 (missing)
+- [ ] T056 Pruebas de Compose: arrastrar al primer lugar deja la fila en índice 0 bajo el dedo; arrastrar más allá del final la deja en el último índice (`QueueScreenTest`) per FR-056, FR-057 (missing)
