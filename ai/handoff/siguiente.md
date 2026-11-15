@@ -1,6 +1,6 @@
 # Tarea 03b · Correcciones del reproductor (probado por Brian en el Redmi)
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.6.0 · **Spec Kit:** corrección sobre `specs/002-reproductor-completo/` con `/speckit-converge`.

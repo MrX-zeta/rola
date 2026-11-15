@@ -1,125 +1,121 @@
-# Reporte · Tarea 03 · Reproductor completo
+# Reporte · Tarea 03b · Correcciones del reproductor
 
 **Estado:** esperando revisión.
 
 ## Paso 0 · Comprobación
-- Adelanté el worktree a `origin/development` con fast-forward. `git log` incluye `da415b0 docs: sesión de diseño tarea 03`.
-- Usé las skills `figma-design-to-code` (antes de leer Figma), `animate` (para planear la transición y los gestos), `design-critique`, `ponytail-review` y Spec Kit (`/speckit-specify` → `-clarify` → `-plan` → `-tasks` → `-analyze` → `-implement`).
-- Ponytail: off en los Pasos 1–5 y full desde el Paso 6, como pide la tarea (Brian lo cambió).
-- Dispositivos: emulador Pixel 7 Pro. El Redmi no apareció en adb durante la implementación, así que **no le instalé `perfil`**.
+- Adelanté el worktree a `origin/development` con fast-forward. `git log` incluye `cea5619 docs: sesión de diseño tarea 03b`.
+- Skills usadas:
+  - `speckit-converge`.
+  - `figma-design-to-code`, antes de leer los nodos 5:51, 36:1465 y 36:1557.
+  - `animate`, para el gesto de la portada, la marquesina y el cierre.
+  - `design-critique` y `ponytail-review`.
+- Ponytail: off en el Paso 1 y full desde el Paso 2. Brian lo cambió las dos veces.
+- Dispositivos: emulador Pixel 7 Pro (API 36). El Redmi no apareció en adb, así que **no le instalé `perfil`**.
 
-## Qué hice
-**Spec Kit** (`specs/002-reproductor-completo/`):
-- Spec con 6 historias y 48 requisitos.
-- Aclaraciones respondidas con el grafo y la tarea.
-- Plan, investigación, modelo de datos, contratos, guía de validación y 40 tareas.
-- `/speckit-analyze` sin problemas críticos; corregí 4 detalles. Commit `d75834a`.
+## Paso 1 · Spec 002 y converge
+- Commit `docs(spec): 002 correcciones de la revisión`.
+- `spec.md` tiene una sección «Revisión · tarea 03b» con las respuestas de Brian. También:
+  - Corregí FR-003, FR-007, FR-018, FR-020 y FR-039.
+  - Agregué FR-049 a FR-055, SC-011 y SC-012, y escenarios nuevos en las historias 1, 3 y 4.
+  - Quité los supuestos de «tocar una fila no hace nada» y «Limpiar queda fuera».
+- `/speckit-converge` agregó la **Fase 10: Convergencia** con 13 tareas (T041–T053). Las 13 quedaron hechas y marcadas.
 
-**Servicio de reproducción** (`core/media`, commit `cc24625`):
-- **Aleatorio:** es un modo que se enciende y se apaga. El orden siempre empieza en la canción actual, también al cargar una lista con el modo encendido, para que suene toda la cola.
-- **Repetir:** apagado → toda la cola → una canción. Anterior usa `seekToPrevious` (reinicia la canción si lleva más de 3 s).
-- **Temporizador:** 15, 30, 45 o 60 min, o «al terminar la canción». Vive en el servicio, solo **pausa** y se cancela con «Apagado». Publica su estado en los extras de la sesión.
-- **Dos órdenes propias:** `rola.ORDEN_ALEATORIO` (para mover en la cola con el aleatorio encendido) y `rola.TEMPORIZADOR`. Solo las acepta el propio paquete de Rola, y el servicio valida los argumentos: el orden debe ser una permutación exacta y la opción, un nombre válido.
-- **Conexión con la interfaz:** la cola llega en un `StateFlow` aparte. Quité la publicación del estado cada 500 ms: ahora se publica solo cuando hay eventos.
+## Paso 2 · Lo que encontró Brian
+1. **Gesto de la mini tarjeta** (`Swipe.kt`):
+   - El umbral ahora es el menor entre el 25 % del ancho y 96 dp, o 400 dp/s. Los valores quedaron junto al gesto.
+   - La distancia se mide desde donde empieza el dedo. Los toques van en una caja quieta y lo que se mueve es el contenido.
+   - **Causa encontrada al probar:** el tramo final del gesto puede llegar recién en el evento de soltar. En el emulador, `input swipe` daba −181 px cuando el dedo había recorrido −420. Ahora también cuenta el evento de soltar y el rastreador de velocidad usa los eventos completos, con sus posiciones históricas. Es probable que en el Redmi esto, junto con el umbral del 35 %, explique el «solo rebota».
+2. **Reproduciendo a medias** (`PlayerSheet.kt`):
+   - Cada movimiento lanzaba un salto que podía llegar después de soltar y cortar la animación final. Ahora el salto se registra en el acto (`CoroutineStart.UNDISPATCHED`).
+   - Si se toma la capa a medio camino, el arrastre sigue desde ahí sin saltar.
+   - Si el gesto se cancela, termina cerrada o abierta.
+   - Pruebas nuevas en `PlayerSheetTest`: 5 sueltas a distintas distancias y ritmos, y un gesto cancelado. Las dos terminan en 0 o 1.
+3. **Reproduciendo repartida:**
+   - La portada toma el alto que sobra (cuadrada, lo más grande que quepa) y los controles quedan abajo.
+   - Reproducir mide 80 dp y anterior/siguiente 56 dp, como en Figma.
+   - La fila de acciones queda a 16 dp de la barra del sistema.
+4. **Gesto sobre la portada:** con el mismo umbral, siguiente/anterior. La portada sigue al dedo y sale por su lado mientras entra la nueva con un fundido, o vuelve con un resorte. Con reducir movimiento no se mueve.
+5. **Mini tarjeta:** quedó solo con reproducir/pausa. El título usa `basicMarquee`, que solo corre si no cabe. Con reducir movimiento, el título queda estático con puntos suspensivos.
+6. **Cola:**
+   - Tocar una fila la reproduce. Tocar el asa no la reproduce.
+   - Cerca de los bordes, la lista se desplaza sola en las dos direcciones, más rápido cuanto más cerca, hasta 800 dp/s.
+   - Más allá de la primera o la última fila, la fila queda en la posición válida más cercana.
+   - Al mover la primera fila visible se conserva la posición de la lista, para que la fila no se pierda.
 
-**Pantallas** (`feature/player`, commit `0a237c7`):
-- **Reproduciendo (SCR-51):** barra de avance propia de 48 dp que se toca y se arrastra, y tiempos en Geist Mono.
-- **Cola (SCR-52):** reordenar arrastrando el asa, quitar deslizando y aviso con «Deshacer». El lector de pantalla tiene las acciones «Subir», «Bajar» y «Quitar de la cola».
-- **Hoja del temporizador (SCR-53):** muestra cuánto falta y el botón del temporizador queda marcado mientras está activo.
-- **Color de la portada:** tiene variante clara (DEC-16) y cambia con un fundido corto entre canciones.
-
-**Movimiento** (commit `2f46263`):
-- **Transformación de contenedor:** la capa crece desde los límites de la tarjeta hasta la pantalla completa, siguiendo el dedo. Usa un recorte en `graphicsLayer`, así que el gesto no recompone.
-- **Al soltar:** resorte con la velocidad del dedo. Cerrar con la flecha o Atrás dura 200 ms con EaseOut. La animación arranca en el primer cuadro dibujado.
-- **Reducir movimiento:** fundido corto, sin recorte y sin seguir al dedo.
-- **Gestos de la tarjeta:** el eje dominante gana (horizontal: siguiente/anterior; arriba: abrir). Umbral: 35 % del recorrido o 700 dp/s.
-- **Línea de progreso continua (plan 006):** avanza en cada cuadro solo en el dibujo. Los textos de tiempo cambian una vez por segundo. Con reducir movimiento, salta de segundo en segundo.
+## Paso 3 · Respuestas aplicadas
+- La portada es **plana**, como antes.
+- **«Limpiar»:**
+  - Quita todo lo que sigue y deja la actual.
+  - Muestra el aviso «Limpiaste la cola» con «Deshacer», que lo devuelve en su orden.
+  - Con aleatorio, también restaura el orden aleatorio.
+  - Sin canciones siguientes queda deshabilitado.
+- **Sin portada en claro:** el botón de reproducir es **lima** con `onAccent`, y la barra y el título quedan en `primary`. Agregué `play` y `onPlay` a `CoverColors`; con portada son el acento de la portada.
+- **Portada nítida:** `SongCoverFetcher` pide la miniatura al tamaño en que se dibuja. Palette sigue a 512 px y reutiliza la portada grande si ya está en caché.
+  - En el emulador se sigue viendo pixelada porque los audios de prueba traen una portada de **240×240 px**; lo comprobé leyendo el PNG incrustado.
+- **Órdenes antes de conectar:** se guardan en una fila y salen en orden al conectar. Quité el `shortcut:` de `PlayerConnection`.
 
 ## Pruebas y comprobaciones
-- **Compilación y lint:** `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` → **BUILD SUCCESSFUL**.
-  - Lint: 0 errores. Quedan 2 advertencias que ya existían (`VectorRaster` en `splash_icono.xml` y `ExportedService` en el manifiesto).
-- **JUnit:** 12 pruebas nuevas en verde:
-  - `QueueOrderTest`: mover, deshacer, aleatorio desde la actual y permutaciones.
-  - `SleepTimerTest`: cada opción, «al terminar la canción», cancelar y reemplazar.
-  - `SwipeTest`: distancia, velocidad, lanzamiento en contra y sin desplazamiento.
-  - El formato de tiempos ya lo cubre `DurationTest`.
-- **Compose:** `connectedDebugAndroidTest` → 16/16 en verde:
-  - `NowPlayingTest`: título, tiempos y los estados de aleatorio y repetir.
-  - `PlayerSheetTest`: con reducir movimiento no se desplaza; sin él, crece desde la tarjeta.
-  - `QueueScreenTest`: muestra la canción actual y las que siguen, o el texto sin más canciones.
-  - Siguen en verde `MiniPlayerTest`, `LibraryScreenTest` y `RolaNavBarTest`.
+- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` → **BUILD SUCCESSFUL**.
+  - Lint: 0 errores. Siguen las 2 advertencias de antes (`VectorRaster` y `ExportedService`).
+- **JUnit**, nuevas o cambiadas:
+  - `SwipeTest`: el menor entre 25 % y 96 dp, desde el centro, por velocidad, lanzamiento en contra y sin desplazamiento.
+  - `QueueOrderTest`: tramos contiguos de «Limpiar».
+- **Compose** (`connectedDebugAndroidTest`): **24/24 en verde** (corrida final, después de `ponytail-review`).
+  - `MiniPlayerTest`:
+    - Deslizar 110 dp desde el centro pasa a la siguiente; 40 dp lentos no hacen nada.
+    - No hay botón siguiente.
+    - Con reducir movimiento, el título queda recortado y estático; sin reducir movimiento, se mide completo para la marquesina.
+  - `PlayerSheetTest`: nunca queda a medias, ni al soltar ni al cancelar.
+  - `QueueScreenTest`:
+    - Tocar «Despacio» llama a reproducir la posición 1.
+    - «Limpiar» deja «A continuación · 0» y la actual; «Deshacer» vuelve a «· 2».
+    - Sin canciones siguientes, «Limpiar» queda deshabilitado.
 - **En el emulador:**
-  - Abrir tocando y deslizando; cerrar con la flecha, deslizando y con Atrás.
-  - Capturas a mitad del gesto: el contenedor sigue al dedo.
-  - Gestos de la tarjeta: izquierda → siguiente, derecha → anterior, un gesto corto o lento no cambia nada.
-  - Quitar, deshacer y reordenar en la cola, con el aleatorio apagado y encendido. «Siguiente» respeta el orden nuevo.
-  - Aleatorio que empieza en la actual; repetir una canción con su ícono.
-  - Temporizador «al terminar la canción»: pausó en 19.985 ms de 19.985 y volvió a apagado.
-  - La música siguió sonando al salir de la app (INV-11).
-- **Temporizador de 1 min:** no lo corrí. «Al terminar la canción» prueba la misma pausa, y la opción por tiempo está cubierta con JUnit.
-- **Reducir movimiento:** no activé «Quitar animaciones» en el emulador (es un ajuste del sistema); lo cubre `PlayerSheetTest`.
-
-### Errores encontrados y corregidos al probar
-- **Deshacer volvía a quitar la canción:** el estado del gesto se guardaba por clave de fila. Ahora usa `remember` en vez del estado guardado.
-- **Portadas naranjas caían al color del tema:** Palette no da tonos oscuros para ellas. Ahora se oscurece el tono vivo.
-- **Contraste en claro sin portada:** el acento de respaldo era lima sobre fondo claro (INV-06). Ahora usa `primary` (lima en oscuro, oliva en claro).
-- **`ponytail-review`:**
-  1. Un lanzamiento rápido hacia abajo sobre la tarjeta abría Reproduciendo. Ahora solo abre si el gesto va hacia arriba.
-  2. Cerrar el reproductor se llevaba el aviso de «Deshacer». Ahora los avisos viven en `RolaNavHost`.
-- **Bucle de cuadros sin duración:** pedía cuadros aunque la duración fuera 0, y eso rompía `MiniPlayerTest`. Ahora solo corre si la duración es mayor que 0.
+  - Desde el centro de la tarjeta: izquierda → siguiente; derecha → anterior; un arrastre corto no cambia nada.
+  - En Reproduciendo:
+    - Hacia arriba abre.
+    - Soltar a 143 dp cierra del todo; soltar a 57 dp vuelve a abierta.
+    - La portada deslizada cambia de canción.
+  - Cola:
+    - Tocar una fila cambia la canción.
+    - «Limpiar» dejó «A continuación · 0» y «Deshacer» devolvió las 6.
+- **No comprobado en el emulador:**
+  - **El primer toque tras un arranque en frío.** En este emulador el controlador conecta antes de que la biblioteca termine de cargar, así que no pude provocarlo; la lógica es corta y está revisada.
+  - **El autodesplazamiento de la cola.** Hay solo 6 canciones siguientes y caben en pantalla.
+  - Las dos cosas hay que verlas en el Redmi.
+- El emulador se cayó a mitad de una corrida de pruebas («System has crashed») y quedó muy lento. Lo reinicié con `adb reboot`. También volví a dar el permiso de audio con `pm grant`, porque las pruebas reinstalan la app.
 
 ## Capturas (`ai/handoff/capturas/`)
-- `t03-reproduciendo.png`, `t03-cola.png` y `t03-temporizador.png`, en oscuro.
-- Las mismas con `-claro`. Para tomarlas cambié el tema solo en local; no está versionado.
-- `t03-cola-deshacer.png`: el aviso con «Deshacer».
-- `t03-abriendo.png`: la capa a mitad del gesto.
-- **Videos:** no van. Brian indicó que bastan las capturas.
+- `t03b-reproduciendo.png` (oscuro), `t03b-reproduciendo-claro.png` y `t03b-reproduciendo-claro-sin-portada.png` (botón lima y barra oliva).
+  - Para el tema claro cambié el tema solo en local; no está versionado.
+- `t03b-mini.png`: solo reproducir/pausa.
+- `t03b-cola.png`: con «Limpiar».
+- Sin videos.
 
 ## Diferencias con Figma (design-critique)
-- **SCR-51 Reproduciendo:**
-  - La portada no tiene sombra: DEC-27 no pone relieve en esta pantalla (**pregunta 1**).
-  - No están la pista ni el botón «Letra», el ⋮ ni «Añadir a una lista» (otras tareas). Por eso la fila de acciones queda solo con temporizador y cola, en los extremos.
-  - En claro, la pista de la barra es gris claro (contenido al 12 %); en Figma se ve casi negra.
-  - La etiqueta «REPRODUCIENDO DESDE» mide 12 sp (token `timeSmall`); en Figma, 11 sp.
-  - El título no lleva el tracking de −0.42 de Figma, porque DEC-16 pide letterSpacing 0.
-- **SCR-52 Cola:**
-  - No está «Limpiar» (**pregunta 2**).
-  - Las filas usan el estilo de Biblioteca (14 y 14 sp, portada con radio de 8 dp por DEC-16); en Figma son 15 y 13 sp con radio de 3.6.
-  - El aviso tiene radio de 12 dp (`shapes.small`); en Figma, 14.
-  - El ecualizador es estático: marca la canción, no decora (DEC-28).
-- **SCR-53 Temporizador:**
-  - La hoja mide lo que ocupa su contenido; en Figma tiene un alto fijo de 560.
-  - La opción marcada es la vigente («Apagado»); Figma muestra «30 minutos» como ejemplo.
-- **En oscuro y claro**, colores, tamaños y espaciados coinciden con los nodos 36:1465/51:4482, 36:1557/51:4570 y 36:1651/51:4662.
+- **SCR-51:**
+  - La portada se centra en el alto que sobra, así que en el Pixel 7 Pro queda más aire entre portada y título que en Figma (24 dp). Es el reparto que pidió la tarea; en pantallas más bajas la portada se achica.
+  - Siguen fuera la pista y el botón «Letra», el ⋮ y «Añadir a una lista» (otras tareas).
+- **Mini tarjeta (5:51):** coincide en portada de 48 dp, título SemiBold 14, artista 12 y botón de 44 dp con el acento.
+  - La marquesina no se ve en las capturas porque los títulos de prueba son cortos; la cubre `MiniPlayerTest`.
+- **SCR-52:** «Limpiar» va en Geist SemiBold 14 con `primary` a la derecha del título «Cola», como en Figma. El resto, igual que en la tarea 03 (tamaños de fila de Biblioteca y radio de 8 dp).
 
-## Decisiones y supuestos
-- Reproduciendo es una capa encima de la app, no un destino del NavHost, para que siga al dedo y nazca de la tarjeta.
-- Supuestos de la spec:
-  - El origen siempre dice «Biblioteca».
-  - Tocar una fila de la cola no hace nada.
-  - El temporizador por tiempo sigue corriendo aunque se pause a mano.
-  - Lo ya escuchado no aparece en la cola.
-- **Ícono de «repetir una canción»:** `repeat_one` no está en la librería de Figma. Usé el `repeat_one` estándar de Material, el mismo trazo que el `repeat` de Figma más el «1».
-- **Token nuevo** `Typography.timeSmall` (Geist Mono 12/16), para los tiempos y las etiquetas de la cola.
-- **API inestables de Media3:** `setShuffleOrder`, `DefaultShuffleOrder` y `pauseAtEndOfMediaItems` están marcadas `@UnstableApi`. Marqué `PlaybackService` con `@OptIn(UnstableApi::class)`.
-- **Respaldo de color sin portada:** `primary`/`onPrimary`. En claro, el botón de reproducir de una canción sin portada queda oliva con ícono blanco, no lima (**pregunta 3**).
+## Decisiones
+- **Umbral único para todos los gestos:** mini tarjeta horizontal y vertical, portada y cierre. En el cierre, 96 dp de arrastre bastan, o 400 dp/s.
+- **`basicMarquee` con sus valores por defecto:** 3 pasadas y después se detiene, para que no se mueva sin fin (DEC-28: no decora). Si Brian la quiere continua, es un parámetro.
+- **«Limpiar» con aleatorio:** quita por tramos contiguos (una llamada por tramo) para no hacer miles de llamadas con colas grandes.
+- **El asa de la cola consume su propio toque:** `ponytail-review` detectó que tocarla reproducía la canción.
 - **Sin dependencias nuevas.**
-- **Emulador:**
-  - Se quedó sin espacio. Con tu permiso borré los archivos de tareas anteriores en `/sdcard` (`s*.raw`, videos, `a.png`, `ui.xml`, `u.xml`).
-  - También borré un apk viejo y un `t.txt` de `/data/local/tmp`.
-  - Desinstalé y reinstalé Rola de depuración.
 
 ## Dudas para Brian
-1. ¿La portada de Reproduciendo lleva la sombra de Figma? DEC-27 no la permite; la dejé plana.
-2. ¿Implementamos «Limpiar» en la Cola? Está en Figma pero no en la tarea.
-3. Sin portada en tema claro, ¿el botón de reproducir debe ser lima (DEC-16) aunque la barra y el título usen oliva por contraste?
-4. La mini tarjeta en claro ya usa la variante clara del color de la portada, pero SCR-50 claro sigue «pendiente» en el grafo. ¿Se confirma?
-5. Propuestas para el grafo, no las edité:
-   - Agregar `repeat_one` a la librería de Figma.
-   - Agregar el token `timeSmall` a DEC-16.
+1. ¿La marquesina se detiene tras 3 pasadas (como ahora) o corre sin fin?
+2. **Cierre de Reproduciendo:** ¿96 dp de arrastre está bien? Antes era el 35 % del recorrido.
+3. Probar en el Redmi la calibración (96 dp / 400 dp/s), el primer toque tras un arranque en frío y el autodesplazamiento de una cola larga.
 
-## Pendiente o riesgos
-- **Umbrales de los gestos sin calibrar:** 35 % del recorrido o 700 dp/s. Falta probarlos en el Redmi.
-- **Portada grande borrosa:** se pide en 512 px (`SongCoverFetcher`), así que en Reproduciendo (~1200 px) se ve suave. Para corregirlo, pedir el tamaño real en otra tarea.
-- **Órdenes antes de conectar:** las que llegan antes de que el controlador se conecte se pierden (atajo de la tarea 02). En el emulador se nota en el primer toque después de un arranque en frío.
-- **Fluidez:** no medí la transición en el Redmi con `perfil`.
+## Commits
+- `docs(spec): 002 correcciones de la revisión`
+- `feat(media): tocar una fila, limpiar la cola y órdenes antes de conectar`
+- `fix(player): gestos desde cualquier punto, cierre que no queda a medias y mini tarjeta con marquesina`
+- `feat(player): Reproduciendo repartida, portada deslizable y nítida`
+- `feat(player): cola con tocar, Limpiar y desplazamiento al arrastrar`
+- `docs(handoff): reporte de la tarea 03b`
