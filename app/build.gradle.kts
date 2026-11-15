@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.media3.session)
     implementation(libs.coil.compose)
     implementation(libs.androidx.palette)
+    implementation(libs.reorderable)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

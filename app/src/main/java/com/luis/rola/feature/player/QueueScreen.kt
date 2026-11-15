@@ -2,9 +2,7 @@ package com.luis.rola.feature.player
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,30 +23,25 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -59,7 +52,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.luis.rola.R
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.LocalReduceMotion
@@ -67,9 +59,12 @@ import com.luis.rola.core.designsystem.RolaSpacing
 import com.luis.rola.core.designsystem.timeSmall
 import com.luis.rola.core.media.QueueEntry
 import com.luis.rola.feature.library.Cover
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 /**
  * Cola (SCR-52, nodos 36:1557 y 51:4570): lo que suena y lo que sigue. Se reordena arrastrando el asa
+ * (librería `reorderable`: mantiene compuesta la fila arrastrada y desplaza la lista en los bordes)
  * y se quita deslizando a la izquierda; tocar una fila la reproduce; «Limpiar» quita todo lo que sigue.
  * Los avisos con Deshacer los muestra quien llama (DEC-09, DEC-24).
  */
@@ -79,7 +74,7 @@ fun QueueScreen(
     colors: CoverColors,
     upNext: List<QueueEntry>,
     onBack: () -> Unit,
-    onMove: (from: Int, to: Int) -> Unit,
+    onMove: (from: Int, to: Int) -> Boolean,
     onRemove: (position: Int) -> Unit,
     onPlay: (position: Int) -> Unit,
     onClear: () -> Unit,
@@ -88,82 +83,21 @@ fun QueueScreen(
     val m = MaterialTheme.colorScheme
     val reduce = LocalReduceMotion.current
     val lista = rememberLazyListState()
-    // Orden de vista previa solo mientras dura un arrastre; la cola real vive en el reproductor.
-    var preview by remember { mutableStateOf<List<QueueEntry>?>(null) }
-    var arrastrando by remember { mutableStateOf<Long?>(null) }
-    var desde by remember { mutableIntStateOf(-1) }
-    val offsetY = remember { mutableFloatStateOf(0f) }
-    // El arrastre vive en un pointerInput que se crea una vez por fila: lee siempre la cola y la orden actuales.
+    // Orden de la vista mientras se arrastra y hasta que el reproductor publica la cola movida.
+    var orden by remember { mutableStateOf<List<Long>?>(null) }
+    var arrastrando by remember { mutableStateOf(false) }
     val actual by rememberUpdatedState(upNext)
-    val mover by rememberUpdatedState(onMove)
-    // shortcut: si el reproductor rechaza la orden, la vista previa queda hasta el próximo cambio de cola o arrastre.
-    LaunchedEffect(upNext) { preview = null }
-    val filas = preview ?: upNext
-
-    /**
-     * Pone la fila [id] donde está su centro. Más allá de la primera o la última fila queda en la posición válida
-     * más cercana: nunca sobre «Sonando ahora» ni fuera de la lista (FR-053).
-     */
-    fun reordenar(id: Long) {
-        val info = lista.layoutInfo.visibleItemsInfo
-        val yo = info.find { it.key == id } ?: return
-        val centro = yo.offset + offsetY.floatValue + yo.size / 2
-        val l = (preview ?: actual).toMutableList()
-        val visibles = info.filter { it.key is Long }
-        val otro = visibles.find { centro.toInt() in it.offset until it.offset + it.size }
-            ?: visibles.first().takeIf { centro < it.offset && it.key == l.first().song.id }
-            ?: visibles.last().takeIf { centro >= it.offset + it.size && it.key == l.last().song.id }
-            ?: return
-        if (otro.key == id) return
-        val primera = lista.firstVisibleItemIndex to lista.firstVisibleItemScrollOffset
-        l.add(l.indexOfFirst { it.song.id == otro.key }, l.removeAt(l.indexOfFirst { it.song.id == id }))
-        preview = l
-        offsetY.floatValue -= otro.offset - yo.offset // sigue bajo el dedo
-        // La lista ancla su primera fila visible por clave: si se movió esa, salta y la fila se pierde. Se pide la misma
-        // posición en el próximo cuadro, sin corrutina: un scrollToItem cancelaría el desplazamiento automático.
-        if (yo.index == primera.first || otro.index == primera.first) {
-            lista.requestScrollToItem(primera.first, primera.second)
-        }
-    }
-
-    /** Mantiene la fila [id] dentro de la vista y entre el primer y el último lugar de la cola (FR-057). */
-    fun limitar(id: Long) {
-        val info = lista.layoutInfo
-        val yo = info.visibleItemsInfo.find { it.key == id } ?: return
-        val l = preview ?: actual
-        val i = l.indexOfFirst { it.song.id == id }
-        var min = (info.viewportStartOffset - yo.offset).toFloat()
-        var max = (info.viewportEndOffset - info.afterContentPadding - yo.offset - yo.size).toFloat()
-        if (i == 0) min = maxOf(min, 0f)
-        if (i == l.lastIndex) max = minOf(max, 0f)
-        offsetY.floatValue = offsetY.floatValue.coerceIn(min, maxOf(min, max))
-    }
-
-    // Cerca de un borde, la lista se desplaza sola mientras se arrastra (más rápido cuanto más cerca).
-    val borde = with(LocalDensity.current) { 64.dp.toPx() }
-    val maxima = with(LocalDensity.current) { 800.dp.toPx() } // px/s
-    LaunchedEffect(arrastrando) {
-        val id = arrastrando ?: return@LaunchedEffect
-        var antes = withFrameNanos { it }
-        while (true) {
-            val ahora = withFrameNanos { it }
-            val dt = (ahora - antes) / 1e9f
-            antes = ahora
-            val info = lista.layoutInfo
-            val yo = info.visibleItemsInfo.find { it.key == id } ?: continue
-            val arriba = yo.offset + offsetY.floatValue
-            val abajo = arriba + yo.size
-            val hacia = when {
-                arriba < info.viewportStartOffset + borde -> (arriba - info.viewportStartOffset - borde) / borde
-                abajo > info.viewportEndOffset - borde -> (abajo - info.viewportEndOffset + borde) / borde
-                else -> 0f
-            }.coerceIn(-1f, 1f)
-            // Se detiene en el inicio y el final (FR-057).
-            if (hacia == 0f || (hacia > 0 && !lista.canScrollForward) || (hacia < 0 && !lista.canScrollBackward)) continue
-            offsetY.floatValue += lista.scrollBy(hacia * maxima * dt) // la fila sigue bajo el dedo
-            limitar(id)
-            reordenar(id)
-        }
+    // Los gestos leen el estado al momento, no lo que se compuso: si la cola cambia a mitad del arrastre,
+    // el orden se aplica sobre la nueva (FR-058).
+    fun vista() = ordenComo(actual, orden.orEmpty())
+    val filas = vista()
+    LaunchedEffect(upNext) { if (!arrastrando) orden = null }
+    // Solo las filas de «A continuación» son ReorderableItem: lo demás no es destino (FR-059).
+    val reordenable = rememberReorderableLazyListState(
+        lista,
+        scrollThresholdPadding = WindowInsets.navigationBars.asPaddingValues(),
+    ) { de, a ->
+        orden = vista().map { it.song.id }.toMutableList().apply { add(indexOf(a.key as Long), removeAt(indexOf(de.key as Long))) }
     }
 
     Column(modifier.fillMaxSize().background(m.background).statusBarsPadding().testTag("cola")) {
@@ -213,8 +147,7 @@ fun QueueScreen(
             // cola con repetidas (listas, tarea 05), usar una clave por aparición.
             itemsIndexed(filas, key = { _, e -> e.song.id }) { i, e ->
                 val id = e.song.id
-                val esta = arrastrando == id
-                val pos = { (preview ?: actual).indexOfFirst { it.song.id == id } }
+                val pos = { actual.indexOfFirst { it.song.id == id } }
                 val subir = stringResource(R.string.subir)
                 val bajar = stringResource(R.string.bajar)
                 val quitar = stringResource(R.string.quitar_de_cola)
@@ -225,76 +158,72 @@ fun QueueScreen(
                 LaunchedEffect(swipe.currentValue) {
                     if (swipe.currentValue == SwipeToDismissBoxValue.EndToStart) onRemove(pos())
                 }
-                SwipeToDismissBox(
-                    swipe,
-                    backgroundContent = {
-                        Box(Modifier.fillMaxSize().background(m.surfaceContainer).padding(end = RolaSpacing.xxl), Alignment.CenterEnd) {
-                            Icon(painterResource(R.drawable.ic_delete), null, tint = m.onSurfaceVariant)
+                ReorderableItem(
+                    reordenable,
+                    key = id,
+                    modifier = Modifier.semantics {
+                        customActions = buildList {
+                            if (i > 0) add(CustomAccessibilityAction(subir) { onMove(i, i - 1) })
+                            if (i < filas.lastIndex) add(CustomAccessibilityAction(bajar) { onMove(i, i + 1) })
+                            add(CustomAccessibilityAction(quitar) { onRemove(i); true })
                         }
                     },
-                    modifier = Modifier
-                        .then(if (esta || reduce) Modifier.animateItem(null, null, null) else Modifier.animateItem())
-                        .zIndex(if (esta) 1f else 0f)
-                        .graphicsLayer { if (esta) translationY = offsetY.floatValue }
-                        .semantics {
-                            customActions = buildList {
-                                if (i > 0) add(CustomAccessibilityAction(subir) { onMove(i, i - 1); true })
-                                if (i < filas.lastIndex) add(CustomAccessibilityAction(bajar) { onMove(i, i + 1); true })
-                                add(CustomAccessibilityAction(quitar) { onRemove(i); true })
+                    animateItemModifier = if (reduce) Modifier else Modifier.animateItem(),
+                ) { esta ->
+                    SwipeToDismissBox(
+                        swipe,
+                        backgroundContent = {
+                            Box(Modifier.fillMaxSize().background(m.surfaceContainer).padding(end = RolaSpacing.xxl), Alignment.CenterEnd) {
+                                Icon(painterResource(R.drawable.ic_delete), null, tint = m.onSurfaceVariant)
                             }
                         },
-                    enableDismissFromStartToEnd = false,
-                    gesturesEnabled = arrastrando == null,
-                ) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(if (esta) m.surfaceContainer else m.background)
-                            .clickable(onClickLabel = reproducir) { onPlay(pos()) }
-                            .padding(start = RolaSpacing.lg, end = RolaSpacing.xs, top = RolaSpacing.xs, bottom = RolaSpacing.xs),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        enableDismissFromStartToEnd = false,
+                        gesturesEnabled = !reordenable.isAnyItemDragging,
                     ) {
-                        Textos(e.song, Modifier.weight(1f), m.onSurface, m.onSurfaceVariant)
-                        Box(
+                        Row(
                             Modifier
-                                .size(48.dp)
-                                .pointerInput(Unit) { detectTapGestures {} } // tocar el asa no reproduce la fila
-                                .pointerInput(id) {
-                                    detectDragGestures(
-                                        onDragStart = {
-                                            preview = actual
-                                            desde = pos()
-                                            arrastrando = id
-                                        },
-                                        onDrag = { ch, d ->
-                                            ch.consume()
-                                            offsetY.floatValue += d.y
-                                            limitar(id)
-                                            reordenar(id)
-                                        },
-                                        onDragEnd = {
-                                            val hasta = pos()
-                                            if (hasta != desde) mover(desde, hasta) else preview = null
-                                            arrastrando = null
-                                            offsetY.floatValue = 0f
-                                        },
-                                        onDragCancel = {
-                                            preview = null
-                                            arrastrando = null
-                                            offsetY.floatValue = 0f
-                                        },
-                                    )
-                                },
-                            contentAlignment = Alignment.Center,
+                                .fillMaxWidth()
+                                .background(if (esta) m.surfaceContainer else m.background)
+                                .clickable(onClickLabel = reproducir) { onPlay(pos()) }
+                                .padding(start = RolaSpacing.lg, end = RolaSpacing.xs, top = RolaSpacing.xs, bottom = RolaSpacing.xs),
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(painterResource(R.drawable.ic_drag_handle), stringResource(R.string.arrastrar_para_mover), tint = m.onSurfaceVariant)
+                            Textos(e.song, Modifier.weight(1f), m.onSurface, m.onSurfaceVariant)
+                            Box(
+                                Modifier
+                                    .size(48.dp)
+                                    .pointerInput(Unit) { detectTapGestures {} } // tocar el asa no reproduce la fila
+                                    .draggableHandle(
+                                        onDragStarted = {
+                                            orden = vista().map { it.song.id }
+                                            arrastrando = true
+                                        },
+                                        onDragStopped = {
+                                            arrastrando = false
+                                            val desde = pos()
+                                            val hasta = vista().indexOfFirst { it.song.id == id }
+                                            // Sin orden enviada la cola no cambiará: el orden de la vista se suelta ya.
+                                            if (desde < 0 || hasta == desde || !onMove(desde, hasta)) orden = null
+                                        },
+                                    ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(painterResource(R.drawable.ic_drag_handle), stringResource(R.string.arrastrar_para_mover), tint = m.onSurfaceVariant)
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+/** [cola] en el orden de [ids]; las que no estaban van al final y las que ya no están se omiten (FR-058). */
+internal fun ordenComo(cola: List<QueueEntry>, ids: List<Long>): List<QueueEntry> {
+    val porId = cola.associateBy { it.song.id }
+    val vistos = ids.toSet()
+    return ids.mapNotNull { porId[it] } + cola.filter { it.song.id !in vistos }
 }
 
 @Composable

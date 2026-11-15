@@ -185,7 +185,7 @@ Revisión de Brian en el Redmi (tarea 03b, grafo 1.6.0). Cada tarea cita el requ
 
 Tarea 04 Parte A (video de Brian en el Redmi): el arrastre propio pierde la fila cuando sale de la ventana compuesta.
 
-- [ ] T057 Cambiar el arrastre de la Cola a `sh.calvin.reorderable` 3.1.0 (`ReorderableItem` + `draggableHandle`) y quitar el arrastre propio (vista previa, `reordenar`, `limitar`, autodesplazamiento) (`gradle/libs.versions.toml`, `app/build.gradle.kts`, `feature/player/QueueScreen.kt`) per plan: dependencia `reorderable`, FR-053, FR-056, FR-057 (contradicts)
-- [ ] T058 Si la cola cambia a mitad del arrastre, seguir arrastrando y al soltar aplicar el movimiento sobre la cola nueva; quitar el `shortcut:` de la vista previa (`feature/player/QueueScreen.kt`) per FR-058 (missing)
-- [ ] T059 Solo las filas de «A continuación» son destinos; soltar sobre «Sonando ahora» o las etiquetas deja la fila primera (`feature/player/QueueScreen.kt`) per FR-059 (partial)
-- [ ] T060 Pruebas de Compose: arrastre arriba y abajo con la librería, y cola que cambia a mitad del arrastre (`QueueScreenTest`) per FR-058, FR-059 (missing)
+- [X] T057 Cambiar el arrastre de la Cola a `sh.calvin.reorderable` 3.1.0 (`ReorderableItem` + `draggableHandle`) y quitar el arrastre propio (vista previa, `reordenar`, `limitar`, autodesplazamiento) (`gradle/libs.versions.toml`, `app/build.gradle.kts`, `feature/player/QueueScreen.kt`) per plan: dependencia `reorderable`, FR-053, FR-056, FR-057 (contradicts)
+- [X] T058 Si la cola cambia a mitad del arrastre, seguir arrastrando y al soltar aplicar el movimiento sobre la cola nueva; quitar el `shortcut:` de la vista previa (`feature/player/QueueScreen.kt`) per FR-058 (missing)
+- [X] T059 Solo las filas de «A continuación» son destinos; soltar sobre «Sonando ahora» o las etiquetas deja la fila primera (`feature/player/QueueScreen.kt`) per FR-059 (partial)
+- [X] T060 Pruebas de Compose: arrastre arriba y abajo con la librería, y cola que cambia a mitad del arrastre (`QueueScreenTest`) per FR-058, FR-059 (missing)

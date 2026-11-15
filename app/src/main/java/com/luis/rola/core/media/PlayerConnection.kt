@@ -146,15 +146,17 @@ class PlayerConnection(context: Context) {
     }
 
     /** [from] y [to] son posiciones en «A continuación». Con aleatorio solo cambia el orden aleatorio. */
-    fun moveUpNext(from: Int, to: Int) {
-        val c = controller ?: return
+    /** Devuelve si mandó la orden: la Cola sostiene su orden de arrastre hasta que la cola cambie. */
+    fun moveUpNext(from: Int, to: Int): Boolean {
+        val c = controller ?: return false
         val q = _queue.value
-        if (from !in q.upNext.indices || to !in q.upNext.indices || from == to) return
+        if (from !in q.upNext.indices || to !in q.upNext.indices || from == to) return false
         if (c.shuffleModeEnabled) {
             sendOrder(c, QueueOrder.move(q.order, q.order.indexOf(c.currentMediaItemIndex), from, to))
         } else {
             c.moveMediaItem(q.upNext[from].index, q.upNext[to].index)
         }
+        return true
     }
 
     fun removeUpNext(position: Int): Removed? {
