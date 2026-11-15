@@ -211,7 +211,7 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **FR-021**: El gesto horizontal y el vertical NO DEBEN dispararse a la vez: gana la dirección dominante.
 - **FR-049**: En Reproduciendo, deslizar la portada horizontalmente DEBE pasar a la siguiente (izquierda) o a la anterior (derecha) con el mismo umbral que la mini tarjeta (FR-018). La portada DEBE desplazarse con el dedo y, al soltar, volver a su lugar o cambiar. Con «reducir movimiento», la portada no sigue al dedo, pero el gesto sigue cambiando de canción.
 - **FR-050**: La mini tarjeta DEBE llevar solo el botón reproducir/pausa (sin siguiente), como el componente de Figma 5:51.
-- **FR-051**: El título de la mini tarjeta DEBE correr como marquesina solo si no cabe; si cabe o está activo «reducir movimiento», queda estático con puntos suspensivos.
+- **FR-051**: El título de la mini tarjeta DEBE correr como marquesina solo si no cabe y mientras suena, con 2 s entre pasadas; si cabe, si está en pausa o si está activo «reducir movimiento», queda estático con puntos suspensivos.
 
 **Cola (SCR-52, DEC-24, DEC-09, OP-04)**
 
@@ -227,6 +227,8 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **FR-053**: Al arrastrar una fila cerca del borde superior o inferior de la lista, la lista DEBE desplazarse sola en esa dirección. Una fila arrastrada NUNCA debe perderse ni ocupar el lugar de otra al llegar al tope: se coloca en la posición válida más cercana.
 - **FR-056**: Mientras se arrastra una fila de la cola, la fila DEBE quedarse siempre bajo el dedo, también al intercambiarse con la primera fila visible (DEC-24).
 - **FR-057**: El desplazamiento automático al arrastrar DEBE detenerse al llegar al inicio o al final de la lista; la fila arrastrada NUNCA sale de los límites de la lista ni pasa del primer o el último lugar (DEC-24).
+- **FR-058**: Si la cola cambia a mitad de un arrastre (por ejemplo, termina la canción y pasa a «Sonando ahora» la primera de «A continuación»), el arrastre DEBE seguir y, al soltar, el movimiento se aplica sobre la cola nueva (DEC-24). Si la fila arrastrada dejó de estar en «A continuación», no se mueve nada.
+- **FR-059**: Solo las filas de «A continuación» son destinos del arrastre; «Sonando ahora», la fila actual y las etiquetas no lo son. Soltar encima de ellas deja la fila en el primer lugar de «A continuación».
 - **FR-054**: «Limpiar» en la barra de Cola DEBE quitar todas las canciones de «A continuación» y dejar la actual, con un aviso y «Deshacer» que las devuelve en su orden. Sin canciones siguientes, «Limpiar» queda deshabilitado.
 
 **Temporizador (SCR-53, OP-15)**

@@ -12,7 +12,7 @@ La mini tarjeta (SCR-50) se convierte en la puerta de Reproduciendo (SCR-51): un
 
 **Lenguaje/versión**: Kotlin 2.4.21 (AGP 9.5.1), Java 11 de destino.
 
-**Dependencias principales**: las ya instaladas — Compose (BOM 2026.09.00), Material 3, Media3 1.11.1 (`exoplayer`, `session`), Navigation Compose 2.10.2, Lifecycle 2.11.0, Coil 3.6.3, Palette 1.1.0. **Sin dependencias nuevas** ([research.md](research.md) §10).
+**Dependencias principales**: las ya instaladas — Compose (BOM 2026.09.00), Material 3, Media3 1.11.1 (`exoplayer`, `session`), Navigation Compose 2.10.2, Lifecycle 2.11.0, Coil 3.6.3, Palette 1.1.0. **Sin dependencias nuevas** ([research.md](research.md) §10), salvo `sh.calvin.reorderable:reorderable` 3.1.0 (Apache 2.0, sin red) para el arrastre de la Cola, pedida en la tarea 04 tras dos arreglos propios fallidos: mantiene compuesta la fila arrastrada y maneja el desplazamiento automático y los bordes.
 
 **Almacenamiento**: ninguno. Cola, modos y temporizador no se recuerdan al cerrar la app (FR-029, FR-037).
 
@@ -35,7 +35,7 @@ La mini tarjeta (SCR-50) se convierte en la puerta de Reproduciendo (SCR-51): un
 | Artículo | Cómo se cumple | Estado |
 |---|---|---|
 | I. El grafo manda (INV-08, INV-09) | Solo los DEC/SCR/OP de la tarea. Letra, ⋮ y «Añadir a una lista» fuera. Choques con Figma resueltos a favor del grafo y al reporte: sombra de la portada (DEC-27), «Limpiar» (no lo pide la tarea). | ✅ |
-| II. Sin conexión (INV-01) | Sin dependencias ni permisos nuevos; nada de red. | ✅ |
+| II. Sin conexión (INV-01) | Sin permisos nuevos; la única dependencia nueva (`reorderable`, tarea 04) no usa red. | ✅ |
 | III. Datos y secretos (INV-02, INV-03) | Quitar de la cola no toca archivos; sin secretos. | ✅ |
 | IV. Tokens (INV-04, DEC-27) | Colores del tema o de `CoverColors` (calculados); espacios `RolaSpacing`, formas `RolaShapes`, tipos `RolaTypography` y `Typography.time`. Sin sombras ni relieve. | ✅ |
 | V. Retroalimentación (INV-05) | Aviso con Deshacer al quitar; aviso al iniciar y cancelar el temporizador; estados de modos visibles. | ✅ |
