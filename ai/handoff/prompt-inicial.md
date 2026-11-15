@@ -32,6 +32,12 @@ Al empezar cada conversación, revisa qué skills tienes disponibles. Si falta u
 - Estilo visual (DEC-27): app plana, bento y minimalista; el relieve solo donde dice el grafo. Colores y tipografías siempre desde el tema, nunca hex sueltos en las pantallas.
 - Si algo no se puede hacer como se pide, o una instrucción choca con el grafo, no improvises: anótalo en el reporte y detente.
 
+## Al empezar cada tarea
+- Si trabajas en un worktree, actualízalo con `origin/development` (fast-forward) antes de leer nada: la tarea vigente es la que está en `ai/handoff/siguiente.md` de `development`, no la de tu copia.
+- Haz el «Paso 0 · Comprobación» que trae la propia tarea (el commit que debe existir). Si no coincide, detente y avisa.
+- Revisa que tengas lo que la tarea necesita (skills, plugin de Figma, Spec Kit, dispositivo conectado). Si falta algo, avisa antes de empezar.
+- Ponytail: la tarea dice en su encabezado qué nivel usar en cada paso. Cuando un paso necesite un nivel distinto al actual, detente y pídele a Brian que lo cambie; sigue cuando te diga «continúa».
+
 ## Al terminar
 - Escribe `ai/handoff/reporte.md`: qué hiciste, qué no, decisiones que tomaste, dudas, resultados de build/pruebas/lint y capturas en `ai/handoff/capturas/`.
 - Cambia el estado de la tarea en `siguiente.md` a «esperando revisión» y detente. No empieces otra tarea.

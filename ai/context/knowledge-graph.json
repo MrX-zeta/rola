@@ -1,7 +1,7 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "actualizado": "2026-11-14",
     "fase": "Tarea 02 revisada. Siguiente: tarea 02b (mantenimiento, ajustes, esqueletos y movimiento).",
     "historial": [
@@ -54,6 +54,11 @@
         "version": "1.4.2",
         "fecha": "2026-11-14",
         "cambio": "DEC-28: despliegue en cascada de Biblioteca y plan B de la barra sin texto."
+      },
+      {
+        "version": "1.4.3",
+        "fecha": "2026-11-14",
+        "cambio": "DEC-28: excepción de 350 ms en la píldora, animaciones que arrancan en el primer cuadro dibujado, Biblioteca fuera del NavHost."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -1781,10 +1786,12 @@
       "descripcion": "Las animaciones explican cambios, no decoran. Duración de la interfaz ≤ 300 ms (salidas más cortas que entradas), resortes interrumpibles para lo que se arrastra o cambia de estado, y nada se mueve si el sistema pide reducir movimiento (solo cambios instantáneos o fundidos cortos). Se planean con improve-animations y se construyen con animate. Primeros casos: la píldora activa de la barra se desliza entre pestañas, los íconos de la barra reaccionan al cambiar de sección, entrada y salida de la mini tarjeta, reproducir/pausa, esqueletos de carga.",
       "estado": "decidido",
       "detalles": {
-        "barra_navegacion": "La selección cambia al instante al tocar (sin esperar a la navegación). La barra tiene ancho fijo; un solo valor animado por pestaña (0→1) decide su ancho, la opacidad de su etiqueta y la posición del fondo lima, todo en el mismo cuadro. Sin expandHorizontally ni medidas de un cuadro atrasado.",
+        "barra_navegacion": "La selección cambia al instante al tocar (sin esperar a la navegación). La barra tiene ancho fijo; un solo valor animado por pestaña (0→1) decide su ancho, la opacidad de su etiqueta y la posición del fondo lima, todo en el mismo cuadro. Sin expandHorizontally ni medidas de un cuadro atrasado. Excepción de duración: la píldora puede llegar a ~350 ms para que se aprecie la aparición del texto (pedido de Brian, 2026-11-14).",
         "fluidez": "Las animaciones se juzgan en una compilación no depurable (las de depuración van más lentas en Compose).",
         "despliegue_listas": "Al entrar a Biblioteca (cada vez que se cambia a esa pestaña, no al desplazar) las filas visibles aparecen en cascada: fundido + subida de 8 dp, máximo 8 filas, 25–30 ms entre filas, total ≤ 300 ms. Con reducir movimiento, sin cascada.",
-        "barra_sin_texto": "Plan B autorizado por Brian: si medir demuestra que la etiqueta causa el retraso, la píldora queda solo con íconos (pestañas de igual ancho, el fondo lima se desliza) y el nombre queda solo para accesibilidad."
+        "barra_sin_texto": "Plan B autorizado por Brian: si medir demuestra que la etiqueta causa el retraso, la píldora queda solo con íconos (pestañas de igual ancho, el fondo lima se desliza) y el nombre queda solo para accesibilidad.",
+        "arranque_en_primer_cuadro": "Toda animación de entrada empieza a contar en el primer cuadro en que su contenido ya está dibujado, no en el toque; si un cuadro pesado se come el tiempo, la animación no debe llegar «ya terminada».",
+        "biblioteca_fuera_del_navhost": "La raíz de Biblioteca vive fuera del NavHost para no rearmarse (tarea 02d). Sus pantallas hijas (álbum, artista) irán dentro del NavHost."
       }
     }
   ],
