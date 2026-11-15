@@ -1,7 +1,6 @@
 package com.luis.rola.navigation
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,7 +69,15 @@ fun RolaNavBar(actual: String?, onSelect: (Destino) -> Unit, modifier: Modifier 
     var elegido by remember(actual) { mutableStateOf(actual) }
     val progresos = Destino.entries.map { d ->
         val meta = if (d.ruta == elegido) 1f else 0f
-        val anim = animateFloatAsState(meta, RolaMotion.o(reduce, RolaMotion.resorte()), label = "progreso")
+        val anim = remember { Animatable(meta) }
+        LaunchedEffect(meta, reduce) {
+            if (reduce) {
+                anim.snapTo(meta)
+            } else {
+                withFrameNanos {} // DEC-28 arranque_en_primer_cuadro: deja pasar el cuadro que dibuja la pestaña nueva
+                anim.animateTo(meta, RolaMotion.resorte()) // si se interrumpe, sigue desde su valor y velocidad
+            }
+        }
         // Se leen como estado en medida y dibujo: el cambio relanza ambos sin depender de recomponer.
         if (reduce) { { if (d.ruta == elegido) 1f else 0f } } else { { anim.value.coerceIn(0f, 1f) } }
     }

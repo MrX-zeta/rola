@@ -1,6 +1,6 @@
 package com.luis.rola.navigation
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -22,12 +22,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,21 +68,25 @@ fun RolaNavHost(container: AppContainer) {
 
     Box(Modifier.fillMaxSize().background(fondo)) {
         // Biblioteca vive fuera del NavHost y no se desmonta al cambiar de pestaña: desmontarla y rearmarla
-        // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta, no se coloca:
-        // no se dibuja, no recibe toques ni aparece en accesibilidad. Su destino en el NavHost lleva la pila.
+        // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta sigue medida y
+        // colocada con alfa 0, para que volver no rehaga sus capas (T02e); sin semántica y sin toques.
+        // Su destino en el NavHost lleva la pila.
         val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs))
         val songs by vm.songs.collectAsStateWithLifecycle()
         // El mismo fundido que el NavHost da a las demás pestañas.
-        val alfa by animateFloatAsState(
-            if (enBiblioteca) 1f else 0f,
-            if (enBiblioteca) tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut) else tween(RolaMotion.RAPIDA),
-            label = "biblioteca",
-        )
+        val alfa = remember { Animatable(if (enBiblioteca) 1f else 0f) }
+        LaunchedEffect(enBiblioteca) {
+            if (enBiblioteca) {
+                withFrameNanos {} // DEC-28 arranque_en_primer_cuadro: cuenta desde que Biblioteca ya está dibujada
+                alfa.animateTo(1f, tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut))
+            } else {
+                alfa.animateTo(0f, tween(RolaMotion.RAPIDA))
+            }
+        }
         Box(
-            Modifier.layout { m, c ->
-                val p = m.measure(c)
-                layout(p.width, p.height) { if (alfa > 0f) p.placeWithLayer(0, 0) { alpha = alfa } }
-            },
+            Modifier
+                .graphicsLayer { alpha = alfa.value }
+                .then(if (enBiblioteca) Modifier else Modifier.clearAndSetSemantics {}),
         ) {
             LibraryScreen(
                 songs = songs,
@@ -89,6 +96,8 @@ fun RolaNavHost(container: AppContainer) {
                 contentPadding = PaddingValues(bottom = abajo),
                 visible = enBiblioteca,
             )
+            // Encima de la lista oculta: se lleva los toques para que no lleguen a las filas.
+            if (!enBiblioteca) Box(Modifier.matchParentSize().pointerInput(Unit) {})
         }
         NavHost(
             nav,

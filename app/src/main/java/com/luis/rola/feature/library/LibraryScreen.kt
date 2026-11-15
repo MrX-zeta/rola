@@ -31,8 +31,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -93,6 +95,7 @@ fun LibraryScreen(
                 desplegada = true
                 primera = lista.firstVisibleItemIndex
                 reloj.snapTo(0f)
+                withFrameNanos {} // DEC-28 arranque_en_primer_cuadro: cuenta desde que las filas ya están dibujadas
                 reloj.animateTo(CASCADA_MS.toFloat(), tween(CASCADA_MS, easing = LinearEasing))
             }
         }
@@ -145,6 +148,8 @@ fun LibraryScreen(
                                 }
                                 alpha = p
                                 translationY = (1f - p) * 8.dp.toPx()
+                                // Sin capa fuera de pantalla por fila (8 por cuadro al entrar, medido en T02e).
+                                compositingStrategy = CompositingStrategy.ModulateAlpha
                             },
                         ) { onSongClick(i) }
                     }
