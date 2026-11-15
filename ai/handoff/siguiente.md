@@ -1,63 +1,44 @@
-# Tarea 03 · Reproductor completo: Reproduciendo, cola, gestos y temporizador
+# Tarea 03b · Correcciones del reproductor (probado por Brian en el Redmi)
 
-**Estado:** esperando revisión
+**Estado:** lista
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
-**Grafo:** 1.5.0 · **Spec Kit:** `specs/002-reproductor-completo/`.
-**Ponytail:** off del Paso 1 al Paso 5; full del Paso 6 en adelante.
-**Dispositivo:** emulador; si el Redmi está conectado, instálale `perfil` al final.
-
-## Objetivo
-Desde la mini tarjeta abro Reproduciendo, controlo la canción completa (avance, anterior/siguiente, aleatorio, repetir), veo y ordeno la cola, pongo un temporizador de apagado y uso los gestos de la mini tarjeta.
+**Grafo:** 1.6.0 · **Spec Kit:** corrección sobre `specs/002-reproductor-completo/` con `/speckit-converge`.
+**Ponytail:** off en el Paso 1; full del Paso 2 en adelante.
+**Dispositivo:** si el Redmi aparece en adb, instálale `perfil` al final y avísale a Brian.
 
 ## Lectura obligatoria
-- Grafo: INV-05, INV-06, INV-11; DEC-04 (gestos), DEC-09, DEC-15 y PEND-08 (color de portada), DEC-24 (Reproduciendo y cola), DEC-27, DEC-28 (movimiento, `arranque_en_primer_cuadro`), OP-02, OP-03, OP-04, OP-15.
-- Pantallas: SCR-50, SCR-51 Reproduciendo, SCR-52 Cola, SCR-53 Temporizador (y sus `figma_nodo_claro`). Usa `figma-design-to-code` antes de leerlas.
-- `ai/handoff/animaciones-auditoria.md` (plan 006: línea de progreso continua).
+- Grafo: DEC-04 y DEC-24 (con sus «CAMBIOS 2026-11-14»), DEC-16 (`timeSmall`, botón sin portada en claro), DEC-27 (portada plana), DEC-28, INV-06.
+- Reporte de la tarea 03: `git show a31906f:ai/handoff/reporte.md`.
+- Figma: el componente Mini reproductor (5:51) ya no tiene botón siguiente.
 
 ## Paso 0 · Comprobación
-- `git log --oneline -3` incluye `docs: sesión de diseño tarea 03`. Si no, detente.
+- `git log --oneline -3` incluye `docs: sesión de diseño tarea 03b`. Si no, detente.
 
-## Paso 1 · `/speckit-specify`
-> Como dueño de Rola quiero tocar o deslizar hacia arriba la mini tarjeta para abrir Reproduciendo, con la portada grande, título, artista, barra de avance que puedo arrastrar con sus tiempos, anterior, reproducir/pausa, siguiente, aleatorio y repetir; deslizar hacia abajo para volver. En la mini tarjeta, deslizar a la izquierda pasa a la siguiente y a la derecha a la anterior. Desde Reproduciendo abro la cola: veo lo que suena y lo que sigue, reordeno arrastrando y quito deslizando, con opción de deshacer. También pongo un temporizador (15, 30, 45 min, 1 h o al terminar la canción) que pausa la música. Reproduciendo, la cola y la mini tarjeta usan el color de la portada.
-Incluye los ids SCR, DEC y OP de esta tarea.
-
-## Paso 2 · `/speckit-clarify`
-Responde con el grafo; lo demás, la opción más simple marcada como **supuesto**. Ya decidido:
-- **Gestos (DEC-04):** solo dentro de la mini tarjeta y en Reproduciendo (abajo para cerrar). Umbral de distancia y velocidad, interrumpibles y con alternativa por botones. Sin deslizar entre pestañas.
-- **Repetir:** tres estados (apagado, toda la cola, una canción). **Aleatorio:** modo de reproducción que se puede apagar (no confundir con el botón «Aleatorio» de Biblioteca, que baraja la lista).
-- **Temporizador:** vive en el servicio de reproducción; al cumplirse, pausa (no detiene ni cierra). Se muestra el tiempo restante en el ícono o en la hoja, y se puede cancelar. No se recuerda al cerrar la app (DataStore llega en la tarea 07).
-- **Cola:** no se recuerda al cerrar la app (Room llega en la tarea 05). Quitar con deslizar muestra snackbar con «Deshacer» (DEC-09).
-- **Fuera de esta tarea:** tocar la portada para ver la letra, el botón ⋮ y «Añadir a una lista» (tareas 05 y 08). No muestres la pista «Letra» sobre la portada ni el ⋮ todavía.
-
-## Paso 3 · `/speckit-plan`
-- Paquetes: `feature/player` (Reproduciendo, cola, temporizador, gestos), `core/media` (modos, temporizador, operaciones de cola en el `MediaSessionService`).
-- La cola y los modos se manejan en el reproductor de Media3 (sin una copia paralela en la interfaz). Las operaciones (mover, quitar, deshacer) pasan por `MediaController`.
-- **Transición mini tarjeta ↔ Reproduciendo:** la tarjeta crece hasta pantalla completa (elemento compartido o transformación de contenedor) siguiendo el dedo al deslizar hacia arriba; al soltar, termina con resorte o regresa según umbral. Con reducir movimiento: fundido corto. Usa `animate`.
-- Línea de progreso continua (plan 006) en la mini tarjeta y la barra de Reproduciendo, sin recomponer toda la pantalla en cada cuadro.
-- Color de portada: reutiliza lo de la tarea 02 (`ensureContrast`).
-- Sin dependencias nuevas salvo que el plan las justifique en el reporte.
-
-## Paso 4 · `/speckit-tasks`
-## Paso 5 · `/speckit-analyze`
-- Corrige inconsistencias con la constitución o el grafo. Commit: `docs(spec): 002 reproductor completo`.
+## Paso 1 · Actualizar la spec 002 y `/speckit-converge`
+- Agrega a `spec.md` los cambios de DEC-04 y DEC-24 de abajo como requisitos nuevos o corregidos, y las respuestas a tus dudas. Luego `/speckit-converge` para que agregue lo pendiente a `tasks.md`. Commit: `docs(spec): 002 correcciones de la revisión`.
 - Detente y pide a Brian que cambie Ponytail a **full**.
 
-## Paso 6 · `/speckit-implement`
-- Commits atómicos por área (`feat(player): …`, `feat(media): …`, `feat(motion): …`).
-- Pruebas:
-  - JUnit: temporizador (cada opción y «al terminar la canción»), umbrales de gestos, operaciones de cola (mover, quitar, deshacer), formato de tiempos.
-  - Compose: Reproduciendo muestra título, tiempos y estados de aleatorio/repetir; con reducir movimiento la transición no desplaza; la cola muestra la canción actual.
-- `design-critique` de SCR-51, SCR-52 y SCR-53 contra Figma, en oscuro y claro.
+## Paso 2 · Lo que encontró Brian (corregir todo)
+1. **Gesto de la mini tarjeta:** hoy solo funciona empezando muy a la orilla; en medio solo rebota. El umbral debe contar la **distancia recorrida desde donde empieza el dedo** (≈ 25 % del ancho o ~96 dp, lo que sea menor) o la velocidad (~400 dp/s), empezando en cualquier punto. Calibra y deja los valores en `RolaMotion` o junto al gesto.
+2. **Reproduciendo se queda a medias al deslizar hacia abajo** (la capa queda atorada sobre Biblioteca). Al soltar debe terminar siempre en cerrado o abierto, también si el gesto se cancela o lo interrumpe otro toque. Agrega una prueba que lo cubra.
+3. **Reproduciendo: controles pequeños y muy arriba, hueco abajo.** Reparte la altura: portada que se adapta al alto disponible, controles más grandes (reproducir ≥ 80 dp, anterior/siguiente ≥ 56 dp como Figma) y la fila de acciones cerca del borde inferior respetando la barra del sistema.
+4. **Gesto horizontal sobre la portada en Reproduciendo** para siguiente/anterior, con el mismo umbral que la mini tarjeta y una respuesta visual (la portada se desplaza con el dedo y vuelve o cambia).
+5. **Mini tarjeta:** quita el botón siguiente; deja solo reproducir/pausa. El título corre como **marquesina** solo si no cabe (Compose `basicMarquee`); si cabe o hay reducir movimiento, queda estático con puntos suspensivos.
+6. **Cola:** tocar una fila reproduce esa canción. Al arrastrar cerca del borde superior o inferior, la lista se desplaza sola (las dos direcciones), y una fila arrastrada nunca se «come» ni se pierde al llegar al tope: se coloca en la posición válida más cercana.
 
-## Paso 7 · Comprobaciones
+## Paso 3 · Respuestas a tus dudas de la tarea 03
+1. Portada de Reproduciendo: **plana** (DEC-27).
+2. «Limpiar» en la Cola: **sí**. Quita todo lo que sigue y deja la actual, con aviso y «Deshacer».
+3. Sin portada en claro: el botón de reproducir usa **accent** (lima) con `onAccent`; barra y título siguen en `primary` por contraste.
+4. Mini tarjeta en claro con la variante clara del color: **confirmado**.
+5. `timeSmall` ya está en DEC-16. `repeat_one` lo agrega la sesión de diseño a Figma.
+También corrige:
+- **Portada borrosa:** pide la portada al tamaño en que se dibuja (no 512 px fijo).
+- **Órdenes antes de conectar:** que el primer toque tras un arranque en frío no se pierda (guárdalas y envíalas al conectar). Quita el `shortcut:` correspondiente.
+
+## Paso 4 · Comprobaciones y reporte
 - `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y las de Compose.
-- En emulador: abrir y cerrar Reproduciendo tocando y deslizando, gestos de la mini tarjeta, arrastrar la barra, modos, reordenar/quitar/deshacer en la cola, temporizador de 1 min (temporal para probar, sin versionar), música que sigue al salir de la app (INV-11).
-- Capturas y videos: `t03-reproduciendo.png`, `t03-cola.png`, `t03-temporizador.png`, `t03-abrir-reproduciendo.mp4`, `t03-gestos.mp4`.
-- `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`.
-
-## Paso 8 · Reporte y detente
-- Incluye supuestos, decisiones y diferencias con Figma. Estado «esperando revisión».
-
-## Fuera de esta tarea
-Letras, menú de opciones, listas, Room, DataStore, Inicio, Buscar, Ajustes, widget.
+- Pruebas nuevas: umbral desde el centro de la tarjeta, cierre que nunca queda a medias, tocar fila de la cola, «Limpiar» + deshacer, marquesina estática con reducir movimiento.
+- Capturas: `t03b-reproduciendo.png` (oscuro y claro), `t03b-mini.png`, `t03b-cola.png`.
+- `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`. Reporte y estado «esperando revisión».
