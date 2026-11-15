@@ -1,6 +1,6 @@
 # Tarea 02d · Medir el retraso de la barra y despliegue de Biblioteca
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.4.2 · Sin Spec Kit.
