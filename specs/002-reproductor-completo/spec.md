@@ -4,7 +4,7 @@
 
 **Creada**: 2026-11-14
 
-**Estado**: Borrador
+**Estado**: Borrador · corregida tras la revisión de Brian (tarea 03b, grafo 1.6.0)
 
 **Tarea**: `ai/handoff/siguiente.md` · Tarea 03 · Grafo 1.5.0
 
@@ -24,6 +24,19 @@ Respondidas con el grafo y con lo «ya decidido» de la tarea 03; lo que ninguno
 - P: ¿Qué pasa al quitar una canción de la cola y se recuerda la cola? → R: aviso con «Deshacer» que la devuelve a su lugar (DEC-09); la cola no se recuerda al cerrar la app (Room llega en la tarea 05). (Tarea.)
 - P: ¿Qué elementos de Figma de Reproduciendo y Cola quedan fuera? → R: tocar la portada para ver la letra, la pista y el botón «Letra», el menú ⋮ y «Añadir a una lista» (tareas 05 y 08). «Limpiar» de la Cola no lo pide la tarea: queda fuera (**supuesto**, se pregunta en el reporte). La sombra de la portada de Figma no se dibuja porque DEC-27 no pone relieve en Reproduciendo (**supuesto**, manda el grafo; se pregunta en el reporte).
 
+### Revisión 2026-11-14 · tarea 03b (Brian probó en el Redmi, grafo 1.6.0)
+
+Cambios de DEC-04 y DEC-24 y respuestas a las dudas del reporte de la tarea 03. Reemplazan lo anterior donde choquen.
+
+- P: ¿Lleva sombra la portada de Reproduciendo? → R: no, va **plana** (DEC-27).
+- P: ¿Se implementa «Limpiar» en la Cola? → R: **sí**: quita todo lo que sigue, deja la canción actual y muestra un aviso con «Deshacer» (DEC-24).
+- P: Sin portada en tema claro, ¿de qué color es el botón de reproducir? → R: **accent** (lima) con `onAccent`; la barra de avance y el título siguen en `primary` por contraste (DEC-16).
+- P: ¿La mini tarjeta en claro usa la variante clara del color de la portada? → R: **confirmado**.
+- P: ¿`timeSmall` y `repeat_one`? → R: `timeSmall` ya está en DEC-16; `repeat_one` lo agrega la sesión de diseño a Figma.
+- P: ¿Cómo se mide el umbral del gesto horizontal? → R: por la **distancia recorrida desde donde empieza el dedo** (≈ 25 % del ancho o ~96 dp, lo que sea menor) o por la velocidad (~400 dp/s), empezando en cualquier punto de la tarjeta; no por la posición (DEC-04).
+- P: ¿Qué botones lleva la mini tarjeta? → R: solo reproducir/pausa (sin siguiente); el título corre como marquesina solo si no cabe (DEC-04, Figma 5:51).
+- P: ¿Qué hace tocar una fila de la cola? → R: reproduce esa canción (DEC-24).
+
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
 ### Historia 1 · Abrir Reproduciendo y controlar la canción (Prioridad: P1)
@@ -38,11 +51,13 @@ Con una canción sonando, toco la mini tarjeta (o la deslizo hacia arriba) y se 
 
 1. **Dado** que hay una canción cargada, **cuando** toco la mini tarjeta fuera de sus botones, **entonces** se abre Reproduciendo con la portada, el título, el artista y los tiempos de esa canción.
 2. **Dado** que hay una canción cargada, **cuando** deslizo la mini tarjeta hacia arriba más allá del umbral (distancia o velocidad), **entonces** la tarjeta crece siguiendo mi dedo y, al soltar, termina de abrir Reproduciendo; si suelto antes del umbral, regresa a su lugar.
-3. **Dado** que estoy en Reproduciendo, **cuando** deslizo hacia abajo más allá del umbral, toco la flecha de cerrar o uso Atrás, **entonces** vuelvo a la pantalla anterior con la mini tarjeta; si suelto antes del umbral, Reproduciendo se queda abierta.
+3. **Dado** que estoy en Reproduciendo, **cuando** deslizo hacia abajo más allá del umbral, toco la flecha de cerrar o uso Atrás, **entonces** vuelvo a la pantalla anterior con la mini tarjeta; si suelto antes del umbral, Reproduciendo se queda abierta. Al soltar, o si el gesto se cancela o lo interrumpe otro toque, Reproduciendo termina siempre cerrada o abierta, nunca a medias.
 4. **Dado** que estoy en Reproduciendo, **cuando** arrastro el control de la barra, **entonces** el tiempo transcurrido muestra el punto al que voy y, al soltar, la canción salta a ese punto. Tocar la barra en un punto también salta a él.
 5. **Dado** que estoy en Reproduciendo, **cuando** toco reproducir/pausa, siguiente o anterior, **entonces** la canción se pausa, se reanuda o cambia, y la pantalla muestra la nueva canción con su color.
 6. **Dado** que una canción lleva más de 3 segundos sonando, **cuando** toco anterior, **entonces** vuelve a empezar; si lleva 3 segundos o menos, pasa a la canción anterior de la cola.
 7. **Dado** que una canción suena, **cuando** abro o cierro Reproduciendo, **entonces** la música no se detiene (INV-11).
+8. **Dado** que estoy en Reproduciendo, **cuando** deslizo la portada horizontalmente más allá del umbral de la mini tarjeta, **entonces** la portada se desplaza con el dedo y pasa a la siguiente (izquierda) o a la anterior (derecha); por debajo del umbral, vuelve a su lugar.
+9. **Dado** que estoy en Reproduciendo en cualquier teléfono, **cuando** miro la pantalla, **entonces** la portada se adapta al alto disponible, los controles son grandes y la fila de acciones queda cerca del borde inferior, sin hueco abajo.
 
 ---
 
@@ -75,12 +90,13 @@ Sin abrir Reproduciendo, deslizo la mini tarjeta a la izquierda para pasar a la 
 
 **Escenarios de aceptación**:
 
-1. **Dado** que hay una canción siguiente, **cuando** deslizo la tarjeta a la izquierda más allá del umbral, **entonces** pasa a la siguiente canción (OP-03).
+1. **Dado** que hay una canción siguiente, **cuando** deslizo la tarjeta a la izquierda más allá del umbral, empezando en cualquier punto de la tarjeta (también en el centro), **entonces** pasa a la siguiente canción (OP-03).
 2. **Dado** que hay una canción cargada, **cuando** deslizo la tarjeta a la derecha más allá del umbral, **entonces** ocurre lo mismo que con el botón anterior (Historia 1, escenario 6).
 3. **Dado** que deslizo la tarjeta, **cuando** suelto antes del umbral, **entonces** la tarjeta regresa a su lugar y la canción no cambia.
 4. **Dado** que no hay canción siguiente, **cuando** deslizo a la izquierda, **entonces** la tarjeta regresa a su lugar y la canción no cambia.
 5. **Dado** que estoy deslizando la tarjeta, **cuando** cambio de dirección o la suelto a medio camino, **entonces** el movimiento se interrumpe y sigue desde donde va, sin saltos (DEC-28).
-6. **Dado** que no uso gestos, **cuando** quiero las mismas acciones, **entonces** tengo los botones: siguiente en la tarjeta; anterior, siguiente y cerrar en Reproduciendo; y tocar la tarjeta para abrirla.
+6. **Dado** que no uso gestos, **cuando** quiero las mismas acciones, **entonces** tengo los botones: anterior, siguiente y cerrar en Reproduciendo, y tocar la tarjeta para abrirla. La tarjeta solo lleva reproducir/pausa.
+7. **Dado** que el título no cabe en la tarjeta, **cuando** la veo, **entonces** corre como marquesina; si cabe o está activo «reducir movimiento», queda estático con puntos suspensivos.
 
 ---
 
@@ -101,6 +117,9 @@ Desde Reproduciendo abro la cola (SCR-52). Arriba veo la canción que suena; aba
 5. **Dado** que estoy en Cola, **cuando** toco la flecha o uso Atrás, **entonces** vuelvo a Reproduciendo.
 6. **Dado** que uso un lector de pantalla, **cuando** me enfoco en una fila de «A continuación», **entonces** tengo las acciones «Subir», «Bajar» y «Quitar de la cola» sin necesidad de arrastrar ni deslizar (INV-06).
 7. **Dado** que la canción actual es la última, **cuando** abro Cola, **entonces** «A continuación · 0» muestra un texto que dice que no hay más canciones.
+8. **Dado** que estoy en Cola, **cuando** toco una fila de «A continuación», **entonces** esa canción empieza a sonar.
+9. **Dado** que arrastro una fila cerca del borde superior o inferior de la lista, **cuando** la mantengo ahí, **entonces** la lista se desplaza sola en esa dirección; al llegar al tope, la fila queda en la posición válida más cercana y nunca se pierde ni tapa a otra.
+10. **Dado** que hay canciones en «A continuación», **cuando** toco «Limpiar», **entonces** se quitan todas las que siguen, queda la actual y aparece un aviso con «Deshacer» que las devuelve en su orden.
 
 ---
 
@@ -154,6 +173,7 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - Una canción ilegible durante el aleatorio o la repetición: se salta como en la tarea 02 (FR-018 de 001).
 - Gesto vertical en la tarjeta que empieza en diagonal: gana la dirección dominante; no se cambia de canción y se abre a la vez.
 - Rotar el teléfono o cambiar de tema con Reproduciendo, Cola o la hoja abiertos: la pantalla abierta se conserva.
+- Toques en la mini tarjeta o en la biblioteca justo después de un arranque en frío, antes de que se conecte el reproductor: no se pierden; se guardan y se envían al conectar.
 - Reproduciendo abierta cuando la cola se vacía (por ejemplo, la canción deja de existir): se cierra y vuelve a la pantalla anterior sin mini tarjeta.
 
 ## Requisitos *(obligatorio)*
@@ -164,14 +184,14 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 
 - **FR-001**: Tocar la mini tarjeta fuera de sus botones DEBE abrir Reproduciendo.
 - **FR-002**: Deslizar la mini tarjeta hacia arriba DEBE abrir Reproduciendo con una transición que sigue al dedo: la tarjeta crece hasta ocupar la pantalla. Al soltar, si se pasó el umbral de distancia o de velocidad, termina de abrir; si no, regresa.
-- **FR-003**: Reproduciendo DEBE cerrarse deslizando hacia abajo (con el mismo criterio de umbral y seguimiento del dedo), con la flecha de la barra superior y con Atrás del sistema.
+- **FR-003**: Reproduciendo DEBE cerrarse deslizando hacia abajo (con el mismo criterio de umbral y seguimiento del dedo), con la flecha de la barra superior y con Atrás del sistema. Al soltar, y también si el gesto se cancela o lo interrumpe otro toque, DEBE terminar siempre en cerrado o abierto; nunca queda a medias sobre la pantalla de abajo.
 - **FR-004**: Las transiciones de abrir y cerrar DEBEN ser interrumpibles: si el usuario vuelve a tocar a medio camino, el movimiento sigue desde donde va.
 - **FR-005**: Con «reducir movimiento» activo, abrir y cerrar Reproduciendo DEBE ser un fundido corto, sin desplazamiento ni cambio de tamaño, y la tarjeta no se mueve con el dedo (DEC-28, INV-06).
 - **FR-006**: Abrir, cerrar o interrumpir cualquier transición del reproductor NO DEBE pausar ni detener la música (INV-11).
 
 **Reproduciendo (SCR-51, DEC-24)**
 
-- **FR-007**: Reproduciendo DEBE mostrar: barra superior con flecha de cerrar y el origen «Reproduciendo desde · Biblioteca»; portada grande; título y artista; barra de avance con tiempo transcurrido y total; aleatorio, anterior, reproducir/pausa, siguiente y repetir; y una fila de acciones con temporizador y cola.
+- **FR-007**: Reproduciendo DEBE mostrar: barra superior con flecha de cerrar y el origen «Reproduciendo desde · Biblioteca»; portada grande; título y artista; barra de avance con tiempo transcurrido y total; aleatorio, anterior, reproducir/pausa, siguiente y repetir; y una fila de acciones con temporizador y cola. El contenido DEBE repartirse en toda la altura: la portada se adapta al alto disponible, reproducir mide ≥ 80 dp, anterior y siguiente ≥ 56 dp (Figma), y la fila de acciones queda cerca del borde inferior respetando la barra del sistema. La portada DEBE ser plana (DEC-27) y pedirse al tamaño en que se dibuja, no a un tamaño fijo, para que no se vea borrosa.
 - **FR-008**: NO DEBEN mostrarse en esta tarea: la pista «Letra» sobre la portada, el botón de letra, el menú ⋮ ni «Añadir a una lista». Tocar la portada no hace nada todavía.
 - **FR-009**: Los tiempos DEBEN usar la tipografía de tiempos (Geist Mono) y el formato «m:ss» (o «h:mm:ss» desde una hora).
 - **FR-010**: La barra de avance DEBE poder arrastrarse y tocarse: mientras se arrastra, el tiempo transcurrido muestra el destino; al soltar, la canción salta a ese punto.
@@ -185,10 +205,13 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 
 **Gestos de la mini tarjeta (SCR-50, DEC-04, OP-03)**
 
-- **FR-018**: Deslizar la mini tarjeta a la izquierda más allá del umbral DEBE pasar a la siguiente canción; a la derecha, hacer lo mismo que el botón anterior (FR-012).
+- **FR-018**: Deslizar la mini tarjeta a la izquierda más allá del umbral DEBE pasar a la siguiente canción; a la derecha, hacer lo mismo que el botón anterior (FR-012). El umbral cuenta la distancia recorrida desde donde empieza el dedo (≈ 25 % del ancho de la tarjeta o ~96 dp, lo que sea menor) o la velocidad al soltar (~400 dp/s), y el gesto DEBE funcionar empezando en cualquier punto de la tarjeta. Los valores calibrados viven en `RolaMotion` o junto al gesto.
 - **FR-019**: Por debajo del umbral, o sin canción siguiente al deslizar a la izquierda, la tarjeta DEBE regresar a su lugar sin cambiar la canción.
-- **FR-020**: Los gestos DEBEN existir solo dentro de la mini tarjeta y de Reproduciendo (cerrar); no hay deslizar entre pestañas.
+- **FR-020**: Los gestos DEBEN existir solo dentro de la mini tarjeta y de Reproduciendo (cerrar hacia abajo; siguiente/anterior sobre la portada); no hay deslizar entre pestañas.
 - **FR-021**: El gesto horizontal y el vertical NO DEBEN dispararse a la vez: gana la dirección dominante.
+- **FR-049**: En Reproduciendo, deslizar la portada horizontalmente DEBE pasar a la siguiente (izquierda) o a la anterior (derecha) con el mismo umbral que la mini tarjeta (FR-018). La portada DEBE desplazarse con el dedo y, al soltar, volver a su lugar o cambiar. Con «reducir movimiento», la portada no sigue al dedo, pero el gesto sigue cambiando de canción.
+- **FR-050**: La mini tarjeta DEBE llevar solo el botón reproducir/pausa (sin siguiente), como el componente de Figma 5:51.
+- **FR-051**: El título de la mini tarjeta DEBE correr como marquesina solo si no cabe; si cabe o está activo «reducir movimiento», queda estático con puntos suspensivos.
 
 **Cola (SCR-52, DEC-24, DEC-09, OP-04)**
 
@@ -200,6 +223,9 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **FR-027**: Cola DEBE cerrarse con la flecha y con Atrás, volviendo a Reproduciendo.
 - **FR-028**: Sin canciones siguientes, Cola DEBE mostrar un texto que lo explica.
 - **FR-029**: La cola NO se recuerda al cerrar la app (Room llega en la tarea 05).
+- **FR-052**: Tocar una fila de «A continuación» DEBE reproducir esa canción.
+- **FR-053**: Al arrastrar una fila cerca del borde superior o inferior de la lista, la lista DEBE desplazarse sola en esa dirección. Una fila arrastrada NUNCA debe perderse ni ocupar el lugar de otra al llegar al tope: se coloca en la posición válida más cercana.
+- **FR-054**: «Limpiar» en la barra de Cola DEBE quitar todas las canciones de «A continuación» y dejar la actual, con un aviso y «Deshacer» que las devuelve en su orden. Sin canciones siguientes, «Limpiar» queda deshabilitado.
 
 **Temporizador (SCR-53, OP-15)**
 
@@ -215,7 +241,7 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 **Color de la portada (DEC-15, PEND-08 A)**
 
 - **FR-038**: La mini tarjeta, Reproduciendo y la fila actual de Cola DEBEN usar el color sacado de la portada de la canción actual; sin portada o sin color útil, los colores del tema.
-- **FR-039**: En Reproduciendo, el fondo superior DEBE ser un degradado del color de la portada hacia el fondo del tema; la barra de avance, el botón de reproducir y los modos activos usan el acento de la portada.
+- **FR-039**: En Reproduciendo, el fondo superior DEBE ser un degradado del color de la portada hacia el fondo del tema; la barra de avance, el botón de reproducir y los modos activos usan el acento de la portada. Sin portada en tema claro, el botón de reproducir usa `accent` (lima) con `onAccent`, y la barra y el título siguen en `primary` por contraste (DEC-16). La mini tarjeta en claro usa la variante clara del color de la portada.
 - **FR-040**: La hoja del temporizador y el aviso de Deshacer DEBEN usar los colores del tema, no los de la portada, como en Figma.
 - **FR-041**: Todo texto sobre colores de la portada DEBE tener contraste ≥ 4.5:1, y los componentes ≥ 3:1 (INV-06).
 - **FR-042**: El cambio de color entre canciones DEBE ser un fundido corto.
@@ -228,6 +254,7 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **FR-046**: Toda animación nueva DEBE durar ≤ 300 ms (las salidas, menos que las entradas), usar resortes interrumpibles en lo que se arrastra y empezar a contar cuando su contenido ya está dibujado (DEC-28 `arranque_en_primer_cuadro`).
 - **FR-047**: Reproduciendo, Cola y la hoja DEBEN verse bien en tema oscuro y claro según sus nodos de Figma.
 - **FR-048**: Todos los textos de la interfaz DEBEN estar en español.
+- **FR-055**: Las órdenes que la interfaz envía antes de que el controlador de reproducción esté conectado (por ejemplo, el primer toque tras un arranque en frío) NO DEBEN perderse: se guardan y se envían en orden al conectar.
 
 ### Entidades clave
 
@@ -252,6 +279,8 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - **SC-008**: Con «reducir movimiento» activo, ninguna transición del reproductor desplaza ni escala contenido.
 - **SC-009**: Las transiciones de abrir y cerrar y la barra de avance se ven fluidas, sin cuadros perdidos visibles, en una compilación no depurable.
 - **SC-010**: La app no realiza ninguna conexión de red durante estos flujos.
+- **SC-011**: Un deslizamiento horizontal que empieza en el centro de la mini tarjeta y recorre más que el umbral cambia la canción en el 100 % de los intentos.
+- **SC-012**: Tras soltar, cancelar o interrumpir el gesto de cerrar, Reproduciendo queda cerrada o abierta en el 100 % de los intentos (nunca a medias).
 
 ## Supuestos
 
@@ -259,8 +288,6 @@ La mini tarjeta, Reproduciendo y la cola se tiñen con el color de la portada de
 - Repetir empieza apagado y aleatorio apagado cada vez que se abre la app (sin persistencia en esta tarea).
 - Anterior reinicia la canción si lleva más de 3 segundos (comportamiento habitual de los reproductores).
 - La cola solo muestra la canción actual y las siguientes; las ya escuchadas siguen en la cola para «anterior», pero no se listan.
-- Tocar una fila de la cola no hace nada en esta tarea (no lo pide la tarea).
-- «Limpiar» de la barra de Cola (Figma) no se implementa en esta tarea: la tarea no lo pide.
 - El temporizador por tiempo sigue corriendo aunque el usuario pause a mano.
 - La hoja del temporizador y el aviso de Deshacer usan los colores del tema, como en Figma.
 - La portada de Reproduciendo es plana (DEC-27 no incluye Reproduciendo entre las pantallas con relieve, aunque el Figma muestra sombra en la portada).
