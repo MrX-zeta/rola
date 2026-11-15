@@ -58,3 +58,8 @@ private val EstiloTiempo = TextStyle(
 
 /** Para tiempos como «2:47»: Geist Mono Medium, números del mismo ancho. */
 val Typography.time: TextStyle get() = EstiloTiempo
+
+private val EstiloTiempoChico = EstiloTiempo.copy(fontSize = 12.sp, lineHeight = 16.sp)
+
+/** Tiempos de la barra de avance y etiquetas en mayúsculas («SONANDO AHORA»): Geist Mono 12. */
+val Typography.timeSmall: TextStyle get() = EstiloTiempoChico

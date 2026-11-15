@@ -45,4 +45,45 @@
     <string name="siguiente">Siguiente</string>
     <string name="progreso">%1$s de %2$s</string>
     <string name="error_reproducir">No se pudo reproducir esta canción</string>
+    <!-- Reproduciendo (SCR-51) -->
+    <string name="abrir_reproductor">Abrir reproductor</string>
+    <string name="cerrar_reproductor">Cerrar reproductor</string>
+    <string name="reproduciendo_desde">REPRODUCIENDO DESDE</string>
+    <string name="anterior">Anterior</string>
+    <string name="aleatorio_encendido">Aleatorio encendido</string>
+    <string name="aleatorio_apagado">Aleatorio apagado</string>
+    <string name="repetir_apagado">Repetir apagado</string>
+    <string name="repetir_todo">Repetir toda la cola</string>
+    <string name="repetir_una">Repetir una canción</string>
+    <string name="abrir_cola">Cola</string>
+    <string name="barra_avance">Avance de la canción</string>
+
+    <!-- Cola (SCR-52) -->
+    <string name="cola">Cola</string>
+    <string name="volver">Volver</string>
+    <string name="sonando_ahora">SONANDO AHORA</string>
+    <string name="a_continuacion">A CONTINUACIÓN · %1$d</string>
+    <string name="sin_mas_canciones">No hay más canciones en la cola.</string>
+    <string name="quitaste">Quitaste «%1$s» de la cola</string>
+    <string name="deshacer">Deshacer</string>
+    <string name="subir">Subir</string>
+    <string name="bajar">Bajar</string>
+    <string name="quitar_de_cola">Quitar de la cola</string>
+    <string name="arrastrar_para_mover">Arrastrar para mover</string>
+
+    <!-- Temporizador (SCR-53) -->
+    <string name="temporizador">Temporizador</string>
+    <string name="temporizador_activo">Temporizador: faltan %1$s</string>
+    <string name="temporizador_al_terminar">Temporizador: al terminar la canción</string>
+    <string name="temporizador_subtitulo">La música se pausará sola.</string>
+    <string name="temporizador_restante">La música se pausará en %1$s.</string>
+    <string name="temporizador_restante_cancion">La música se pausará al terminar la canción.</string>
+    <string name="temporizador_apagado">Apagado</string>
+    <string name="temporizador_15">15 minutos</string>
+    <string name="temporizador_30">30 minutos</string>
+    <string name="temporizador_45">45 minutos</string>
+    <string name="temporizador_60">1 hora</string>
+    <string name="temporizador_cancion">Al terminar la canción</string>
+    <string name="iniciar_temporizador">Iniciar temporizador</string>
+    <string name="temporizador_cancelado">Temporizador apagado</string>
 </resources>
