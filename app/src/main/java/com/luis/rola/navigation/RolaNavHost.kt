@@ -263,6 +263,12 @@ private fun PlayerOverlay(
                         }
                     }
                 },
+                onPlay = player::playUpNext,
+                onClear = {
+                    player.clearUpNext()?.let { c ->
+                        aviso(res.getString(R.string.limpiaste), res.getString(R.string.deshacer)) { player.undoClear(c) }
+                    }
+                },
             )
         }
         if (temporizador) {

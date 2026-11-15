@@ -66,6 +66,8 @@
     <string name="sin_mas_canciones">No hay más canciones en la cola.</string>
     <string name="quitaste">Quitaste «%1$s» de la cola</string>
     <string name="deshacer">Deshacer</string>
+    <string name="limpiar">Limpiar</string>
+    <string name="limpiaste">Limpiaste la cola</string>
     <string name="subir">Subir</string>
     <string name="bajar">Bajar</string>
     <string name="quitar_de_cola">Quitar de la cola</string>
