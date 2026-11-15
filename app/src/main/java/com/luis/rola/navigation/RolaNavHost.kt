@@ -220,7 +220,7 @@ private fun PlayerOverlay(
     PlayerSheet(
         sheet,
         colores.container,
-        card = { MiniCardContent(state, song, colores, posicion, onToggle = {}, onNext = {}) },
+        card = { MiniCardContent(state, song, colores, posicion, onToggle = {}) },
     ) {
         NowPlayingScreen(
             state,

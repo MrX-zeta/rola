@@ -27,6 +27,8 @@ fun coloresDePrueba() = CoverColors(
     content = MaterialTheme.colorScheme.onSurface,
     contentVariant = MaterialTheme.colorScheme.onSurfaceVariant,
     track = MaterialTheme.colorScheme.outline,
+    play = RolaTheme.colors.accent,
+    onPlay = RolaTheme.colors.onAccent,
 )
 
 class NowPlayingTest {

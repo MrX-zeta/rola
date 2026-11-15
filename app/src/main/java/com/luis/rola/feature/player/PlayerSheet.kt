@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.designsystem.RolaMotion
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
 /**
@@ -68,6 +70,14 @@ class PlayerSheetState(abierto: Boolean, colaAbierta: Boolean) {
 
     fun requestOpen() {
         opening = true
+    }
+
+    /**
+     * La capa sigue al dedo. Sin despachar: el salto se registra en el acto, así que nunca llega después de la
+     * animación de soltar y la corta a medias (FR-003, revisión del Redmi).
+     */
+    fun follow(scope: CoroutineScope, p: Float) {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) { expansion.snapTo(p) }
     }
 
     suspend fun open(reduce: Boolean, velocity: Float = 0f) {
@@ -130,6 +140,7 @@ fun PlayerSheet(
     }
     BackHandler(enabled = !sheet.queueOpen) { scope.launch { sheet.close(reduce) } }
     var arrastre by remember { mutableFloatStateOf(0f) }
+    var desde by remember { mutableFloatStateOf(1f) } // si se toma a medio camino, sigue desde ahí sin saltar
     val travel = sheet.cardBounds.top.coerceAtLeast(1f)
     val fondo = MaterialTheme.colorScheme.background
     Box(
@@ -148,11 +159,15 @@ fun PlayerSheet(
             .draggable(
                 rememberDraggableState { d ->
                     arrastre += d
-                    if (!reduce) scope.launch { sheet.expansion.snapTo((1f - arrastre / travel).coerceIn(0f, 1f)) }
+                    if (!reduce) sheet.follow(scope, (desde - arrastre / travel).coerceIn(0f, 1f))
                 },
                 Orientation.Vertical,
                 enabled = !sheet.queueOpen,
-                onDragStarted = { arrastre = 0f },
+                onDragStarted = {
+                    arrastre = 0f
+                    desde = sheet.expansion.value
+                },
+                // También llega al cancelarse el gesto (velocidad 0): siempre termina cerrada o abierta.
                 onDragStopped = { v ->
                     if (arrastre > 0f && swipeCommits(arrastre, v, travel, density.density)) {
                         sheet.close(reduce, -v / travel, fromDrag = true)

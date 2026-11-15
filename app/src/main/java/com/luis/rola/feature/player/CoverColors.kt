@@ -19,6 +19,7 @@ import coil3.request.allowHardware
 import coil3.toBitmap
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.RolaMotion
+import com.luis.rola.core.designsystem.RolaTheme
 import com.luis.rola.core.designsystem.ensureContrast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,6 +32,9 @@ data class CoverColors(
     val content: Color,
     val contentVariant: Color,
     val track: Color,
+    /** Relleno del botón de reproducir: el acento de la portada o, sin portada, el lima del tema (DEC-16). */
+    val play: Color,
+    val onPlay: Color,
 )
 
 /** Colores de la portada con Palette; sin portada o sin colores útiles, [fallback]. */
@@ -61,6 +65,8 @@ fun coverColors(bitmap: Bitmap, fallback: CoverColors, oscuro: Boolean): CoverCo
         content = content,
         contentVariant = ensureContrast(fallback.contentVariant, bg),
         track = content.copy(alpha = 0.12f),
+        play = accent,
+        onPlay = ensureContrast(bg, accent),
     )
 }
 
@@ -76,12 +82,16 @@ fun rememberCoverColors(song: Song): CoverColors {
         content = c.onSurface,
         contentVariant = c.onSurfaceVariant,
         track = c.outline,
+        // Sin portada el botón sí es lima en ambos temas: su ícono oscuro contrasta (DEC-16).
+        play = RolaTheme.colors.accent,
+        onPlay = RolaTheme.colors.onAccent,
     )
     val oscuro = c.background.luminance() < 0.5f
     val context = LocalContext.current
     val colors by produceState(fallback, song.id, fallback) {
         value = fallback
-        val request = ImageRequest.Builder(context).data(song).allowHardware(false).build()
+        // Con tamaño fijo: si la portada grande ya está en caché, la reutiliza en vez de decodificarla otra vez.
+        val request = ImageRequest.Builder(context).data(song).size(512).allowHardware(false).build()
         val bitmap = (context.imageLoader.execute(request) as? SuccessResult)?.image?.toBitmap()
         if (bitmap != null) value = withContext(Dispatchers.Default) { coverColors(bitmap, fallback, oscuro) }
     }
@@ -94,5 +104,7 @@ fun rememberCoverColors(song: Song): CoverColors {
         content = colors.content.fundido(),
         contentVariant = colors.contentVariant.fundido(),
         track = colors.track.fundido(),
+        play = colors.play.fundido(),
+        onPlay = colors.onPlay.fundido(),
     )
 }

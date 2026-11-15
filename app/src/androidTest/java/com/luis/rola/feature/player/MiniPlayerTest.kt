@@ -12,7 +12,16 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.unit.dp
 import com.luis.rola.core.designsystem.LocalReduceMotion
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
+import androidx.compose.ui.text.TextLayoutResult
 import org.junit.Assert.assertEquals
+
 import org.junit.Assert.assertTrue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -42,7 +51,60 @@ class MiniPlayerTest {
         compose.onNodeWithText("Madrugada").assertIsDisplayed()
         compose.onNodeWithText("Ana Vela").assertIsDisplayed()
         compose.onNodeWithContentDescription("Pausar").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Siguiente").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Siguiente").assertDoesNotExist() // solo reproducir/pausa (DEC-04)
+    }
+
+    private fun tarjeta(onNext: () -> Unit, titulo: String = "Madrugada", reduce: Boolean = false) {
+        val estado = PlayerState(current = Song(1, titulo, "Ana Vela", null, 0), hasNext = true)
+        compose.setContent {
+            RolaTheme {
+                CompositionLocalProvider(LocalReduceMotion provides reduce) {
+                    Box(Modifier.width(380.dp)) { MiniPlayer(estado, onToggle = {}, onNext = onNext) }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun deslizarDesdeElCentroMasQueElUmbralPasaALaSiguiente() {
+        var siguiente = 0
+        tarjeta({ siguiente++ })
+        // 110 dp en 400 ms (≈ 275 dp/s, debajo de la velocidad): confirma por distancia, empezando en el centro.
+        compose.onNodeWithTag("mini").performTouchInput { swipe(center, center - Offset(110.dp.toPx(), 0f), 400) }
+        compose.waitForIdle()
+        assertEquals(1, siguiente)
+    }
+
+    @Test
+    fun deslizarPocoYLentoNoCambia() {
+        var siguiente = 0
+        tarjeta({ siguiente++ })
+        compose.onNodeWithTag("mini").performTouchInput { swipe(center, center - Offset(40.dp.toPx(), 0f), 600) }
+        compose.waitForIdle()
+        assertEquals(0, siguiente)
+    }
+
+    private fun tituloDesborda(reduce: Boolean): Boolean {
+        tarjeta({}, titulo = "Un título larguísimo que de ninguna manera cabe en la mini tarjeta", reduce = reduce)
+        val resultados = mutableListOf<TextLayoutResult>()
+        compose.onNodeWithText("Un título", substring = true, useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
+            it(resultados)
+        }
+        return resultados.first().hasVisualOverflow
+    }
+
+    @Test
+    fun conReducirMovimientoElTituloQuedaEstaticoConPuntos() {
+        assertTrue(tituloDesborda(reduce = true)) // recortado con puntos suspensivos, sin marquesina
+    }
+
+    @Test
+    fun sinReducirMovimientoElTituloLargoCorreEnMarquesina() {
+        tarjeta({}, titulo = "Un título larguísimo que de ninguna manera cabe en la mini tarjeta")
+        // La marquesina mide el título completo, más ancho que la tarjeta, y lo recorre.
+        val b = compose.onNodeWithText("Un título", substring = true, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val ancho = b.right - b.left
+        assertTrue("ancho $ancho", ancho > 380.dp)
     }
 
     /** Posición del título 32 ms después de cargar la canción y al terminar la entrada. */

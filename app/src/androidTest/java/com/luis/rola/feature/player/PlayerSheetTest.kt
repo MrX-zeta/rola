@@ -7,11 +7,17 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.designsystem.RolaTheme
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -48,6 +54,47 @@ class PlayerSheetTest {
     fun conReducirMovimientoNoSeDesplaza() {
         val (alInicio, alFinal) = posicionesAlAbrir(reduce = true)
         assertEquals(alFinal, alInicio, 0.5f)
+    }
+
+    private val abierta = PlayerSheetState(abierto = true, colaAbierta = false).apply {
+        cardBounds = Rect(16f, 1500f, 1000f, 1700f)
+    }
+
+    private fun montarAbierta() = compose.setContent {
+        RolaTheme {
+            PlayerSheet(abierta, Color.Black, card = { Text("Tarjeta") }) {
+                Box(Modifier.fillMaxSize()) { Text("Reproduciendo") }
+            }
+        }
+    }
+
+    /** [gesto] arrastra Reproduciendo hacia abajo; al terminar todo debe quedar cerrada o abierta. Luego la reabre. */
+    private fun assertNuncaAMedias(gesto: TouchInjectionScope.() -> Unit) {
+        compose.onRoot().performTouchInput(gesto)
+        compose.waitForIdle()
+        val p = abierta.expansion.value
+        assertTrue("quedó a medias: $p", p == 0f || p == 1f)
+        compose.runOnIdle { runBlocking { abierta.expansion.snapTo(1f) } }
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun soltarAMedioCaminoNuncaQuedaAMedias() {
+        montarAbierta()
+        // Varias distancias y ritmos: cada suelta termina cerrada o abierta (FR-003, SC-012).
+        listOf(30f to 50L, 120f to 200L, 400f to 150L, 700f to 600L, 300f to 2_000L).forEach { (px, ms) ->
+            assertNuncaAMedias { swipe(center, center + Offset(0f, px), ms) }
+        }
+    }
+
+    @Test
+    fun unGestoCanceladoNoQuedaAMedias() {
+        montarAbierta()
+        assertNuncaAMedias {
+            down(center)
+            repeat(10) { moveBy(Offset(0f, 30f)) }
+            cancel()
+        }
     }
 
     @Test

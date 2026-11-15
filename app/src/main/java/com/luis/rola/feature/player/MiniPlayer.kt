@@ -11,6 +11,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -39,11 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.testTag
@@ -62,6 +62,7 @@ import com.luis.rola.core.designsystem.RolaSpacing
 import com.luis.rola.core.media.PlayerState
 import com.luis.rola.core.media.formatDuration
 import com.luis.rola.feature.library.Cover
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
@@ -126,37 +127,41 @@ private fun Tarjeta(
     val next by rememberUpdatedState(onNext)
     val previous by rememberUpdatedState(onPrevious)
     val position = rememberPosition(state)
+    // Los toques van en la caja de afuera, que no se mueve: la distancia se mide desde donde empezó el dedo,
+    // empiece donde empiece (FR-018). Lo que se desplaza es el contenido de adentro.
     Box(
         modifier
             .fillMaxWidth()
             .testTag("mini")
             .onPlaced { sheet?.cardBounds = it.boundsInRoot() }
-            .graphicsLayer {
-                translationX = offsetX.value
-                // Mientras Reproduciendo crece, la capa dibuja una copia de la tarjeta: esta se oculta.
-                alpha = if ((sheet?.expansion?.value ?: 0f) > 0f) 0f else entrada.value
-            }
             .clickable(enabled = sheet != null, onClickLabel = stringResource(R.string.abrir_reproductor)) { sheet?.requestOpen() }
             .pointerInput(sheet, reduce) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    val vt = VelocityTracker().apply { addPosition(down.uptimeMillis, down.position) }
-                    var total = Offset.Zero
-                    val primero = awaitTouchSlopOrCancellation(down.id) { change, over ->
-                        change.consume()
-                        total = over
-                    } ?: return@awaitEachGesture
+                    // Con los eventos completos: si llegan agrupados, sus posiciones históricas también cuentan.
+                    val vt = VelocityTracker().apply { addPointerInputChange(down) }
+                    val primero = awaitTouchSlopOrCancellation(down.id) { change, _ -> change.consume() }
+                        ?: return@awaitEachGesture
+                    var total = primero.position - down.position
                     val horizontal = abs(total.x) > abs(total.y) // eje dominante: nunca los dos (FR-021)
                     if (!horizontal && sheet == null) return@awaitEachGesture
                     val travel = if (horizontal) size.width.toFloat() else sheet!!.cardBounds.top.coerceAtLeast(1f)
                     drag(primero.id) { ch ->
-                        total += ch.positionChange()
-                        vt.addPosition(ch.uptimeMillis, ch.position)
+                        total = ch.position - down.position
+                        vt.addPointerInputChange(ch)
                         ch.consume()
                         if (reduce) return@drag // reducir movimiento: nada sigue al dedo
-                        scope.launch {
-                            if (horizontal) offsetX.snapTo(total.x) else sheet!!.expansion.snapTo((-total.y / travel).coerceIn(0f, 1f))
+                        if (horizontal) {
+                            // Sin despachar: ningún salto llega después de la animación de soltar.
+                            scope.launch(start = CoroutineStart.UNDISPATCHED) { offsetX.snapTo(total.x) }
+                        } else {
+                            sheet!!.follow(scope, (-total.y / travel).coerceIn(0f, 1f))
                         }
+                    }
+                    // El evento de soltar también cuenta: puede traer el último tramo del gesto (en el emulador, más de la mitad).
+                    currentEvent.changes.find { it.id == primero.id }?.let {
+                        total = it.position - down.position
+                        vt.addPointerInputChange(it)
                     }
                     val v = vt.calculateVelocity()
                     scope.launch {
@@ -175,7 +180,13 @@ private fun Tarjeta(
                 }
             },
     ) {
-        MiniCardContent(state, song, c, position, onToggle, onNext)
+        Box(
+            Modifier.graphicsLayer {
+                translationX = offsetX.value
+                // Mientras Reproduciendo crece, la capa dibuja una copia de la tarjeta: esta se oculta.
+                alpha = if ((sheet?.expansion?.value ?: 0f) > 0f) 0f else entrada.value
+            },
+        ) { MiniCardContent(state, song, c, position, onToggle) }
     }
 }
 
@@ -187,7 +198,6 @@ fun MiniCardContent(
     c: CoverColors,
     position: State<Long>,
     onToggle: () -> Unit,
-    onNext: () -> Unit,
 ) {
     val reduce = LocalReduceMotion.current
     Column(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(c.container)) {
@@ -198,8 +208,10 @@ fun MiniCardContent(
         ) {
             Cover(song, Modifier.size(48.dp))
             Column(Modifier.weight(1f)) {
+                // Marquesina solo si no cabe (basicMarquee no se mueve si cabe); con reducir movimiento, puntos suspensivos.
                 Text(
                     song.title,
+                    if (reduce) Modifier else Modifier.basicMarquee(),
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = c.content,
                     maxLines = 1,
@@ -213,15 +225,8 @@ fun MiniCardContent(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            IconButton(onNext, enabled = state.hasNext) {
-                Icon(
-                    painterResource(R.drawable.ic_skip_next),
-                    stringResource(R.string.siguiente),
-                    tint = if (state.hasNext) c.content else c.content.copy(alpha = 0.38f),
-                )
-            }
             IconButton(onToggle) {
-                Box(Modifier.size(44.dp).clip(CircleShape).background(c.accent), Alignment.Center) {
+                Box(Modifier.size(44.dp).clip(CircleShape).background(c.play), Alignment.Center) {
                     AnimatedContent(
                         state.isPlaying,
                         transitionSpec = {
@@ -234,7 +239,7 @@ fun MiniCardContent(
                         Icon(
                             painterResource(if (sonando) R.drawable.ic_pause else R.drawable.ic_play),
                             stringResource(if (sonando) R.string.pausar else R.string.reproducir),
-                            tint = c.onAccent,
+                            tint = c.onPlay,
                         )
                     }
                 }
