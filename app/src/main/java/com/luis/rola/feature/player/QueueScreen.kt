@@ -40,11 +40,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.platform.LocalDensity
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +88,6 @@ fun QueueScreen(
     val m = MaterialTheme.colorScheme
     val reduce = LocalReduceMotion.current
     val lista = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     // Orden de vista previa solo mientras dura un arrastre; la cola real vive en el reproductor.
     var preview by remember { mutableStateOf<List<QueueEntry>?>(null) }
     var arrastrando by remember { mutableStateOf<Long?>(null) }
@@ -122,10 +119,24 @@ fun QueueScreen(
         l.add(l.indexOfFirst { it.song.id == otro.key }, l.removeAt(l.indexOfFirst { it.song.id == id }))
         preview = l
         offsetY.floatValue -= otro.offset - yo.offset // sigue bajo el dedo
-        // La lista ancla su primera fila visible: si se movió esa, sin esto la lista salta y la fila se pierde.
+        // La lista ancla su primera fila visible por clave: si se movió esa, salta y la fila se pierde. Se pide la misma
+        // posición en el próximo cuadro, sin corrutina: un scrollToItem cancelaría el desplazamiento automático.
         if (yo.index == primera.first || otro.index == primera.first) {
-            scope.launch { lista.scrollToItem(primera.first, primera.second) }
+            lista.requestScrollToItem(primera.first, primera.second)
         }
+    }
+
+    /** Mantiene la fila [id] dentro de la vista y entre el primer y el último lugar de la cola (FR-057). */
+    fun limitar(id: Long) {
+        val info = lista.layoutInfo
+        val yo = info.visibleItemsInfo.find { it.key == id } ?: return
+        val l = preview ?: actual
+        val i = l.indexOfFirst { it.song.id == id }
+        var min = (info.viewportStartOffset - yo.offset).toFloat()
+        var max = (info.viewportEndOffset - info.afterContentPadding - yo.offset - yo.size).toFloat()
+        if (i == 0) min = maxOf(min, 0f)
+        if (i == l.lastIndex) max = minOf(max, 0f)
+        offsetY.floatValue = offsetY.floatValue.coerceIn(min, maxOf(min, max))
     }
 
     // Cerca de un borde, la lista se desplaza sola mientras se arrastra (más rápido cuanto más cerca).
@@ -147,8 +158,10 @@ fun QueueScreen(
                 abajo > info.viewportEndOffset - borde -> (abajo - info.viewportEndOffset + borde) / borde
                 else -> 0f
             }.coerceIn(-1f, 1f)
-            if (hacia == 0f) continue
+            // Se detiene en el inicio y el final (FR-057).
+            if (hacia == 0f || (hacia > 0 && !lista.canScrollForward) || (hacia < 0 && !lista.canScrollBackward)) continue
             offsetY.floatValue += lista.scrollBy(hacia * maxima * dt) // la fila sigue bajo el dedo
+            limitar(id)
             reordenar(id)
         }
     }
@@ -257,6 +270,7 @@ fun QueueScreen(
                                         onDrag = { ch, d ->
                                             ch.consume()
                                             offsetY.floatValue += d.y
+                                            limitar(id)
                                             reordenar(id)
                                         },
                                         onDragEnd = {
