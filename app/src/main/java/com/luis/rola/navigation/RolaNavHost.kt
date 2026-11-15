@@ -87,6 +87,7 @@ fun RolaNavHost(container: AppContainer) {
                 onSongClick = { i -> songs?.let { player.play(it, i) } },
                 onShuffle = { songs?.let { player.shuffle(it) } },
                 contentPadding = PaddingValues(bottom = abajo),
+                visible = enBiblioteca,
             )
         }
         NavHost(
