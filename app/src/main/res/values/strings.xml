@@ -2,15 +2,33 @@
     <string name="app_name">Rola</string>
     <string name="marca_palabra">rola</string>
 
+    <!-- Bienvenida (SCR-02, SCR-03, SCR-04) -->
+    <string name="omitir">Omitir</string>
+    <string name="empezar">Empezar</string>
+    <string name="pagina_de">Página %1$d de %2$d</string>
+    <string name="bienvenida_1_titulo">Tu música, sin vueltas.</string>
+    <string name="bienvenida_1_cuerpo">Rola reproduce las canciones que ya tienes en tu teléfono. Sin cuentas, sin anuncios.</string>
+    <string name="bienvenida_2_titulo">Canta al ritmo.</string>
+    <string name="bienvenida_2_cuerpo">Toca la portada para ver la letra. Usa tus archivos .lrc o búscala en internet, si tú quieres.</string>
+    <string name="bienvenida_3_titulo">Funciona sin internet.</string>
+    <string name="bienvenida_3_cuerpo">Todo vive en tu teléfono. Rola solo se conecta para buscar letras, y eso lo decides tú.</string>
+    <string name="ejemplo_cancion">Noches de verano</string>
+    <string name="ejemplo_artista">Artista local</string>
+    <string name="ejemplo_tiempo">1:24</string>
+    <string name="ejemplo_letra_1">y la ciudad se apaga</string>
+    <string name="ejemplo_letra_2">cuando suena el estribillo</string>
+    <string name="ejemplo_letra_3">todo vuelve a empezar</string>
+    <string name="ejemplo_letra_4">una vez más</string>
+    <string name="letra_sincronizada">Sincronizada</string>
+    <string name="letra_fuente">.lrc o LRCLIB</string>
+    <string name="buscar_letras_en_linea">Buscar letras en línea</string>
+    <string name="buscar_letras_apagado">Apagado: nada sale de tu teléfono</string>
+
     <!-- Permisos (SCR-05) -->
     <string name="permisos_titulo">Un permiso y listo.</string>
     <string name="permisos_cuerpo">Para mostrar tu música, Rola necesita leer los audios de tu teléfono. Nada más.</string>
     <string name="permiso_musica">Música y audio</string>
     <string name="permiso_musica_detalle">Para encontrar y reproducir tus canciones.</string>
-    <string name="permiso_notificaciones">Notificaciones</string>
-    <string name="permiso_notificaciones_detalle">Para los controles de reproducción. Te lo pedimos al dar play.</string>
-    <string name="etiqueta_ahora">Ahora</string>
-    <string name="etiqueta_despues">Después</string>
     <string name="nota_privacidad">Rola no sube, no comparte ni vende tus archivos.</string>
     <string name="permitir_acceso">Permitir acceso</string>
 

@@ -95,3 +95,13 @@ data class RolaColors(
 )
 
 val LocalRolaColors = staticCompositionLocalOf { RolaColors() }
+
+/** Portadas de ejemplo de las ilustraciones del onboarding (componente «Portada» 5:44 de Figma). Iguales en claro y oscuro. */
+object RolaIlustracion {
+    val azul = Color(0xFF2F4BB8)
+    val azulClaro = Color(0xFF9FB4FF)
+    val naranja = Color(0xFFE4572E)
+    val naranjaClaro = Color(0xFFF3E9D2)
+    val verde = Color(0xFF1F7A5C)
+    val verdeClaro = Color(0xFFD9F2B4)
+}
