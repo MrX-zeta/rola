@@ -32,7 +32,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import com.luis.rola.core.data.Song
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +62,9 @@ import com.luis.rola.core.media.Repeat
 import com.luis.rola.core.media.SleepTimerOption
 import com.luis.rola.core.media.formatDuration
 import com.luis.rola.feature.library.Cover
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
+import kotlin.math.sign
 
 /**
  * Reproduciendo (SCR-51, nodos 36:1465 y 51:4482). Plana (DEC-27): la portada no lleva sombra.
@@ -95,14 +112,16 @@ fun NowPlayingScreen(
                 }
                 Spacer(Modifier.size(48.dp)) // lugar del ⋮ (tarea 08): mantiene el origen centrado
             }
-            Cover(
-                song,
+            // La portada toma el alto que sobra (cuadrada, lo más grande que quepa): los controles quedan abajo (FR-007).
+            Box(
                 Modifier
-                    .padding(start = RolaSpacing.xxl, end = RolaSpacing.xxl, top = RolaSpacing.sm, bottom = RolaSpacing.xl)
+                    .weight(1f)
                     .fillMaxWidth()
-                    .aspectRatio(1f),
-                shape = MaterialTheme.shapes.extraLarge,
-            )
+                    .padding(start = RolaSpacing.xxl, end = RolaSpacing.xxl, top = RolaSpacing.sm, bottom = RolaSpacing.xl),
+                contentAlignment = Alignment.Center,
+            ) {
+                SwipeableCover(song, state.hasNext, onNext, onPrevious, Modifier.aspectRatio(1f))
+            }
             Column(Modifier.padding(horizontal = RolaSpacing.xxl), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(song.title, style = MaterialTheme.typography.headlineMedium, color = c.content, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
@@ -159,7 +178,7 @@ fun NowPlayingScreen(
                 )
             }
             Row(
-                Modifier.fillMaxWidth().padding(start = 40.dp, end = 40.dp, top = RolaSpacing.lg),
+                Modifier.fillMaxWidth().padding(start = 40.dp, end = 40.dp, top = RolaSpacing.lg, bottom = RolaSpacing.md),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 val timerDesc = when {
@@ -179,6 +198,56 @@ fun NowPlayingScreen(
     }
 }
 
+/**
+ * Portada plana (DEC-27) que se desliza a los lados para siguiente/anterior con el umbral de la mini tarjeta (FR-049).
+ * Sigue al dedo y, al soltar, sale por su lado y entra la nueva en fundido, o vuelve con un resorte.
+ * Con reducir movimiento no se mueve: el gesto solo cambia la canción.
+ */
+@Composable
+private fun SwipeableCover(song: Song, hasNext: Boolean, onNext: () -> Unit, onPrevious: () -> Unit, modifier: Modifier) {
+    val reduce = LocalReduceMotion.current
+    val density = LocalDensity.current.density
+    val scope = rememberCoroutineScope()
+    val offsetX = remember { Animatable(0f) }
+    val entrada = remember { Animatable(1f) }
+    var arrastre by remember { mutableFloatStateOf(0f) }
+    var ancho by remember { mutableIntStateOf(1) }
+    // Toques en la caja quieta y desplazamiento en la portada: la distancia no se mezcla con el movimiento.
+    Box(
+        modifier
+            .onSizeChanged { ancho = it.width }
+            .draggable(
+                rememberDraggableState { d ->
+                    arrastre += d
+                    // Sin despachar: ningún salto llega después de la animación de soltar.
+                    if (!reduce) scope.launch(start = CoroutineStart.UNDISPATCHED) { offsetX.snapTo(arrastre) }
+                },
+                Orientation.Horizontal,
+                onDragStarted = { arrastre = 0f },
+                onDragStopped = { v ->
+                    if (swipeCommits(arrastre, v, ancho.toFloat(), density) && (arrastre > 0 || hasNext)) {
+                        if (!reduce) offsetX.animateTo(sign(arrastre) * ancho, tween(200, easing = RolaMotion.EaseOut))
+                        if (arrastre < 0) onNext() else onPrevious()
+                        offsetX.snapTo(0f)
+                        entrada.snapTo(0f)
+                        entrada.animateTo(1f, tween(RolaMotion.MEDIA))
+                    } else {
+                        offsetX.animateTo(0f, RolaMotion.o(reduce, RolaMotion.resorte()))
+                    }
+                },
+            ),
+    ) {
+        Cover(
+            song,
+            Modifier.fillMaxSize().graphicsLayer {
+                translationX = offsetX.value
+                alpha = entrada.value
+            },
+            shape = MaterialTheme.shapes.extraLarge,
+        )
+    }
+}
+
 /** Botón de modo: [activo] con el acento de la portada; su descripción dice el estado (FR-016). */
 @Composable
 private fun ModeButton(icon: Int, description: String, activo: Boolean, c: CoverColors, onClick: () -> Unit) {
@@ -191,7 +260,7 @@ private fun ModeButton(icon: Int, description: String, activo: Boolean, c: Cover
 private fun PlayButton(isPlaying: Boolean, c: CoverColors, onToggle: () -> Unit) {
     val reduce = LocalReduceMotion.current
     IconButton(onToggle, Modifier.size(80.dp)) {
-        Box(Modifier.size(80.dp).clip(CircleShape).background(c.accent), Alignment.Center) {
+        Box(Modifier.size(80.dp).clip(CircleShape).background(c.play), Alignment.Center) {
             AnimatedContent(
                 isPlaying,
                 transitionSpec = {
@@ -205,7 +274,7 @@ private fun PlayButton(isPlaying: Boolean, c: CoverColors, onToggle: () -> Unit)
                     painterResource(if (sonando) R.drawable.ic_pause else R.drawable.ic_play),
                     stringResource(if (sonando) R.string.pausar else R.string.reproducir),
                     Modifier.size(36.dp),
-                    tint = c.onAccent,
+                    tint = c.onPlay,
                 )
             }
         }

@@ -29,6 +29,7 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.key.Keyer
 import coil3.request.Options
+import coil3.size.pxOrElse
 import com.luis.rola.R
 import com.luis.rola.core.data.Song
 
@@ -63,8 +64,14 @@ fun Cover(song: Song, modifier: Modifier = Modifier, shape: Shape = MaterialThem
 /** Coil lee la miniatura que guarda el sistema para cada audio (incluye la portada incrustada). */
 class SongCoverFetcher(private val song: Song, private val options: Options) : Fetcher {
 
+    // Al tamaño en que se dibuja (FR-007): fija a 512 px, la portada grande de Reproduciendo se veía borrosa.
+    // Sin tamaño conocido (p. ej. Palette), 512 px como antes.
     override suspend fun fetch(): FetchResult = ImageFetchResult(
-        image = options.context.contentResolver.loadThumbnail(song.uri, Size(512, 512), null).asImage(),
+        image = options.context.contentResolver.loadThumbnail(
+            song.uri,
+            Size(options.size.width.pxOrElse { 512 }, options.size.height.pxOrElse { 512 }),
+            null,
+        ).asImage(),
         isSampled = true,
         dataSource = DataSource.DISK,
     )
