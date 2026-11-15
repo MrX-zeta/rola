@@ -75,7 +75,7 @@ fun RolaNavBar(actual: String?, onSelect: (Destino) -> Unit, modifier: Modifier 
                 anim.snapTo(meta)
             } else {
                 withFrameNanos {} // DEC-28 arranque_en_primer_cuadro: deja pasar el cuadro que dibuja la pestaña nueva
-                anim.animateTo(meta, RolaMotion.resorte()) // si se interrumpe, sigue desde su valor y velocidad
+                anim.animateTo(meta, RolaMotion.resortePildora()) // si se interrumpe, sigue desde su valor y velocidad
             }
         }
         // Se leen como estado en medida y dibujo: el cambio relanza ambos sin depender de recomponer.
@@ -112,7 +112,8 @@ fun RolaNavBar(actual: String?, onSelect: (Destino) -> Unit, modifier: Modifier 
                             overflow = TextOverflow.Clip,
                             modifier = Modifier
                                 .padding(start = RolaSpacing.xs)
-                                .graphicsLayer { alpha = progresos[i]() },
+                                // El texto aparece del 30 % al 100 % del progreso: se nota cuando ya hay espacio.
+                                .graphicsLayer { alpha = ((progresos[i]() - 0.3f) / 0.7f).coerceIn(0f, 1f) },
                         )
                     }
                 }

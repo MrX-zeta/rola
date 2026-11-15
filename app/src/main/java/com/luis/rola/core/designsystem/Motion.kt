@@ -23,6 +23,9 @@ object RolaMotion {
     /** ≈ 0.3 s con rebote sutil; si se interrumpe, sigue desde donde va. */
     fun <T> resorte(): FiniteAnimationSpec<T> = spring(dampingRatio = 0.8f, stiffness = 400f)
 
+    /** Solo la píldora: ≈ 0.35 s, un poco más suave, para que se aprecie su texto (DEC-28 `barra_navegacion`). */
+    fun <T> resortePildora(): FiniteAnimationSpec<T> = spring(dampingRatio = 0.8f, stiffness = 300f)
+
     /** Con «reducir movimiento», salto instantáneo; si no, [spec]. */
     fun <T> o(reduce: Boolean, spec: FiniteAnimationSpec<T>): FiniteAnimationSpec<T> = if (reduce) snap() else spec
 }
