@@ -54,8 +54,8 @@ class MiniPlayerTest {
         compose.onNodeWithContentDescription("Siguiente").assertDoesNotExist() // solo reproducir/pausa (DEC-04)
     }
 
-    private fun tarjeta(onNext: () -> Unit, titulo: String = "Madrugada", reduce: Boolean = false) {
-        val estado = PlayerState(current = Song(1, titulo, "Ana Vela", null, 0), hasNext = true)
+    private fun tarjeta(onNext: () -> Unit, titulo: String = "Madrugada", reduce: Boolean = false, suena: Boolean = true) {
+        val estado = PlayerState(current = Song(1, titulo, "Ana Vela", null, 0), isPlaying = suena, hasNext = true)
         compose.setContent {
             RolaTheme {
                 CompositionLocalProvider(LocalReduceMotion provides reduce) {
@@ -84,8 +84,8 @@ class MiniPlayerTest {
         assertEquals(0, siguiente)
     }
 
-    private fun tituloDesborda(reduce: Boolean): Boolean {
-        tarjeta({}, titulo = "Un título larguísimo que de ninguna manera cabe en la mini tarjeta", reduce = reduce)
+    private fun tituloDesborda(reduce: Boolean, suena: Boolean = true): Boolean {
+        tarjeta({}, titulo = "Un título larguísimo que de ninguna manera cabe en la mini tarjeta", reduce = reduce, suena = suena)
         val resultados = mutableListOf<TextLayoutResult>()
         compose.onNodeWithText("Un título", substring = true, useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
             it(resultados)
@@ -96,6 +96,11 @@ class MiniPlayerTest {
     @Test
     fun conReducirMovimientoElTituloQuedaEstaticoConPuntos() {
         assertTrue(tituloDesborda(reduce = true)) // recortado con puntos suspensivos, sin marquesina
+    }
+
+    @Test
+    fun enPausaElTituloQuedaEstaticoConPuntos() {
+        assertTrue(tituloDesborda(reduce = false, suena = false)) // DEC-04: la marquesina solo corre mientras suena
     }
 
     @Test

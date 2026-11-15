@@ -208,10 +208,10 @@ fun MiniCardContent(
         ) {
             Cover(song, Modifier.size(48.dp))
             Column(Modifier.weight(1f)) {
-                // Marquesina solo si no cabe (basicMarquee no se mueve si cabe); con reducir movimiento, puntos suspensivos.
+                // Marquesina solo si no cabe y mientras suena (DEC-04); en pausa o con reducir movimiento, puntos suspensivos.
                 Text(
                     song.title,
-                    if (reduce) Modifier else Modifier.basicMarquee(),
+                    if (reduce || !state.isPlaying) Modifier else Modifier.basicMarquee(repeatDelayMillis = 2_000),
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = c.content,
                     maxLines = 1,
