@@ -1,5 +1,6 @@
 package com.luis.rola.navigation
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -43,13 +45,15 @@ import com.luis.rola.feature.library.LibraryScreen
 import com.luis.rola.feature.library.LibraryViewModel
 import com.luis.rola.feature.player.MiniPlayer
 
-/** Pestañas (DEC-03) con la mini tarjeta y la píldora abajo. Sin deslizar y sin animaciones entre pestañas. */
+/** Pestañas (DEC-03) con la mini tarjeta y la píldora abajo. Sin deslizar; fundido corto entre pestañas (DEC-28). */
 @Composable
 fun RolaNavHost(container: AppContainer) {
     val nav = rememberNavController()
     val player = container.player
     val playerState by player.state.collectAsStateWithLifecycle()
-    val ruta = nav.currentBackStackEntryAsState().value?.destination?.route
+    // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
+    val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Biblioteca.ruta
+    val enBiblioteca = ruta == Destino.Biblioteca.ruta
 
     val snackbar = remember { SnackbarHostState() }
     val errorTexto = stringResource(R.string.error_reproducir)
@@ -60,6 +64,31 @@ fun RolaNavHost(container: AppContainer) {
     val fondo = MaterialTheme.colorScheme.background
 
     Box(Modifier.fillMaxSize().background(fondo)) {
+        // Biblioteca vive fuera del NavHost y no se desmonta al cambiar de pestaña: desmontarla y rearmarla
+        // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta, no se coloca:
+        // no se dibuja, no recibe toques ni aparece en accesibilidad. Su destino en el NavHost lleva la pila.
+        val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs))
+        val songs by vm.songs.collectAsStateWithLifecycle()
+        // El mismo fundido que el NavHost da a las demás pestañas.
+        val alfa by animateFloatAsState(
+            if (enBiblioteca) 1f else 0f,
+            if (enBiblioteca) tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut) else tween(RolaMotion.RAPIDA),
+            label = "biblioteca",
+        )
+        Box(
+            Modifier.layout { m, c ->
+                val p = m.measure(c)
+                layout(p.width, p.height) { if (alfa > 0f) p.placeWithLayer(0, 0) { alpha = alfa } }
+            },
+        ) {
+            LibraryScreen(
+                songs = songs,
+                currentId = playerState.current?.id,
+                onSongClick = { i -> songs?.let { player.play(it, i) } },
+                onShuffle = { songs?.let { player.shuffle(it) } },
+                contentPadding = PaddingValues(bottom = abajo),
+            )
+        }
         NavHost(
             nav,
             startDestination = Destino.Biblioteca.ruta, // DEC-03 temporal: Inicio todavía no existe
@@ -68,17 +97,7 @@ fun RolaNavHost(container: AppContainer) {
             exitTransition = { fadeOut(tween(RolaMotion.RAPIDA)) },
         ) {
             composable(Destino.Inicio.ruta) { ComingSoonScreen() }
-            composable(Destino.Biblioteca.ruta) {
-                val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs))
-                val songs by vm.songs.collectAsStateWithLifecycle()
-                LibraryScreen(
-                    songs = songs,
-                    currentId = playerState.current?.id,
-                    onSongClick = { i -> songs?.let { player.play(it, i) } },
-                    onShuffle = { songs?.let { player.shuffle(it) } },
-                    contentPadding = PaddingValues(bottom = abajo),
-                )
-            }
+            composable(Destino.Biblioteca.ruta) {} // se dibuja arriba, fuera del NavHost
             composable(Destino.Buscar.ruta) { ComingSoonScreen() }
         }
         Column(
@@ -92,8 +111,7 @@ fun RolaNavHost(container: AppContainer) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MiniPlayer(playerState, player::togglePlayPause, player::next)
-            // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
-            RolaNavBar(ruta ?: Destino.Biblioteca.ruta, onSelect = { d ->
+            RolaNavBar(ruta, onSelect = { d ->
                 nav.navigate(d.ruta) {
                     popUpTo(nav.graph.findStartDestination().id) { saveState = true }
                     launchSingleTop = true
