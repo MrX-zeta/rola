@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.4.3",
+    "version": "1.5.0",
     "actualizado": "2026-11-14",
-    "fase": "Tarea 02 revisada. Siguiente: tarea 02b (mantenimiento, ajustes, esqueletos y movimiento).",
+    "fase": "Reproductor base y pulido listos (tareas 02–02e). Siguiente: tarea 03, reproductor completo.",
     "historial": [
       {
         "version": "1.0.0",
@@ -59,6 +59,11 @@
         "version": "1.4.3",
         "fecha": "2026-11-14",
         "cambio": "DEC-28: excepción de 350 ms en la píldora, animaciones que arrancan en el primer cuadro dibujado, Biblioteca fuera del NavHost."
+      },
+      {
+        "version": "1.5.0",
+        "fecha": "2026-11-14",
+        "cambio": "Revisión 02e: Biblioteca colocada aunque oculta; filas con ModulateAlpha; prueba pendiente para Maestro. Orden de tareas 03–10 acordado."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -140,6 +145,16 @@
         "almacen_clave_valor": 1,
         "pantalla": 38
       }
+    },
+    "plan_de_tareas": {
+      "03": "Reproductor completo: SCR-51, SCR-52, SCR-53, gestos DEC-04, progreso continuo",
+      "04": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
+      "05": "Listas y Room: SCR-23, 30–33, SCR-54, OP-08",
+      "06": "Inicio y Buscar: SCR-10–12, 40, 41",
+      "07": "Onboarding y Ajustes: SCR-02–04, 70, 72–75, DataStore, tema",
+      "08": "Letras: SCR-60–63, 71, LRCLIB",
+      "09": "Widget: SCR-80",
+      "10": "Correcciones finales y Maestro"
     }
   },
   "nodos": [
@@ -641,7 +656,7 @@
       "id": "DEC-22",
       "tipo": "decision",
       "nombre": "Pruebas",
-      "descripcion": "Unitarias (JUnit) para lógica pura (normalización del abecedario, limpieza de títulos, parser LRC, desfase). Pruebas de Compose para pantallas. Maestro para flujos en el teléfono (propuesto). Playwright no aplica.",
+      "descripcion": "Unitarias (JUnit) para lógica pura (normalización del abecedario, limpieza de títulos, parser LRC, desfase). Pruebas de Compose para pantallas. Maestro para flujos en el teléfono (propuesto). Playwright no aplica. Pendiente para Maestro: que Biblioteca oculta no reciba toques.",
       "estado": "decidido"
     },
     {
@@ -1791,7 +1806,8 @@
         "despliegue_listas": "Al entrar a Biblioteca (cada vez que se cambia a esa pestaña, no al desplazar) las filas visibles aparecen en cascada: fundido + subida de 8 dp, máximo 8 filas, 25–30 ms entre filas, total ≤ 300 ms. Con reducir movimiento, sin cascada.",
         "barra_sin_texto": "Plan B autorizado por Brian: si medir demuestra que la etiqueta causa el retraso, la píldora queda solo con íconos (pestañas de igual ancho, el fondo lima se desliza) y el nombre queda solo para accesibilidad.",
         "arranque_en_primer_cuadro": "Toda animación de entrada empieza a contar en el primer cuadro en que su contenido ya está dibujado, no en el toque; si un cuadro pesado se come el tiempo, la animación no debe llegar «ya terminada».",
-        "biblioteca_fuera_del_navhost": "La raíz de Biblioteca vive fuera del NavHost para no rearmarse (tarea 02d). Sus pantallas hijas (álbum, artista) irán dentro del NavHost."
+        "biblioteca_fuera_del_navhost": "La raíz de Biblioteca vive fuera del NavHost y queda medida y colocada aunque esté oculta (alfa 0, sin semántica, sin toques y sin foco) para no rehacer capas al volver (tareas 02d y 02e). No quitarla de la composición. Sus pantallas hijas (álbum, artista) van dentro del NavHost.",
+        "filas_animadas": "Filas con fundido usan CompositingStrategy.ModulateAlpha para no crear una capa por fila."
       }
     }
   ],
