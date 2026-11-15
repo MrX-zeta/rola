@@ -1,6 +1,35 @@
 package com.luis.rola.navigation
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalResources
+import com.luis.rola.core.data.Song
+import com.luis.rola.core.designsystem.LocalReduceMotion
+import com.luis.rola.core.media.PlayerConnection
+import com.luis.rola.core.media.PlayerState
+import com.luis.rola.core.media.QueueState
+import com.luis.rola.core.media.SleepTimerOption
+import com.luis.rola.core.media.formatDuration
+import com.luis.rola.feature.player.MiniCardContent
+import com.luis.rola.feature.player.NowPlayingScreen
+import com.luis.rola.feature.player.PlayerSheet
+import com.luis.rola.feature.player.PlayerSheetState
+import com.luis.rola.feature.player.QueueScreen
+import com.luis.rola.feature.player.SleepTimerSheet
+import com.luis.rola.feature.player.rememberCoverColors
+import com.luis.rola.feature.player.rememberPlayerSheetState
+import com.luis.rola.feature.player.rememberPosition
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -60,7 +89,19 @@ fun RolaNavHost(container: AppContainer) {
     val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Biblioteca.ruta
     val enBiblioteca = ruta == Destino.Biblioteca.ruta
 
+    val queue by player.queue.collectAsStateWithLifecycle()
+    val sheet = rememberPlayerSheetState()
+    // Sin canción no hay Reproduciendo: se cierra sin animar (p. ej. la canción dejó de existir).
+    LaunchedEffect(playerState.current == null) {
+        if (playerState.current == null) {
+            sheet.expansion.snapTo(0f)
+            sheet.queueOpen = false
+        }
+    }
+
     val snackbar = remember { SnackbarHostState() }
+    // Los avisos viven aquí y no en la capa: cerrar Reproduciendo no debe llevarse el «Deshacer».
+    val avisos = rememberCoroutineScope()
     val errorTexto = stringResource(R.string.error_reproducir)
     LaunchedEffect(Unit) { player.errors.collect { snackbar.showSnackbar(errorTexto) } }
 
@@ -129,7 +170,7 @@ fun RolaNavHost(container: AppContainer) {
                 .onSizeChanged { abajoPx = it.height },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            MiniPlayer(playerState, player::togglePlayPause, player::next)
+            MiniPlayer(playerState, player::togglePlayPause, player::next, onPrevious = player::previous, sheet = sheet)
             RolaNavBar(ruta, onSelect = { d ->
                 nav.navigate(d.ruta) {
                     popUpTo(nav.graph.findStartDestination().id) { saveState = true }
@@ -138,7 +179,110 @@ fun RolaNavHost(container: AppContainer) {
                 }
             })
         }
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = abajo))
+        val song = playerState.current
+        if (sheet.visible && song != null) PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos)
+        // Encima de la capa del reproductor: el aviso de Deshacer de la cola también se ve (DEC-09).
+        SnackbarHost(
+            snackbar,
+            Modifier.align(Alignment.BottomCenter).then(
+                if (sheet.visible) Modifier.navigationBarsPadding().padding(bottom = RolaSpacing.md) else Modifier.padding(bottom = abajo),
+            ),
+        ) {
+            // Colores de Figma (SCR-52): acción en primaryContainer.
+            Snackbar(it, shape = MaterialTheme.shapes.small, actionColor = MaterialTheme.colorScheme.primaryContainer)
+        }
+    }
+}
+
+/** Reproduciendo con Cola y la hoja del temporizador, dentro de la capa que crece desde la tarjeta. */
+@Composable
+private fun PlayerOverlay(
+    sheet: PlayerSheetState,
+    state: PlayerState,
+    song: Song,
+    queue: QueueState,
+    player: PlayerConnection,
+    snackbar: SnackbarHostState,
+    avisos: CoroutineScope,
+) {
+    val reduce = LocalReduceMotion.current
+    val scope = rememberCoroutineScope()
+    val res = LocalResources.current
+    val colores = rememberCoverColors(song)
+    val posicion = rememberPosition(state)
+    var temporizador by rememberSaveable { mutableStateOf(false) }
+    fun aviso(texto: String, accion: String? = null, alAccion: () -> Unit = {}) {
+        avisos.launch {
+            snackbar.currentSnackbarData?.dismiss() // el aviso nuevo reemplaza al anterior
+            if (snackbar.showSnackbar(texto, accion, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) alAccion()
+        }
+    }
+    PlayerSheet(
+        sheet,
+        colores.container,
+        card = { MiniCardContent(state, song, colores, posicion, onToggle = {}, onNext = {}) },
+    ) {
+        NowPlayingScreen(
+            state,
+            colores,
+            posicion,
+            onClose = { scope.launch { sheet.close(reduce) } },
+            onToggle = player::togglePlayPause,
+            onPrevious = player::previous,
+            onNext = player::next,
+            onSeek = player::seekTo,
+            onShuffle = player::toggleShuffle,
+            onRepeat = player::cycleRepeat,
+            onOpenQueue = { sheet.queueOpen = true },
+            onOpenTimer = { temporizador = true },
+        )
+        AnimatedVisibility(
+            sheet.queueOpen,
+            enter = if (reduce) {
+                fadeIn(tween(RolaMotion.MEDIA))
+            } else {
+                slideInVertically(tween(RolaMotion.LENTA, easing = RolaMotion.EaseOut)) { it } + fadeIn(tween(RolaMotion.MEDIA))
+            },
+            exit = if (reduce) {
+                fadeOut(tween(RolaMotion.RAPIDA))
+            } else {
+                slideOutVertically(tween(200, easing = RolaMotion.EaseOut)) { it } + fadeOut(tween(RolaMotion.RAPIDA))
+            },
+        ) {
+            BackHandler { sheet.queueOpen = false }
+            QueueScreen(
+                song,
+                colores,
+                queue.upNext,
+                onBack = { sheet.queueOpen = false },
+                onMove = player::moveUpNext,
+                onRemove = { i ->
+                    player.removeUpNext(i)?.let { r ->
+                        aviso(res.getString(R.string.quitaste, r.item.mediaMetadata.title), res.getString(R.string.deshacer)) {
+                            player.undoRemove(r)
+                        }
+                    }
+                },
+            )
+        }
+        if (temporizador) {
+            SleepTimerSheet(
+                state.timer,
+                state.timerEndsAtMs,
+                onStart = { o ->
+                    player.setSleepTimer(o)
+                    temporizador = false
+                    aviso(
+                        when (o) {
+                            SleepTimerOption.OFF -> res.getString(R.string.temporizador_cancelado)
+                            SleepTimerOption.END_OF_SONG -> res.getString(R.string.temporizador_restante_cancion)
+                            else -> res.getString(R.string.temporizador_restante, formatDuration(o.minutes * 60_000L))
+                        },
+                    )
+                },
+                onDismiss = { temporizador = false },
+            )
+        }
     }
 }
 
