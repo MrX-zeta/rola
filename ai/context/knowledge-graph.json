@@ -1,7 +1,7 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "actualizado": "2026-11-14",
     "fase": "Reproductor base y pulido listos (tareas 02–02e). Siguiente: tarea 03, reproductor completo.",
     "historial": [
@@ -69,6 +69,11 @@
         "version": "1.6.0",
         "fecha": "2026-11-14",
         "cambio": "Revisión tarea 03 en el Redmi: gestos y mini tarjeta (DEC-04), cola y Reproduciendo (DEC-24), timeSmall y botón sin portada (DEC-16), portada plana (DEC-27)."
+      },
+      {
+        "version": "1.6.1",
+        "fecha": "2026-11-15",
+        "cambio": "Revisión 03b: reglas del arrastre en la cola (DEC-24) y de la marquesina (DEC-04)."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -441,7 +446,7 @@
       "id": "DEC-04",
       "tipo": "decision",
       "nombre": "Mini reproductor y gestos",
-      "descripcion": "Tarjeta redondeada encima de la barra de navegación con carátula, título, artista, siguiente y reproducir/pausa, más una línea de progreso. Gestos solo dentro de la tarjeta: deslizar a la izquierda = siguiente, a la derecha = anterior, hacia arriba = abre Reproduciendo (carátula completa), hacia abajo desde Reproduciendo = vuelve a la tarjeta. Con umbral de distancia y velocidad, interrumpible, y alternativa con botones para quien no use gestos. CAMBIOS (2026-11-14, revisión de Brian en el Redmi): la mini tarjeta solo lleva reproducir/pausa (sin botón siguiente); el título corre como marquesina si no cabe (estático si cabe o con reducir movimiento). El gesto horizontal funciona empezando en cualquier punto de la tarjeta: cuenta la distancia recorrida (≈ 25 % del ancho o ~96 dp) o la velocidad (~400 dp/s), no la posición. En Reproduciendo, deslizar horizontalmente sobre la portada también cambia de canción; deslizar hacia abajo cierra y nunca puede quedar a medias.",
+      "descripcion": "Tarjeta redondeada encima de la barra de navegación con carátula, título, artista, siguiente y reproducir/pausa, más una línea de progreso. Gestos solo dentro de la tarjeta: deslizar a la izquierda = siguiente, a la derecha = anterior, hacia arriba = abre Reproduciendo (carátula completa), hacia abajo desde Reproduciendo = vuelve a la tarjeta. Con umbral de distancia y velocidad, interrumpible, y alternativa con botones para quien no use gestos. CAMBIOS (2026-11-14, revisión de Brian en el Redmi): la mini tarjeta solo lleva reproducir/pausa (sin botón siguiente); el título corre como marquesina si no cabe (estático si cabe o con reducir movimiento). El gesto horizontal funciona empezando en cualquier punto de la tarjeta: cuenta la distancia recorrida (≈ 25 % del ancho o ~96 dp) o la velocidad (~400 dp/s), no la posición. En Reproduciendo, deslizar horizontalmente sobre la portada también cambia de canción; deslizar hacia abajo cierra y nunca puede quedar a medias. Marquesina: corre mientras la canción suena, con pausa de 2 s entre pasadas; en pausa queda estática. Cierre de Reproduciendo: 96 dp o 400 dp/s.",
       "estado": "decidido"
     },
     {
@@ -676,7 +681,7 @@
       "id": "DEC-24",
       "tipo": "decision",
       "nombre": "Reproduciendo y cola",
-      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo).",
+      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo). Arrastre en la cola: la fila se queda siempre bajo el dedo; en los bordes la lista se desplaza sola y se detiene al llegar al inicio o al final; la fila nunca sale de los límites de la lista.",
       "estado": "decidido"
     },
     {
