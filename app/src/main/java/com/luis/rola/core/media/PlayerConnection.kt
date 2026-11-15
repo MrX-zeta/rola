@@ -46,6 +46,9 @@ data class QueueState(val upNext: List<QueueEntry> = emptyList(), val order: Lis
 /** Lo último que se quitó de la cola, para «Deshacer». [orderBefore] solo con aleatorio. */
 class Removed(val item: MediaItem, val index: Int, val orderBefore: List<Int>?)
 
+/** Lo que quitó «Limpiar»: tramos contiguos (índice de antes y canciones) y el orden aleatorio, para «Deshacer». */
+class Cleared(val runs: List<Pair<Int, List<MediaItem>>>, val orderBefore: List<Int>?)
+
 /** Puente de la interfaz con [PlaybackService] por un `MediaController`. Vive lo que vive el proceso. */
 class PlayerConnection(context: Context) {
 
@@ -59,8 +62,10 @@ class PlayerConnection(context: Context) {
     private val _errors = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val errors: SharedFlow<Unit> = _errors
 
-    // shortcut: órdenes que llegan antes de conectar (unos ms al abrir) se pierden; encolarlas si alguien lo nota.
     private var controller: MediaController? = null
+
+    /** Órdenes que llegan antes de conectar (el primer toque tras un arranque en frío): salen en orden al conectar (FR-055). */
+    private val pendientes = ArrayDeque<(MediaController) -> Unit>()
 
     private val listener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
@@ -88,24 +93,29 @@ class PlayerConnection(context: Context) {
             })
             .buildAsync()
         future.addListener({
-            controller = future.get().also { it.addListener(listener) }
+            val c = future.get().also { it.addListener(listener) }
+            controller = c
+            while (pendientes.isNotEmpty()) pendientes.removeFirst()(c)
             publish()
             publishQueue()
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun play(queue: List<Song>, startIndex: Int) {
-        controller?.run {
-            setMediaItems(queue.map { it.toMediaItem() }, startIndex, 0)
-            prepare()
-            play()
-        }
+    /** Todo corre en el hilo principal: la conexión llega por `getMainExecutor`. */
+    private fun whenConnected(order: (MediaController) -> Unit) {
+        controller?.let(order) ?: pendientes.addLast(order)
+    }
+
+    fun play(queue: List<Song>, startIndex: Int) = whenConnected {
+        it.setMediaItems(queue.map { s -> s.toMediaItem() }, startIndex, 0)
+        it.prepare()
+        it.play()
     }
 
     fun shuffle(queue: List<Song>) = play(queue.shuffled(), 0)
 
-    fun togglePlayPause() {
-        controller?.run {
+    fun togglePlayPause() = whenConnected {
+        it.run {
             if (isPlaying) {
                 pause()
             } else {
@@ -116,25 +126,17 @@ class PlayerConnection(context: Context) {
         }
     }
 
-    fun next() {
-        controller?.seekToNextMediaItem()
-    }
+    fun next() = whenConnected { it.seekToNextMediaItem() }
 
     /** Media3 reinicia la canción si pasaron más de 3 s; si no, va a la anterior (FR-012). */
-    fun previous() {
-        controller?.seekToPrevious()
-    }
+    fun previous() = whenConnected { it.seekToPrevious() }
 
-    fun seekTo(positionMs: Long) {
-        controller?.seekTo(positionMs)
-    }
+    fun seekTo(positionMs: Long) = whenConnected { it.seekTo(positionMs) }
 
-    fun toggleShuffle() {
-        controller?.run { shuffleModeEnabled = !shuffleModeEnabled }
-    }
+    fun toggleShuffle() = whenConnected { it.shuffleModeEnabled = !it.shuffleModeEnabled }
 
-    fun cycleRepeat() {
-        controller?.run {
+    fun cycleRepeat() = whenConnected {
+        it.run {
             repeatMode = when (repeatMode) {
                 Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
                 Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
@@ -171,8 +173,34 @@ class PlayerConnection(context: Context) {
         removed.orderBefore?.takeIf { c.shuffleModeEnabled && it.size == c.mediaItemCount }?.let { sendOrder(c, it) }
     }
 
-    fun setSleepTimer(option: SleepTimerOption) {
-        controller?.sendCustomCommand(
+    /** Tocar una fila de «A continuación»: suena esa canción (FR-052). */
+    fun playUpNext(position: Int) = whenConnected { c ->
+        val entry = _queue.value.upNext.getOrNull(position) ?: return@whenConnected
+        if (c.playbackState == Player.STATE_IDLE) c.prepare() // tras un error
+        c.seekToDefaultPosition(entry.index)
+        c.play()
+    }
+
+    /** «Limpiar»: quita todo lo que sigue y deja la actual (FR-054). */
+    fun clearUpNext(): Cleared? {
+        val c = controller ?: return null
+        val q = _queue.value
+        if (q.upNext.isEmpty()) return null
+        val runs = QueueOrder.runs(q.upNext.map { it.index })
+        val cleared = Cleared(runs.map { r -> r.first to r.map(c::getMediaItemAt) }, q.order.takeIf { c.shuffleModeEnabled })
+        runs.asReversed().forEach { c.removeMediaItems(it.first, it.last + 1) } // de atrás hacia adelante: los índices no se corren
+        return cleared
+    }
+
+    fun undoClear(cleared: Cleared) {
+        val c = controller ?: return
+        // De menor a mayor en su lugar de antes: cada tramo queda donde estaba.
+        cleared.runs.forEach { (i, items) -> c.addMediaItems(i.coerceAtMost(c.mediaItemCount), items) }
+        cleared.orderBefore?.takeIf { c.shuffleModeEnabled && it.size == c.mediaItemCount }?.let { sendOrder(c, it) }
+    }
+
+    fun setSleepTimer(option: SleepTimerOption) = whenConnected {
+        it.sendCustomCommand(
             SessionCommand(PlaybackService.TEMPORIZADOR, Bundle.EMPTY),
             bundleOf(PlaybackService.ARG_OPCION to option.name),
         )

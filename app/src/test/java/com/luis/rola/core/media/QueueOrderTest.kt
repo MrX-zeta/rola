@@ -49,4 +49,11 @@ class QueueOrderTest {
         assertFalse(QueueOrder.isPermutation(listOf(0, 1, 3), 3))
         assertFalse(QueueOrder.isPermutation(listOf(-1, 0, 1), 3))
     }
+
+    @Test
+    fun `limpiar agrupa en tramos contiguos sin importar el orden`() {
+        assertEquals(listOf(3..6), QueueOrder.runs(listOf(3, 4, 5, 6))) // sin aleatorio: un solo tramo
+        assertEquals(listOf(0..1, 3..3, 5..6), QueueOrder.runs(listOf(5, 0, 3, 1, 6))) // con aleatorio
+        assertEquals(emptyList<IntRange>(), QueueOrder.runs(emptyList()))
+    }
 }

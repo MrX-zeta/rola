@@ -18,6 +18,13 @@ object QueueOrder {
     fun shuffledStartingWith(current: Int, size: Int, random: Random): List<Int> =
         listOf(current) + (0 until size).filter { it != current }.shuffled(random)
 
+    /** [indices] agrupados en tramos contiguos, de menor a mayor: «Limpiar» quita cada tramo de una vez. */
+    fun runs(indices: List<Int>): List<IntRange> = indices.sorted().fold(mutableListOf()) { acc, i ->
+        val last = acc.lastOrNull()
+        if (last != null && last.last + 1 == i) acc[acc.lastIndex] = last.first..i else acc += i..i
+        acc
+    }
+
     /** Frontera de confianza del comando `rola.ORDEN_ALEATORIO`: cada índice de la cola, una vez. */
     fun isPermutation(order: List<Int>, size: Int): Boolean = order.sorted() == List(size) { it }
 }
