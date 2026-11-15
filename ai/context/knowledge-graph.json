@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "actualizado": "2026-11-14",
-    "fase": "Reproductor completo. Siguiente: tarea 04 (cola con librería y onboarding).",
+    "fase": "Onboarding y cola listos (tarea 04). Siguiente: tarea 05, Favoritas y Listas.",
     "historial": [
       {
         "version": "1.0.0",
@@ -79,6 +79,11 @@
         "version": "1.7.0",
         "fecha": "2026-11-15",
         "cambio": "Arrastre de la cola sigue fallando arriba (video de Brian): se pasa a la librería reorderable. Onboarding adelantado a la tarea 04 (DEC-18). Plan de tareas reordenado."
+      },
+      {
+        "version": "1.8.0",
+        "fecha": "2026-11-15",
+        "cambio": "DEC-29 Favoritas (pedido de Brian) y TBL-FAVORITES; KV-DATASTORE y tablas de listas decididas; Listas se adelanta a la tarea 05 junto con Favoritas."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -142,29 +147,28 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 159,
-      "aristas": 278,
+      "nodos": 161,
+      "aristas": 282,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
         "restriccion": 5,
         "actor": 3,
         "tecnologia": 20,
-        "decision": 28,
+        "decision": 29,
         "invariante": 11,
         "pregunta_abierta": 8,
         "fuera_de_alcance": 7,
         "modulo": 9,
         "operacion": 19,
-        "tabla": 5,
+        "tabla": 6,
         "almacen_clave_valor": 1,
         "pantalla": 38
       }
     },
     "plan_de_tareas": {
-      "04": "Cola sin fugas (librería reorderable) + Onboarding completo con DataStore: SCR-02–06",
-      "05": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
-      "06": "Listas y Room: SCR-23, 30–33, SCR-54, OP-08",
+      "05": "Favoritas y Listas con Room: DEC-29, SCR-23, 30–33, SCR-54, OP-04–08",
+      "06": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
       "07": "Inicio y Buscar: SCR-10–12, 40, 41",
       "08": "Ajustes y legal: SCR-70, 72–75, tema seleccionable",
       "09": "Letras: SCR-60–63, 71, LRCLIB",
@@ -475,7 +479,7 @@
       "id": "DEC-07",
       "tipo": "decision",
       "nombre": "Menú de opciones de canción",
-      "descripcion": "Menú desplegable (M3 DropdownMenu) desde el botón ⋮ o pulsación larga. En una lista: Quitar de la lista, Añadir a la cola. En Biblioteca/Canciones y Buscar: Añadir a la cola, Añadir a una lista, Borrar del dispositivo.",
+      "descripcion": "Menú desplegable (M3 DropdownMenu) desde el botón ⋮ o pulsación larga. En una lista: Quitar de la lista, Añadir a la cola. En Biblioteca/Canciones y Buscar: Añadir a la cola, Añadir a una lista, Borrar del dispositivo. Se agrega «Favorita / Quitar de favoritas» (DEC-29).",
       "estado": "decidido"
     },
     {
@@ -1184,7 +1188,7 @@
       "tipo": "tabla",
       "nombre": "playlists",
       "descripcion": "Listas del usuario.",
-      "estado": "propuesto",
+      "estado": "decidido",
       "detalles": {
         "almacen": "Room",
         "campos": [
@@ -1200,7 +1204,7 @@
       "tipo": "tabla",
       "nombre": "playlist_songs",
       "descripcion": "Canciones de cada lista, con orden.",
-      "estado": "propuesto",
+      "estado": "decidido",
       "detalles": {
         "almacen": "Room",
         "campos": [
@@ -1251,7 +1255,7 @@
       "tipo": "almacen_clave_valor",
       "nombre": "DataStore",
       "descripcion": "Ajustes del usuario.",
-      "estado": "propuesto",
+      "estado": "decidido",
       "detalles": {
         "almacen": "DataStore Preferences",
         "campos": [
@@ -1824,6 +1828,31 @@
         "arranque_en_primer_cuadro": "Toda animación de entrada empieza a contar en el primer cuadro en que su contenido ya está dibujado, no en el toque; si un cuadro pesado se come el tiempo, la animación no debe llegar «ya terminada».",
         "biblioteca_fuera_del_navhost": "La raíz de Biblioteca vive fuera del NavHost y queda medida y colocada aunque esté oculta (alfa 0, sin semántica, sin toques y sin foco) para no rehacer capas al volver (tareas 02d y 02e). No quitarla de la composición. Sus pantallas hijas (álbum, artista) van dentro del NavHost.",
         "filas_animadas": "Filas con fundido usan CompositingStrategy.ModulateAlpha para no crear una capa por fila."
+      }
+    },
+    {
+      "id": "TBL-FAVORITES",
+      "tipo": "tabla",
+      "nombre": "favorites",
+      "descripcion": "Canciones favoritas del usuario.",
+      "estado": "decidido",
+      "detalles": {
+        "almacen": "Room",
+        "campos": [
+          "media_id",
+          "added_at"
+        ]
+      }
+    },
+    {
+      "id": "DEC-29",
+      "tipo": "decision",
+      "nombre": "Favoritas",
+      "descripcion": "Botón de corazón sobre la portada de Reproduciendo (esquina inferior izquierda, círculo oscuro translúcido de 48 dp). Al marcar: el corazón se rellena de lima (accent) con un rebote y una pequeña ráfaga de partículas, más vibración háptica; al desmarcar vuelve al contorno sin ráfaga. Con reducir movimiento: solo cambio de relleno. «Favoritas» aparece fija arriba en Biblioteca · Listas como lista automática (no se renombra ni se borra), ordenada por fecha en que se marcó. En el menú de opciones de una canción también se puede marcar/desmarcar. Al borrar una canción del dispositivo se quita de Favoritas (DEC-08).",
+      "estado": "decidido",
+      "detalles": {
+        "figma": "icon/favorite_filled 78:3332; botón en 36:1465 y 51:4482",
+        "almacen": "TBL-FAVORITES"
       }
     }
   ],
@@ -3245,6 +3274,26 @@
     {
       "de": "DEC-28",
       "a": "INV-06",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-29",
+      "a": "TBL-FAVORITES",
+      "relacion": "usa"
+    },
+    {
+      "de": "TBL-FAVORITES",
+      "a": "DEC-29",
+      "relacion": "definida_por"
+    },
+    {
+      "de": "DEC-29",
+      "a": "DEC-28",
+      "relacion": "depende_de"
+    },
+    {
+      "de": "DEC-29",
+      "a": "DEC-06",
       "relacion": "depende_de"
     }
   ]
