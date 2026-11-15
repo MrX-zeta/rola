@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.focusGroup
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -86,7 +88,14 @@ fun RolaNavHost(container: AppContainer) {
         Box(
             Modifier
                 .graphicsLayer { alpha = alfa.value }
-                .then(if (enBiblioteca) Modifier else Modifier.clearAndSetSemantics {}),
+                .then(
+                    if (enBiblioteca) {
+                        Modifier
+                    } else {
+                        // Oculta: ni lector de pantalla ni foco de teclado entran a sus filas.
+                        Modifier.clearAndSetSemantics {}.focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()
+                    },
+                ),
         ) {
             LibraryScreen(
                 songs = songs,
