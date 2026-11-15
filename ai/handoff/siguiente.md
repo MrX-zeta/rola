@@ -1,6 +1,6 @@
 # Tarea 02e · Entrada a Biblioteca sin saltos (medido en el Redmi)
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-14 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.4.3 · Sin Spec Kit.

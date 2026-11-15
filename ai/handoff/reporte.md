@@ -1,140 +1,95 @@
-# Reporte · Tarea 02d · Retraso de la barra y despliegue de Biblioteca
+# Reporte · Tarea 02e · Entrada a Biblioteca sin saltos
 
 **Estado:** esperando revisión.
 
 ## Paso 0 · Comprobación
-- Adelanté el worktree a `origin/development` con fast-forward (estaba en `main` viejo y no tenía commits propios).
-- `git log` incluye `a7eca18 docs: sesión de diseño tarea 02d`.
-- Skills: `animate` y `ponytail-review` estaban disponibles y las usé. Esta tarea no necesitaba Figma ni Spec Kit.
+- Adelanté el worktree a `origin/development` con fast-forward. `git log` incluye `8d90c9e docs: sesión de diseño tarea 02e`.
+- Skills: usé `ponytail-review`. No cargué `animate`, porque el Paso 3 ajusta una animación que ya existía y no crea una nueva. Esta tarea no necesitaba Figma ni Spec Kit.
 
-## Paso 1 · Medir (antes de cambiar código)
+## Paso 1 · Medir
 
 **Dónde se midió:**
-- El Redmi está conectado, pero **rechaza los toques por `adb`**: MIUI pide activar «Depuración USB (ajustes de seguridad)» y ese ajuste no lo toco yo. Brian eligió medir en el emulador (Pixel 7 Pro, API 36, 60 Hz, 1440×3120, tipo `perfil`).
-- **Límites del emulador:**
-  - Solo tiene 10 canciones; el Redmi tiene 375.
-  - Su render es lento en **todos** los cuadros (~44 ms en la primera sesión), así que casi todos pasan de 16 ms en el total.
-  - Por eso separé el **hilo principal** (Vsync → SyncQueued) del **hilo de render + GPU** (SyncStart → FrameCompleted).
+- El Redmi **sigue rechazando `adb shell input tap`** y `pm grant` (`SecurityException: … INJECT_EVENTS`), incluso después de que Brian activara el ajuste.
+- Brian eligió medir en el emulador: Pixel 7 Pro, API 36, 60 Hz, tipo `perfil`.
+- Para acercarlo al Redmi, copié las 10 canciones de prueba hasta tener **380** (en `/sdcard/Music/t02e/`). Las borré al terminar porque el emulador se quedó sin espacio para las pruebas.
+- **Límite del emulador:** el hilo de render tarda ~90–100 ms en **todos** los cuadros (unos 10 cuadros por segundo). Así, cualquier animación de 150–300 ms dura 2–3 cuadros en cualquier dirección. Por eso no reproduce lo que Brian ve en el Redmi.
 
 **Método:**
-- Por cada cambio: `gfxinfo reset`, `input tap`, 1.2 s de espera y `gfxinfo framestats`.
-- 10 cambios por dirección.
-- Los percentiles salen de las filas de framestats sin marcas.
-- Los scripts quedaron en `app/build/t02d/`, que git ignora.
+- Los mismos scripts de la 02d, ahora en `app/build/t02e/` (git lo ignora).
+- `gfxinfo`: 10 cambios por dirección, incluido Inicio ↔ Buscar como control.
+- `atrace` con secciones de la app: 6 cambios antes y 6 después, más 20 después para confirmar.
+- Script nuevo `render.py`: tiempo de cada `DrawFrame` del hilo de render y cuántas capas fuera de pantalla crea (`alpha caused saveLayer`).
 
-### Antes
+### Antes · hilo principal (gfxinfo, ms)
 
-**Hilo principal (ms)**
+| Dirección | Cuadros | Lentos > 16 ms | p90 | p99 | Máx |
+|---|---|---|---|---|---|
+| Biblioteca → Buscar | 106 | 45 (42 %) | 26.6 | 33.5 | 33.8 |
+| Biblioteca → Inicio | 111 | 38 (34 %) | 21.3 | 23.7 | 27.6 |
+| Buscar → Biblioteca | 106 | 47 (44 %) | 24.9 | 63.4 | 72.1 |
+| Inicio → Biblioteca | 113 | 40 (35 %) | 23.7 | 28.2 | 95.5 |
+| Inicio → Buscar (control) | 113 | 20 (18 %) | 20.7 | 26.0 | 28.2 |
+| Buscar → Inicio (control) | 114 | 36 (32 %) | 22.7 | 40.2 | 49.8 |
 
-| Dirección | Cuadros | Lentos > 16 ms | p90 | p95 | p99 | Máx |
-|---|---|---|---|---|---|---|
-| Biblioteca → Buscar | 150 | 46 (31 %) | 24.1 | 27.9 | 36.8 | 50.9 |
-| Biblioteca → Inicio | 154 | 39 (25 %) | 20.3 | 21.5 | 27.2 | 28.9 |
-| Buscar → Biblioteca | 124 | 40 (32 %) | 47.2 | 95.7 | 194.9 | 322.7 |
-| Inicio → Biblioteca | 138 | 50 (36 %) | 24.4 | 53.5 | 74.8 | 75.8 |
+**Qué mostró el trazo al entrar a Biblioteca:**
+- **Hilo principal:** el primer cuadro trae 15–18 ms de trabajo propio, parecido a salir. No hay un solo cuadro largo de forma constante. Gfxinfo sí muestra picos de 72–96 ms al entrar, en 3 de 20 entradas, siempre en el 3.er cuadro.
+- **Hilo de render:** es lo que sí distingue la entrada. Cada cuadro de la animación de entrada crea **5–7 capas fuera de pantalla**. Una es de pantalla completa, por el fundido (1440×3120). Las demás son **una por cada fila** de la cascada (1440×224). Al salir de Biblioteca son 2–4 por cuadro.
+- **Conclusión:** la hipótesis del cuadro pesado de medida y colocación **no se confirmó en el emulador**. Lo medible fue el costo de GPU de la cascada y que Biblioteca rehace sus capas cada vez que vuelve a colocarse.
 
-**Hilo de render + GPU (ms):** p90 entre 42.6 y 44.0 en las cuatro direcciones, con 94–99 % de cuadros lentos. Es el emulador, no la app.
+## Paso 2 · Corrección (`4719421`)
+1. **Biblioteca oculta sigue medida y colocada**, con alfa 0.
+   - Ya no rehace sus capas al volver.
+   - Mientras está oculta se le quita la semántica (`clearAndSetSemantics`) y una capa encima se lleva los toques.
+   - **Comprobé en el emulador:** en Buscar, `uiautomator dump` solo muestra «Próximamente» y «Buscar». Un toque donde estaría una fila no reproduce nada (sesión de medios en `NONE`).
+2. **DEC-28 `arranque_en_primer_cuadro`:** el fundido de Biblioteca, la cascada y la píldora esperan un `withFrameNanos` antes de empezar. El cuadro que dibuja el cambio ya no les consume tiempo. La píldora sigue siendo interrumpible: usa `Animatable`, que parte de su valor y velocidad actuales.
+3. **Filas de la cascada con `CompositingStrategy.ModulateAlpha`:** sin capa fuera de pantalla por fila.
 
-**Total del cuadro:** 99–100 % de cuadros lentos en todas las direcciones; p99 entre 116 y 376 ms.
-
-### Trazo (atrace con secciones de la app, 3 idas y vueltas)
-Separé el trabajo propio del hilo principal (doFrame menos `postAndWait`, que es la espera al hilo de render).
-
-**Al salir de Biblioteca:**
-- Unos 210–240 ms después del toque, cuando la píldora todavía se mueve, cae un cuadro de **17–32 ms de trabajo propio**.
-- Es Biblioteca **desmontándose** al terminar el fundido: `Compose:applyChanges` 10 ms, `Compose:onForgotten` 7–8 ms y `onPositionedCallbacks` 4 ms.
-- Esto explica por qué Brian lo siente solo en esa dirección: el tirón llega en plena animación.
-
-**Al entrar a Biblioteca:**
-- El primer cuadro rearma toda la lista: **130–140 ms** de trabajo propio en el emulador (`measureAndLayout` 85–106 ms).
-- Cae al principio, antes de que la píldora avance, y por eso se nota menos.
-
-**La etiqueta de la píldora no aparece como causa.** El plan B (barra sin texto) **no se justificó** y no lo apliqué.
-
-## Paso 2 · Corrección: Biblioteca ya no se desmonta (`d37782b`)
-
-**Qué cambió:**
-- `LibraryScreen` se monta una sola vez junto al `NavHost`, no dentro de él.
-- Cuando no es la pestaña activa no se coloca: no se dibuja, no recibe toques y no está en el árbol de accesibilidad. Lo comprobé con `uiautomator dump`: en Buscar solo aparecen «Próximamente» y «Buscar».
-- Su destino en el `NavHost` queda vacío y sigue llevando la pila, así que atrás del sistema funciona como antes (DEC-03).
-- El fundido es el mismo de las otras pestañas (150 ms de entrada con `EaseOut`, 100 ms de salida).
-- El ViewModel ahora vive en la Activity. Antes vivía en la entrada de Biblioteca, que nunca salía de la pila porque es el destino de arranque.
-
-**Antes / después** (mismo emulador y misma sesión):
-
-| Hilo principal | Antes p99 / máx | Después p99 / máx |
-|---|---|---|
-| Biblioteca → Buscar | 36.8 / 50.9 | 35.2 / 35.6 |
-| Biblioteca → Inicio | 27.2 / 28.9 | 24.2 / 30.7 |
-| Buscar → Biblioteca | 194.9 / 322.7 | 29.4 / 41.6 |
-| Inicio → Biblioteca | 74.8 / 75.8 | 26.9 / 32.5 |
-
-**Trabajo propio del hilo principal en el trazo** (700 ms tras cada toque):
+### Antes / después · hilo de render al entrar (atrace)
 
 | | Antes | Después |
 |---|---|---|
-| Biblioteca → Buscar: peor cuadro | 31.7 ms | 17.0 ms |
-| Biblioteca → Buscar: `onForgotten` por toque | 7.8–8.2 ms | 0.6–0.9 ms |
-| Buscar → Biblioteca: peor cuadro | 139.9 ms | 17.2 ms |
+| Capas fuera de pantalla por cuadro de entrada | 5–7 | 1–3 |
+| `DrawFrame` Buscar → Biblioteca: mediana / máx | 96.1 / 139.6 ms | 84.3 / 114.0 ms |
+| `DrawFrame` Inicio → Biblioteca: mediana / máx | 87.3 / 162.9 ms | 75.8 / 108.8 ms |
 
-**Lo que queda:**
-- Los primeros 1–3 cuadros de **cualquier** cambio de pestaña (~10 ms de `recompose` del cambio de destino), iguales en las dos direcciones. Ya no hay asimetría.
-- El conteo «lentos > 16 ms» del hilo principal casi no cambia en el emulador, porque ese hilo también espera al render lento.
+### Después · hilo principal (gfxinfo, ms)
 
-**Commit:** `perf(navegacion): Biblioteca no se desmonta al cambiar de pestaña`. Incluye la corrección del comentario viejo de `RolaNavHost.kt`.
+| Dirección | p90 | p99 | Máx |
+|---|---|---|---|
+| Buscar → Biblioteca | 25.5 | 51.5 | 92.5 |
+| Inicio → Biblioteca | 24.4 | 35.1 | 106.7 |
+| Inicio → Buscar (control) | 22.9 | 40.8 | 71.0 |
 
-## Paso 3 · Despliegue de Biblioteca (`86c14ea`, skill `animate`)
+- En este emulador gfxinfo es casi todo ruido: los cuadros de control también tienen picos.
+- Hubo un cuadro de 116 ms de `measureAndLayout` en la primera entrada tras arrancar la app. En las **20 entradas siguientes no se repitió** (máx. 8 ms). Parece algo puntual del arranque (JIT o primer uso), no de la corrección.
+- **Brian confirmó en el Redmi que la mejora funciona.**
 
-**Decisiones de la skill `animate`:**
-- Se ve decenas de veces al día, así que debe ser breve y sutil.
-- Propósito: que la lista no aparezca de golpe.
+## Paso 3 · Texto de la píldora (`a0d6376`)
+- La etiqueta aparece entre el **30 % y el 100 %** del progreso de su pestaña.
+- `RolaMotion.resortePildora()`: amortiguación 0.8 y rigidez 300 (antes 400). Se asienta al 1 % en ≈ 0.33 s, dentro de los ~350 ms que permite DEC-28. Solo lo usa la píldora; el rebote del ícono sigue con `resorte()`.
+- **Con reducir movimiento:** el progreso salta de 0 a 1, así que el texto también salta.
 
-**Cómo es:**
-- Las primeras 8 filas visibles hacen fundido y suben 8 dp.
-- Tiempos: 25 ms entre filas y 125 ms por fila con `RolaMotion.EaseOut`. Total: 7 × 25 + 125 = **300 ms**.
-- Solo usa `alpha` y `translationY` en `graphicsLayer`. El reloj se lee al dibujar, así que no recompone.
-- No bloquea toques.
-
-**Cuándo pasa:**
-- Cada vez que Biblioteca se vuelve visible. Empieza en el mismo cambio de ruta que el fundido de la pestaña, y el primer cuadro ya dibuja las filas en su punto de inicio.
-- Si hay esqueletos, ocurre cuando llegan los datos, una sola vez.
-- No se repite al rotar: la marca se guarda con `rememberSaveable`.
-- Las filas que llegan al desplazar y las que pasan de 8 aparecen normales.
-- Al salir espera los 100 ms del fundido antes de reiniciar, para no cortar la salida.
-- Con reducir movimiento no hay cascada.
-
-**Pruebas de Compose nuevas** (en `LibraryScreenTest`):
-- Con reducir movimiento, la posición de cada fila en el primer cuadro es igual a su posición final.
-- Control: sin reducir movimiento, en el primer cuadro sí están desplazadas.
-
-**Costo (A/B en las mismas condiciones):**
-- El emulador se puso más lento después de las pruebas (render ~95 ms en todas las direcciones), así que comparé contra un build temporal con la cascada apagada, sin versionar.
-
-| Hilo principal p99 / máx | Con cascada | Sin cascada |
-|---|---|---|
-| Buscar → Biblioteca | 25.5 / 28.7 | 37.3 / 42.0 |
-| Inicio → Biblioteca | 26.9 / 28.9 | 42.8 / 53.1 |
-
-La cascada no agrega costo medible; la diferencia es ruido del emulador.
+## Corrección fina tras la revisión (`e4bc071`)
+- **Problema que encontró `ponytail-review`:** al quedar colocada, Biblioteca oculta podía recibir foco de teclado. Con Tab y Enter se podía reproducir una canción invisible. Antes no pasaba, porque un nodo sin colocar no recibe foco.
+- **Arreglo:** mientras está oculta, `focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()`.
 
 ## Paso 4 · Comprobaciones
 - `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` → **BUILD SUCCESSFUL**.
 - **Unitarias:** 22, 0 fallas.
-- **Compose** (`connectedDebugAndroidTest`, Pixel 7 Pro API 36): **11, 0 fallas** (9 de antes + 2 nuevas).
-- **Lint:** 0 errores y los mismos 2 avisos de siempre: `VectorRaster` (splash) y `ExportedService` (Media3).
-- **Videos** (emulador, `perfil`, 720×1280):
-  - `ai/handoff/capturas/t02d-barra.mp4`: ocho cambios de pestaña y, al final, dos toques a 120 ms.
-  - `ai/handoff/capturas/t02d-despliegue.mp4`: entradas a Biblioteca desde Buscar e Inicio.
-  - No pude sacar cuadros sueltos para revisarlos (no hay `ffmpeg`), así que conviene verlos.
-- **Redmi:** le instalé el `perfil` final encima del anterior, con la misma firma.
-- **Nota del entorno:** las pruebas de Compose reinstalan la app y quitan el permiso de audio. En el emulador lo volví a dar con `pm grant` para seguir midiendo.
+- **Compose** (`connectedDebugAndroidTest`, emulador): **11, 0 fallas**.
+- **Lint:** 0 errores y los 2 avisos de siempre (`VectorRaster` y `ExportedService`).
+- **Redmi:** le instalé el `perfil` final en el usuario principal. El permiso de audio ya estaba concedido.
+- **Video:** `ai/handoff/capturas/t02e-entrar-biblioteca.mp4`, del **emulador**, no del Redmi. Como el Redmi no acepta toques por adb, no pude grabar ahí. Muestra entradas a Biblioteca desde Buscar e Inicio, con 10 canciones.
+- **Nota del entorno:** la primera corrida de Compose falló al instalar (`DELETE_FAILED_INTERNAL_ERROR`) porque el emulador estaba al 95 % de espacio. Pasó después de borrar las copias de canciones.
 
 ## Dudas y pendientes para el equipo
-1. **Ver en el Redmi** si ya no se siente el retraso al salir de Biblioteca y si la cascada se siente bien. Las medidas son del emulador, que no reproduce bien al Redmi (120 Hz, 375 canciones).
-2. **Medir en el Redmi:** si Brian activa «Depuración USB (ajustes de seguridad)», puedo repetir la medida ahí con los mismos scripts.
-3. **A futuro:** cuando Biblioteca tenga su propia pila (álbum, artista…), esas pantallas irán en el `NavHost` y la raíz seguirá fuera. Si eso no convence, la alternativa es volver a montarla dentro y aceptar el costo de rearmarla. Propongo anotarlo en el grafo junto a DEC-03.
+1. **Redmi y adb:** con «Depuración USB (ajustes de seguridad)» activada, MIUI sigue rechazando `input tap` y `pm grant`. Puede hacer falta la cuenta Mi, una SIM o reiniciar el teléfono. Mientras tanto, las medidas y los videos salen del emulador, que no se parece al Redmi.
+2. **Video del Redmi:** si Brian lo graba a mano (`adb shell screenrecord` mientras toca), queda en el mismo nombre.
+3. **Para el grafo:** propongo anotar junto a DEC-03/DEC-28 que la raíz de Biblioteca queda colocada aunque esté oculta, sin semántica, sin toques y sin foco. Así una tarea futura no la vuelve a quitar de la composición.
+4. **Prueba faltante:** no hay prueba automática de que la lista oculta no reciba toques. `RolaNavHost` necesita un `AppContainer` real. Lo comprobé a mano. Propongo cubrirlo con Maestro cuando una tarea lo pida.
 
 ## Commits
-- `d37782b` · perf(navegacion): Biblioteca no se desmonta al cambiar de pestaña
-- `86c14ea` · feat(motion): despliegue de Biblioteca
-- (este) docs(handoff): reporte de la tarea 02d
+- `4719421` · perf(navegacion): entrada a Biblioteca sin cuadro pesado
+- `a0d6376` · fix(motion): texto de la píldora más apreciable
+- `e4bc071` · fix(navegacion): Biblioteca oculta no recibe foco de teclado
+- (este) docs(handoff): reporte de la tarea 02e
