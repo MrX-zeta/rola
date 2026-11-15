@@ -6,7 +6,7 @@
 - Adelanté el worktree a `origin/development` con fast-forward. `git log` incluye `766499b docs: sesión de diseño tarea 04`.
 - Skills usadas: `speckit-converge`, `speckit-specify`, `-clarify`, `-plan`, `-tasks`, `-analyze` e `-implement`; `figma-design-to-code` (antes de leer Figma), `animate` (movimiento del onboarding), `design-critique` y `ponytail-review` (antes de cada commit). No faltó ninguna.
 - Ponytail: full en la Parte A, off de B1 a B5 y full desde B6, cambiado por Brian en cada punto.
-- Dispositivos: emulador Pixel 7 Pro. El Redmi apareció en adb al empezar, pero al final ya no estaba. **No le instalé `perfil`**; el APK está en `app/build/outputs/apk/perfil/app-perfil.apk`.
+- Dispositivos: emulador Pixel 7 Pro. El Redmi se desconectó a mitad de la tarea; cuando Brian lo volvió a conectar, le instalé `perfil` (`app-perfil.apk` del commit `15767e2`).
 
 ## Parte A · Cola sin fugas
 - **Librería:** `sh.calvin.reorderable:reorderable` **3.1.0** (la estable más nueva en Maven Central; Apache 2.0; sin red). Quité todo el arrastre propio: vista previa, `reordenar`, `limitar` y el autodesplazamiento con `withFrameNanos` (unas 90 líneas menos). Solo las filas de «A continuación» son `ReorderableItem`; «Sonando ahora», la fila actual y las etiquetas no son destinos (FR-059).
@@ -64,4 +64,4 @@ Coinciden en estructura, colores, relieve y textos. Diferencias menores:
 - **«Omitir» no está en la página 3**, como en Figma 22:383 (ahí está «Empezar»). Ajusté FR-006.
 - **Colores de las portadas de ejemplo** (`#2F4BB8`, `#E4572E`, `#1F7A5C` y sus tonos claros) quedaron como tokens en `Color.kt` (`RolaIlustracion`), no en las pantallas.
 - **Emulador lleno:** quedó al 94 %, con archivos viejos en `/sdcard` (`s1.raw`…`s10.raw`, ~180 MB, y videos `rec_nav*.mp4`) que no son de esta tarea y no borré. Varias instalaciones fallaron por espacio hasta quitar mis audios de prueba. ¿Los borro?
-- **Redmi:** queda pendiente instalarle `perfil` para juzgar la fluidez del indicador y de la cola (DEC-28 `fluidez`).
+- **Redmi:** ya tiene `perfil`; falta que Brian juzgue ahí la fluidez del indicador y de la cola (DEC-28 `fluidez`).
