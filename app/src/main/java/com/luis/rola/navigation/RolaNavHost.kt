@@ -1,6 +1,25 @@
 package com.luis.rola.navigation
 
 import androidx.activity.compose.BackHandler
+import android.app.Activity
+import android.content.ContentUris
+import android.provider.MediaStore
+import android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+import android.provider.MediaStore.Audio.Media._ID
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.luis.rola.core.data.FAVORITAS_ID
+import com.luis.rola.feature.library.SongAction
+import com.luis.rola.feature.playlists.AddSongsSheet
+import com.luis.rola.feature.playlists.ChoosePlaylistSheet
+import com.luis.rola.feature.playlists.CreatePlaylistDialog
+import com.luis.rola.feature.playlists.PlaylistScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.slideInVertically
@@ -88,6 +107,7 @@ fun RolaNavHost(container: AppContainer) {
     // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
     val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Biblioteca.ruta
     val enBiblioteca = ruta == Destino.Biblioteca.ruta
+    val enLista = ruta.startsWith(RUTA_LISTA)
 
     val queue by player.queue.collectAsStateWithLifecycle()
     val sheet = rememberPlayerSheetState()
@@ -108,15 +128,84 @@ fun RolaNavHost(container: AppContainer) {
     var abajoPx by remember { mutableIntStateOf(0) }
     val abajo = with(LocalDensity.current) { abajoPx.toDp() }
     val fondo = MaterialTheme.colorScheme.background
+    val res = LocalResources.current
+    val resolver = LocalContext.current.contentResolver
+
+    val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library))
+    val songs by vm.songs.collectAsStateWithLifecycle()
+    val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
+    val favoritas by vm.favorites.collectAsStateWithLifecycle()
+    val listas by vm.playlists.collectAsStateWithLifecycle()
+
+    fun avisar(texto: String, accion: String? = null, alAccion: suspend () -> Unit = {}) {
+        avisos.launch {
+            snackbar.currentSnackbarData?.dismiss() // el aviso nuevo reemplaza al anterior
+            if (snackbar.showSnackbar(texto, accion, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) alAccion()
+        }
+    }
+
+    // Menú de opciones (DEC-07): elegir lista, crear lista y borrar del dispositivo.
+    var eligiendo by remember { mutableStateOf<Song?>(null) }
+    var creando by rememberSaveable { mutableStateOf(false) }
+    var paraAgregar by remember { mutableStateOf<Song?>(null) }
+    var borrandoId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var borrandoTitulo by rememberSaveable { mutableStateOf("") }
+    // DEC-08/INV-02: Android muestra su aviso; aquí solo se mira el resultado y se limpian las referencias.
+    val borrar = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { r ->
+        val id = borrandoId ?: return@rememberLauncherForActivityResult
+        borrandoId = null
+        if (r.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val titulo = borrandoTitulo
+        avisos.launch {
+            val sigue = withContext(Dispatchers.IO) {
+                runCatching {
+                    resolver.query(ContentUris.withAppendedId(EXTERNAL_CONTENT_URI, id), arrayOf(_ID), null, null, null)?.use { it.count > 0 }
+                }.getOrNull() ?: true // si no se puede comprobar, no se limpia nada
+            }
+            if (sigue) {
+                avisar(res.getString(R.string.no_se_pudo_borrar, titulo))
+            } else {
+                vm.forgetSong(id)
+                player.removeSong(id)
+                avisar(res.getString(R.string.se_borro, titulo))
+            }
+        }
+    }
+
+    /** [lista]: id de la lista abierta (o Favoritas) para «Quitar de la lista». */
+    fun onSongAction(song: Song, action: SongAction, lista: Long?) {
+        when (action) {
+            SongAction.AddToQueue -> {
+                player.addToQueue(song)
+                avisar(res.getString(R.string.anadida_a_cola))
+            }
+            SongAction.AddToPlaylist -> eligiendo = song
+            SongAction.ToggleFavorite -> {
+                val favorita = song.id !in favoriteIds
+                vm.setFavorite(song.id, favorita)
+                avisar(res.getString(if (favorita) R.string.anadida_a_favoritas else R.string.quitada_de_favoritas))
+            }
+            SongAction.Delete -> runCatching { MediaStore.createDeleteRequest(resolver, listOf(song.uri)) }
+                .onSuccess {
+                    borrandoId = song.id
+                    borrandoTitulo = song.title
+                    borrar.launch(IntentSenderRequest.Builder(it.intentSender).build())
+                }
+                .onFailure { avisar(res.getString(R.string.no_se_pudo_borrar, song.title)) }
+            SongAction.RemoveFromPlaylist -> lista?.let { id ->
+                avisos.launch {
+                    val deshacer = vm.remove(id, song.id)
+                    avisar(res.getString(R.string.quitaste_de_lista, song.title), res.getString(R.string.deshacer), deshacer)
+                }
+            }
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(fondo)) {
         // Biblioteca vive fuera del NavHost y no se desmonta al cambiar de pestaña: desmontarla y rearmarla
         // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta sigue medida y
         // colocada con alfa 0, para que volver no rehaga sus capas (T02e); sin semántica y sin toques.
         // Su destino en el NavHost lleva la pila.
-        val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library))
-        val songs by vm.songs.collectAsStateWithLifecycle()
-        val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
         // El mismo fundido que el NavHost da a las demás pestañas.
         val alfa = remember { Animatable(if (enBiblioteca) 1f else 0f) }
         LaunchedEffect(enBiblioteca) {
@@ -146,6 +235,12 @@ fun RolaNavHost(container: AppContainer) {
                 onShuffle = { songs?.let { player.shuffle(it) } },
                 contentPadding = PaddingValues(bottom = abajo),
                 visible = enBiblioteca,
+                favoriteIds = favoriteIds,
+                favorites = favoritas,
+                playlists = listas,
+                onCreatePlaylist = { creando = true },
+                onOpenPlaylist = { nav.navigate("$RUTA_LISTA/$it") },
+                onSongAction = { s, a -> onSongAction(s, a, null) },
             )
             // Encima de la lista oculta: se lleva los toques para que no lleguen a las filas.
             if (!enBiblioteca) Box(Modifier.matchParentSize().pointerInput(Unit) {})
@@ -160,6 +255,49 @@ fun RolaNavHost(container: AppContainer) {
             composable(Destino.Inicio.ruta) { ComingSoonScreen() }
             composable(Destino.Biblioteca.ruta) {} // se dibuja arriba, fuera del NavHost
             composable(Destino.Buscar.ruta) { ComingSoonScreen() }
+            // Favoritas (id -1) y las listas: pantallas hijas de Biblioteca (DEC-28 biblioteca_fuera_del_navhost).
+            composable(
+                "$RUTA_LISTA/{id}?agregar={agregar}",
+                listOf(
+                    navArgument("id") { type = NavType.LongType },
+                    navArgument("agregar") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
+            ) { entrada ->
+                val args = requireNotNull(entrada.arguments)
+                val id = args.getLong("id")
+                val detalle by remember(id) { container.library.playlist(id) }.collectAsStateWithLifecycle(null)
+                // Al crear una lista se abre con la hoja encima (DEC-06), una sola vez.
+                var hoja by rememberSaveable { mutableStateOf(args.getBoolean("agregar")) }
+                val d = detalle ?: return@composable
+                PlaylistScreen(
+                    d,
+                    isFavorites = id == FAVORITAS_ID,
+                    currentId = playerState.current?.id,
+                    onBack = { nav.popBackStack() },
+                    onPlay = { i -> player.play(d.songs, i) },
+                    onShuffle = { player.shuffle(d.songs) },
+                    onAdd = { hoja = true },
+                    onSongAction = { s, a -> onSongAction(s, a, id) },
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
+                if (hoja) {
+                    AddSongsSheet(
+                        songs.orEmpty(),
+                        d.songs.mapTo(HashSet()) { it.id },
+                        onAdd = { ids ->
+                            hoja = false
+                            avisos.launch {
+                                val n = vm.addToPlaylist(id, ids)
+                                avisar(res.getQuantityString(R.plurals.se_agregaron, n, n, d.name))
+                            }
+                        },
+                        onDismiss = { hoja = false },
+                    )
+                }
+            }
         }
         Column(
             Modifier
@@ -172,7 +310,12 @@ fun RolaNavHost(container: AppContainer) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MiniPlayer(playerState, player::togglePlayPause, player::next, onPrevious = player::previous, sheet = sheet)
-            RolaNavBar(ruta, onSelect = { d ->
+            RolaNavBar(if (enLista) Destino.Biblioteca.ruta else ruta, onSelect = { d ->
+                // Biblioteca desde una lista vuelve a su raíz.
+                if (enLista && d == Destino.Biblioteca) {
+                    nav.popBackStack(Destino.Biblioteca.ruta, inclusive = false)
+                    return@RolaNavBar
+                }
                 nav.navigate(d.ruta) {
                     popUpTo(nav.graph.findStartDestination().id) { saveState = true }
                     launchSingleTop = true
@@ -184,6 +327,46 @@ fun RolaNavHost(container: AppContainer) {
         if (sheet.visible && song != null) {
             val favorita = song.id in favoriteIds
             PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita) { vm.setFavorite(song.id, !favorita) }
+        }
+        eligiendo?.let { s ->
+            ChoosePlaylistSheet(
+                listas,
+                onChoose = { p ->
+                    eligiendo = null
+                    avisos.launch {
+                        val n = vm.addToPlaylist(p.id, listOf(s.id))
+                        avisar(res.getString(if (n > 0) R.string.anadida_a else R.string.ya_estaba_en, p.name))
+                    }
+                },
+                onNew = {
+                    eligiendo = null
+                    paraAgregar = s
+                    creando = true
+                },
+                onDismiss = { eligiendo = null },
+            )
+        }
+        if (creando) {
+            CreatePlaylistDialog(
+                onCreate = { nombre ->
+                    creando = false
+                    val s = paraAgregar
+                    paraAgregar = null
+                    avisos.launch {
+                        val id = vm.createPlaylist(nombre)
+                        if (s == null) {
+                            nav.navigate("$RUTA_LISTA/$id?agregar=true")
+                        } else {
+                            vm.addToPlaylist(id, listOf(s.id))
+                            avisar(res.getString(R.string.anadida_a, nombre))
+                        }
+                    }
+                },
+                onDismiss = {
+                    creando = false
+                    paraAgregar = null
+                },
+            )
         }
         // Encima de la capa del reproductor: el aviso de Deshacer de la cola también se ve (DEC-09).
         SnackbarHost(
@@ -299,6 +482,8 @@ private fun PlayerOverlay(
         }
     }
 }
+
+private const val RUTA_LISTA = "lista"
 
 /** «Próximamente» de Inicio y Buscar mientras llegan sus tareas. */
 @Composable

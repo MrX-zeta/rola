@@ -14,3 +14,6 @@ val RolaShapes = Shapes(
 
 /** Totalmente redonda: botones, chips y la mini tarjeta. */
 val Shapes.pill: RoundedCornerShape get() = RoundedCornerShape(percent = 50)
+
+/** 16 dp: portadas de lista de 56 dp y el menú de opciones (Figma 32:1165, 35:1626). */
+val Shapes.tile: RoundedCornerShape get() = RoundedCornerShape(16.dp)

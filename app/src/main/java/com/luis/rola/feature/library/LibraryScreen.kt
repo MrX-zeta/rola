@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +46,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import com.luis.rola.R
+import com.luis.rola.core.data.FAVORITAS_ID
+import com.luis.rola.core.data.PlaylistSummary
+import com.luis.rola.feature.playlists.PlaylistsTab
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.designsystem.RolaMotion
@@ -61,7 +69,8 @@ private const val FILA_MS = 125
 private const val CASCADA_MS = (FILAS_CASCADA - 1) * ESCALON_MS + FILA_MS
 
 /**
- * Biblioteca · Canciones (SCR-20). Solo el chip Canciones; sin filtros, ⋮ ni abecedario en esta tarea.
+ * Biblioteca con los chips Listas (SCR-23) y Canciones (SCR-20); Álbumes y Artistas llegan en la tarea 06.
+ * Canciones: ⋮ y pulsación larga abren el menú (SCR-54); sin filtros ni abecedario todavía.
  * Cada vez que [visible] pasa a `true` las filas visibles entran en cascada; si aún cargan, cuando llegan.
  */
 @Composable
@@ -72,6 +81,12 @@ fun LibraryScreen(
     onShuffle: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
     visible: Boolean = true,
+    favoriteIds: Set<Long> = emptySet(),
+    favorites: PlaylistSummary = PlaylistSummary(FAVORITAS_ID, "", 0, emptyList()),
+    playlists: List<PlaylistSummary> = emptyList(),
+    onCreatePlaylist: () -> Unit = {},
+    onOpenPlaylist: (Long) -> Unit = {},
+    onSongAction: (Song, SongAction) -> Unit = { _, _ -> },
 ) {
     val c = MaterialTheme.colorScheme
     val lista = rememberLazyListState()
@@ -107,16 +122,17 @@ fun LibraryScreen(
             color = c.onSurface,
             modifier = Modifier.padding(horizontal = RolaSpacing.lg, vertical = RolaSpacing.lg),
         )
-        Text(
-            stringResource(R.string.chip_canciones),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-            color = RolaTheme.colors.onAccent,
-            modifier = Modifier
-                .padding(start = RolaSpacing.lg, top = RolaSpacing.xxs, bottom = RolaSpacing.xs)
-                .background(RolaTheme.colors.accent, MaterialTheme.shapes.pill)
-                .padding(horizontal = RolaSpacing.md, vertical = RolaSpacing.xs),
-        )
+        // Por defecto Canciones, como antes de la tarea 05; se recuerda al rotar.
+        var enListas by rememberSaveable { mutableStateOf(false) }
+        Row(
+            Modifier.padding(start = RolaSpacing.lg, top = RolaSpacing.xxs, bottom = RolaSpacing.xs),
+            horizontalArrangement = Arrangement.spacedBy(RolaSpacing.xs),
+        ) {
+            Chip(R.string.chip_listas, enListas, "chip_listas") { enListas = true }
+            Chip(R.string.chip_canciones, !enListas, "chip_canciones") { enListas = false }
+        }
         when {
+            enListas -> PlaylistsTab(favorites, playlists, onCreatePlaylist, onOpenPlaylist, contentPadding)
             songs == null -> ListaCargando()
             songs.isEmpty() -> Box(Modifier.fillMaxSize().padding(RolaSpacing.xl), Alignment.Center) {
                 Text(stringResource(R.string.sin_canciones), style = MaterialTheme.typography.bodyLarge, color = c.onSurfaceVariant)
@@ -135,9 +151,12 @@ fun LibraryScreen(
                 }
                 LazyColumn(state = lista, contentPadding = contentPadding) {
                     itemsIndexed(songs, key = { _, s -> s.id }) { i, song ->
-                        SongRow(
+                        SongItem(
                             song,
                             isCurrent = song.id == currentId,
+                            place = MenuPlace.Library,
+                            favorite = song.id in favoriteIds,
+                            onAction = { onSongAction(song, it) },
                             // Solo se lee al dibujar: la cascada no recompone. Las filas fuera de las 8 entran normales.
                             modifier = Modifier.graphicsLayer {
                                 val k = i - primera
@@ -186,34 +205,19 @@ private fun ListaCargando() {
     }
 }
 
+/** Chip de Biblioteca (Figma 32:1147): lima si está elegido, `surfaceContainer` si no. */
 @Composable
-private fun SongRow(song: Song, isCurrent: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val c = MaterialTheme.colorScheme
-    Row(
-        modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = RolaSpacing.lg, vertical = RolaSpacing.xs),
-        horizontalArrangement = Arrangement.spacedBy(RolaSpacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Cover(song, Modifier.size(48.dp), MaterialTheme.shapes.extraSmall)
-        Column {
-            Text(
-                song.title,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = if (isCurrent) c.primary else c.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                song.artist ?: stringResource(R.string.artista_desconocido),
-                style = MaterialTheme.typography.bodyMedium,
-                color = c.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+private fun Chip(texto: Int, elegido: Boolean, tag: String, onClick: () -> Unit) {
+    Text(
+        stringResource(texto),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = if (elegido) FontWeight.SemiBold else FontWeight.Medium),
+        color = if (elegido) RolaTheme.colors.onAccent else MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .minimumInteractiveComponentSize() // toque de 48 dp (INV-06); el chip se ve de 36 dp
+            .clip(MaterialTheme.shapes.pill)
+            .background(if (elegido) RolaTheme.colors.accent else MaterialTheme.colorScheme.surfaceContainer)
+            .selectable(elegido, role = Role.Tab, onClick = onClick)
+            .padding(horizontal = RolaSpacing.md, vertical = RolaSpacing.xs)
+            .testTag(tag),
+    )
 }
