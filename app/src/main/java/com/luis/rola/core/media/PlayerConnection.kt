@@ -114,6 +114,25 @@ class PlayerConnection(context: Context) {
 
     fun shuffle(queue: List<Song>) = play(queue.shuffled(), 0)
 
+    /** Al final de la cola sin cortar lo que suena (INV-11); sin nada cargado, la deja lista sin reproducir. */
+    fun addToQueue(song: Song) = whenConnected {
+        if (it.mediaItemCount == 0) {
+            it.setMediaItems(listOf(song.toMediaItem()))
+            it.prepare()
+        } else {
+            val order = _queue.value.order
+            it.addMediaItem(song.toMediaItem())
+            // DefaultShuffleOrder la metería en un lugar al azar: con aleatorio también va al final.
+            if (it.shuffleModeEnabled && order.size == it.mediaItemCount - 1) sendOrder(it, order + (it.mediaItemCount - 1))
+        }
+    }
+
+    /** Quita de la cola cada entrada de esa canción (borrada del dispositivo, DEC-08). */
+    fun removeSong(id: Long) = whenConnected { c ->
+        val key = id.toString()
+        for (i in c.mediaItemCount - 1 downTo 0) if (c.getMediaItemAt(i).mediaId == key) c.removeMediaItem(i)
+    }
+
     fun togglePlayPause() = whenConnected {
         it.run {
             if (isPlaying) {

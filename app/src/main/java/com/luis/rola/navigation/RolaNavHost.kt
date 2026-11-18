@@ -114,7 +114,7 @@ fun RolaNavHost(container: AppContainer) {
         // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta sigue medida y
         // colocada con alfa 0, para que volver no rehaga sus capas (T02e); sin semántica y sin toques.
         // Su destino en el NavHost lleva la pila.
-        val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs))
+        val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library))
         val songs by vm.songs.collectAsStateWithLifecycle()
         // El mismo fundido que el NavHost da a las demás pestañas.
         val alfa = remember { Animatable(if (enBiblioteca) 1f else 0f) }

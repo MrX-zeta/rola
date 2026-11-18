@@ -19,8 +19,11 @@ object TitleOrder {
     val comparator: Comparator<String> =
         compareBy<String> { sectionOf(it) == "#" }.thenBy { clave(it) }
 
+    private fun clave(title: String) = normalizar(title.trim())
+
+    /** Minúsculas sin acentos; «ñ» sigue distinta de «n». También la usa el buscador. */
     // '{' va justo después de 'z' en ASCII: «ñ» queda tras todas las «n» y antes de «o».
-    private fun clave(title: String) = sinAcentos(title.trim().lowercase().replace("ñ", "n{"))
+    internal fun normalizar(s: String) = sinAcentos(s.lowercase().replace("ñ", "n{"))
 
     private val marcas = Regex("\\p{Mn}+")
 

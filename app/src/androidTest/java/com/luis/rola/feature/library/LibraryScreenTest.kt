@@ -8,7 +8,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.luis.rola.core.data.Song
+import com.luis.rola.core.data.LibraryRepository
 import com.luis.rola.core.data.SongRepository
+import com.luis.rola.core.database.memoryDb
+import kotlinx.coroutines.flow.Flow
 import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.designsystem.RolaTheme
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -35,9 +38,11 @@ class LibraryScreenTest {
         )
     }
 
+    private fun vm(songs: Flow<List<Song>>) = LibraryViewModel(songs, LibraryRepository(memoryDb(), songs))
+
     @Test
     fun muestraLaListaDelRepositorio() {
-        val vm = LibraryViewModel(falso)
+        val vm = vm(falso.songs())
         compose.setContent {
             RolaTheme {
                 val songs by vm.songs.collectAsStateWithLifecycle()
@@ -53,9 +58,7 @@ class LibraryScreenTest {
 
     @Test
     fun muestraEsqueletoMientrasNoHayDatos() {
-        val vm = LibraryViewModel(object : SongRepository {
-            override fun songs() = flow<List<Song>> { awaitCancellation() }
-        })
+        val vm = vm(flow { awaitCancellation() })
         compose.mainClock.autoAdvance = false
         compose.setContent {
             RolaTheme {
