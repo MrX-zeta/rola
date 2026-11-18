@@ -106,4 +106,60 @@
     <string name="temporizador_cancion">Al terminar la canción</string>
     <string name="iniciar_temporizador">Iniciar temporizador</string>
     <string name="temporizador_cancelado">Temporizador apagado</string>
+
+    <!-- Favoritas y listas (SCR-23, SCR-30 a SCR-33, SCR-51, SCR-54) -->
+    <string name="chip_listas">Listas</string>
+    <string name="favorita">Favorita</string>
+    <string name="favoritas">Favoritas</string>
+    <string name="nueva_lista">Nueva lista</string>
+    <string name="nueva_lista_detalle">Ponle nombre y agrega canciones</string>
+    <string name="lista_vacia_corto">Vacía</string>
+    <plurals name="n_canciones">
+        <item quantity="one">%1$d canción</item>
+        <item quantity="many">%1$d canciones</item>
+        <item quantity="other">%1$d canciones</item>
+    </plurals>
+    <string name="nombre">Nombre</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="crear">Crear</string>
+    <plurals name="resumen_lista">
+        <item quantity="one">Lista · %1$d canción</item>
+        <item quantity="many">Lista · %1$d canciones</item>
+        <item quantity="other">Lista · %1$d canciones</item>
+    </plurals>
+    <string name="minutos">%1$d min</string>
+    <string name="lista_vacia_titulo">Tu lista está vacía</string>
+    <string name="lista_vacia_texto">Agrega canciones de tu biblioteca para empezar a escucharla.</string>
+    <string name="favoritas_vacia_titulo">Aún no tienes favoritas</string>
+    <string name="favoritas_vacia_texto">Toca el corazón en Reproduciendo o usa ⋮ en una canción.</string>
+    <string name="agregar_canciones">Agregar canciones</string>
+    <string name="agregar">Agregar</string>
+    <string name="buscar_en_biblioteca">Buscar en tu biblioteca</string>
+    <plurals name="agregar_n">
+        <item quantity="one">Agregar %1$d canción</item>
+        <item quantity="many">Agregar %1$d canciones</item>
+        <item quantity="other">Agregar %1$d canciones</item>
+    </plurals>
+    <string name="sin_resultados">Sin resultados</string>
+    <string name="abecedario">Abecedario</string>
+    <string name="ir_a_letra">Ir a la letra %1$s</string>
+    <string name="opciones_de">Opciones de %1$s</string>
+    <string name="anadir_a_cola">Añadir a la cola</string>
+    <string name="anadir_a_lista">Añadir a una lista</string>
+    <string name="quitar_de_favoritas">Quitar de favoritas</string>
+    <string name="borrar_del_dispositivo">Borrar del dispositivo</string>
+    <string name="quitar_de_lista">Quitar de la lista</string>
+    <string name="anadida_a_cola">Añadida a la cola</string>
+    <string name="anadida_a">Añadida a %1$s</string>
+    <plurals name="se_agregaron">
+        <item quantity="one">Se agregó %1$d canción a %2$s</item>
+        <item quantity="many">Se agregaron %1$d canciones a %2$s</item>
+        <item quantity="other">Se agregaron %1$d canciones a %2$s</item>
+    </plurals>
+    <string name="ya_estaba_en">Ya estaba en %1$s</string>
+    <string name="quitaste_de_lista">Quitaste «%1$s»</string>
+    <string name="anadida_a_favoritas">Añadida a Favoritas</string>
+    <string name="quitada_de_favoritas">Quitada de Favoritas</string>
+    <string name="se_borro">Se borró «%1$s»</string>
+    <string name="no_se_pudo_borrar">No se pudo borrar «%1$s»</string>
 </resources>

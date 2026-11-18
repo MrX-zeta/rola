@@ -68,7 +68,7 @@ import kotlin.math.sign
 
 /**
  * Reproduciendo (SCR-51, nodos 36:1465 y 51:4482). Plana (DEC-27): la portada no lleva sombra.
- * Sin letra, ⋮ ni «Añadir a una lista» todavía (tareas 05 y 08).
+ * Corazón de favoritas sobre la portada (DEC-29). Sin letra, ⋮ ni «Añadir a una lista» todavía.
  */
 @Composable
 fun NowPlayingScreen(
@@ -84,6 +84,8 @@ fun NowPlayingScreen(
     onRepeat: () -> Unit,
     onOpenQueue: () -> Unit,
     onOpenTimer: () -> Unit,
+    favorite: Boolean = false,
+    onToggleFavorite: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val song = state.current ?: return
@@ -120,7 +122,10 @@ fun NowPlayingScreen(
                     .padding(start = RolaSpacing.xxl, end = RolaSpacing.xxl, top = RolaSpacing.sm, bottom = RolaSpacing.xl),
                 contentAlignment = Alignment.Center,
             ) {
-                SwipeableCover(song, state.hasNext, onNext, onPrevious, Modifier.aspectRatio(1f))
+                Box(Modifier.aspectRatio(1f)) {
+                    SwipeableCover(song, state.hasNext, onNext, onPrevious, Modifier.fillMaxSize())
+                    FavoriteButton(favorite, onToggleFavorite, Modifier.align(Alignment.BottomStart).padding(14.dp))
+                }
             }
             Column(Modifier.padding(horizontal = RolaSpacing.xxl), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(song.title, style = MaterialTheme.typography.headlineMedium, color = c.content, maxLines = 1, overflow = TextOverflow.Ellipsis)

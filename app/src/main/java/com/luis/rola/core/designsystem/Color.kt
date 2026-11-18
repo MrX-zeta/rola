@@ -92,6 +92,9 @@ val RolaLightColors: ColorScheme = lightColorScheme(
 data class RolaColors(
     val accent: Color = Color(0xFFC7FF2E),
     val onAccent: Color = Color(0xFF10100E),
+    /** Círculo translúcido de los botones sobre la portada (corazón de DEC-29, Figma 78:3335). */
+    val overCover: Color = Color(0xB3111111),
+    val onOverCover: Color = Color(0xFFFAF8F2),
 )
 
 val LocalRolaColors = staticCompositionLocalOf { RolaColors() }

@@ -116,6 +116,7 @@ fun RolaNavHost(container: AppContainer) {
         // Su destino en el NavHost lleva la pila.
         val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library))
         val songs by vm.songs.collectAsStateWithLifecycle()
+        val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
         // El mismo fundido que el NavHost da a las demás pestañas.
         val alfa = remember { Animatable(if (enBiblioteca) 1f else 0f) }
         LaunchedEffect(enBiblioteca) {
@@ -180,7 +181,10 @@ fun RolaNavHost(container: AppContainer) {
             })
         }
         val song = playerState.current
-        if (sheet.visible && song != null) PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos)
+        if (sheet.visible && song != null) {
+            val favorita = song.id in favoriteIds
+            PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita) { vm.setFavorite(song.id, !favorita) }
+        }
         // Encima de la capa del reproductor: el aviso de Deshacer de la cola también se ve (DEC-09).
         SnackbarHost(
             snackbar,
@@ -204,6 +208,8 @@ private fun PlayerOverlay(
     player: PlayerConnection,
     snackbar: SnackbarHostState,
     avisos: CoroutineScope,
+    favorite: Boolean,
+    onToggleFavorite: () -> Unit,
 ) {
     val reduce = LocalReduceMotion.current
     val scope = rememberCoroutineScope()
@@ -235,6 +241,8 @@ private fun PlayerOverlay(
             onRepeat = player::cycleRepeat,
             onOpenQueue = { sheet.queueOpen = true },
             onOpenTimer = { temporizador = true },
+            favorite = favorite,
+            onToggleFavorite = onToggleFavorite,
         )
         AnimatedVisibility(
             sheet.queueOpen,
