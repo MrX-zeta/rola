@@ -84,9 +84,9 @@ fun NowPlayingScreen(
     onRepeat: () -> Unit,
     onOpenQueue: () -> Unit,
     onOpenTimer: () -> Unit,
+    modifier: Modifier = Modifier,
     favorite: Boolean = false,
     onToggleFavorite: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     val song = state.current ?: return
     val c = colors
