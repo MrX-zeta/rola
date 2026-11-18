@@ -56,8 +56,8 @@ class FavoriteButtonTest {
         val reposo = anchoIcono()
         compose.mainClock.autoAdvance = false
         compose.onNodeWithTag("favorita").performClick()
-        compose.mainClock.advanceTimeBy(50)
-        assertTrue(anchoIcono() < reposo)
+        val anchos = (1..8).map { compose.mainClock.advanceTimeBy(16); anchoIcono() }
+        assertTrue("reposo $reposo, luego $anchos", anchos.any { it < reposo })
     }
 
     @Test

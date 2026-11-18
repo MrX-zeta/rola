@@ -102,10 +102,10 @@ fun FavoriteButton(favorite: Boolean, onToggle: () -> Unit, modifier: Modifier =
             painterResource(if (favorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite),
             contentDescription = null,
             tint = if (favorite) colors.accent else colors.onOverCover,
-            modifier = Modifier.size(24.dp).testTag("favorita_icono").graphicsLayer {
+            modifier = Modifier.size(24.dp).graphicsLayer {
                 scaleX = escala.value
                 scaleY = escala.value
-            },
+            }.testTag("favorita_icono"), // dentro de la capa: las pruebas ven la escala
         )
     }
 }
