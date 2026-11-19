@@ -37,12 +37,17 @@ class MediaStoreSongRepository(private val resolver: ContentResolver) : SongRepo
             val album = c.getColumnIndexOrThrow(Media.ALBUM)
             val duration = c.getColumnIndexOrThrow(Media.DURATION)
             val name = c.getColumnIndexOrThrow(Media.DISPLAY_NAME)
+            val albumId = c.getColumnIndexOrThrow(Media.ALBUM_ID)
+            val albumArtist = c.getColumnIndexOrThrow(Media.ALBUM_ARTIST)
+            val track = c.getColumnIndexOrThrow(Media.TRACK)
+            val year = c.getColumnIndexOrThrow(Media.YEAR)
             buildList {
                 while (c.moveToNext()) {
                     add(
                         songFrom(
                             c.getLong(id), c.getString(title), c.getString(artist),
                             c.getString(album), c.getLong(duration), c.getString(name),
+                            c.getLong(albumId), c.getString(albumArtist), c.getInt(track), c.getInt(year),
                         ),
                     )
                 }
@@ -53,6 +58,9 @@ class MediaStoreSongRepository(private val resolver: ContentResolver) : SongRepo
     }
 
     private companion object {
-        val COLUMNAS = arrayOf(Media._ID, Media.TITLE, Media.ARTIST, Media.ALBUM, Media.DURATION, Media.DISPLAY_NAME)
+        val COLUMNAS = arrayOf(
+            Media._ID, Media.TITLE, Media.ARTIST, Media.ALBUM, Media.DURATION, Media.DISPLAY_NAME,
+            Media.ALBUM_ID, Media.ALBUM_ARTIST, Media.TRACK, Media.YEAR,
+        )
     }
 }

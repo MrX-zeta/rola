@@ -24,4 +24,14 @@ class SongMapperTest {
     fun `duracion negativa queda en cero`() {
         assertEquals(0L, songFrom(1, "T", null, null, -5, "x.mp3").durationMs)
     }
+
+    @Test
+    fun `columnas de album pista y anio`() {
+        val s = songFrom(1, "T", "A", "B", 1000, "x.mp3", albumId = 7, albumArtist = "<unknown>", track = 2003, year = 2021)
+        assertEquals(7L, s.albumId)
+        assertNull(s.albumArtist)
+        assertEquals(2003, s.track)
+        assertEquals(2021, s.year)
+        assertEquals(0, songFrom(1, "T", null, null, 0, "x", track = -1, year = -1).track)
+    }
 }

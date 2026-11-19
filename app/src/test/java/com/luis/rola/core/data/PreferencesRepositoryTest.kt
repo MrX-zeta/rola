@@ -7,6 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -43,5 +44,12 @@ class PreferencesRepositoryTest {
     fun `lo completado sobrevive a cerrar y abrir el archivo`() {
         conRepositorio { it.completeOnboarding() }
         conRepositorio { assertTrue(it.onboardingCompleted.first()) }
+    }
+
+    @Test
+    fun `el orden empieza en titulo A-Z y se recuerda al reabrir`() {
+        conRepositorio { assertEquals(SongSort(), it.sortOrder.first()) }
+        conRepositorio { it.setSortOrder(SongSort(SortBy.ARTIST, ascending = false)) }
+        conRepositorio { assertEquals(SongSort(SortBy.ARTIST, ascending = false), it.sortOrder.first()) }
     }
 }

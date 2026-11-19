@@ -22,7 +22,7 @@
 
 - **Álbum** = canciones con el mismo `albumId`. Nombre: el `album` de la canción o «Álbum desconocido». Artista: el primer `albumArtist` no nulo; si no, el `artist` de la primera pista; si tampoco, «Artista desconocido». Año: el mayor de sus canciones (0 = sin año). Canciones: por `track` ascendente con 0 al final, y por título (DEC-05) para empatar.
 - **Artista** = clave `albumArtist ?: artist`; nula = «Artista desconocido» (una sola entrada). Canciones: por álbum (más reciente primero) y pista; álbumes: los que contienen alguna de sus canciones, del más reciente al más antiguo. Foto: portada de su álbum más reciente (mayor año; empate o sin año, por nombre DEC-05).
-- **Orden**: álbumes y artistas por nombre con `TitleOrder.comparator`; «Artista desconocido» y «Álbum desconocido» se ordenan por su texto como cualquier otro (los vacíos no van primero).
+- **Orden**: álbumes y artistas por nombre con `TitleOrder.comparator`; «Artista desconocido» y «Álbum desconocido» van al final (en «#»), igual que un artista o álbum vacío al ordenar Canciones.
 
 ## 5. Orden de Canciones y `sort_order`
 
@@ -49,3 +49,11 @@
 ## 9. Hoja de filtros y orden
 
 - **Decisión**: `ModalBottomSheet` con dos grupos de `RadioButton` (Ordenar por: Título, Artista, Álbum; Dirección: A→Z, Z→A), según SCR-26. Cada toque aplica y guarda al momento; la hoja se cierra con «atrás», el velo o deslizando. Si el nodo de Figma trae otras secciones (p. ej. filtros), solo se construye el orden y lo demás se anota en el reporte.
+
+## 10. Lo que dice Figma (T001, 2026-11-19)
+
+- **SCR-21 Álbumes (32:801)**: cuadrícula de 2 columnas, márgenes 20 (izq.) y 36 (der., deja lugar al abecedario), separación 16 entre columnas y 20 entre filas; celda: portada cuadrada radio 20, 8 dp, nombre 15 SemiBold, «Artista · año» 13. Sin resumen ni aleatorio arriba. Las portadas traen sombra (Neumorfismo/Elevado): **DEC-27 manda, van planas** (se anota en el reporte).
+- **SCR-22 Artistas (32:961)**: filas 20/30 de margen, 8 vertical, foto redonda de 56, nombre 15 SemiBold, «N canciones · N álbumes» 13, chevron a la derecha (ícono nuevo `ic_chevron_forward`).
+- **SCR-24 Detalle de álbum (33:836)**: barra con volver y ⋮ (sin función en esta tarea: no se muestra); portada 200 radio 24 centrada (sombra → plana), título 28 centrado, «Artista · año · N canciones · N min» 14; botones píldora de 48: Reproducir (lima, ícono play) y Aleatorio (`surfaceContainer`, ícono shuffle); filas: número de pista en mono 14 en 28 dp, título 15 SemiBold, duración mono 12 y ⋮.
+- **SCR-25 Detalle de artista (33:950)**: foto redonda 140 (sombra → plana), nombre 28, «N canciones · N álbumes», los mismos botones; secciones «Álbumes» y «Canciones» (Space Grotesk 18); carrusel de portadas 120 radio 18 con nombre 14 y año 12; filas de canción con portada y el **álbum** como segunda línea.
+- **SCR-26 Hoja (33:1070)**: título «Ordenar y filtrar», etiqueta «Ordenar por» con 3 opciones de radio (lima), etiqueta «Dirección» con selector segmentado A → Z / Z → A (`surfaceContainer`, elegido lima) y botón «Listo» lima de 52. La fila de resumen de Canciones lleva aleatorio y el botón de filtros (ícono `ic_tune` nuevo). No hay filtros en el nodo, solo orden.
