@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "actualizado": "2026-11-14",
-    "fase": "Favoritas y Listas listas (tarea 05). Siguiente: tarea 06, Biblioteca completa.",
+    "fase": "Biblioteca completa (tarea 06). Siguiente: tarea 07, Inicio y Buscar.",
     "historial": [
       {
         "version": "1.0.0",
@@ -89,6 +89,11 @@
         "version": "1.9.0",
         "fecha": "2026-11-18",
         "cambio": "Revisión tarea 05: SCR-55 (hoja añadir a una lista) y «Favorita» en el menú diseñados en Figma; excepción del abecedario en INV-06; origen real en «Reproduciendo desde»."
+      },
+      {
+        "version": "1.10.0",
+        "fecha": "2026-11-19",
+        "cambio": "Revisión tarea 06: agrupación por artista del álbum, PEND-05 resuelto, Figma sin sombras en Biblioteca, TBL-HISTORY decidida, DEC-30 Inicio, notas de Buscar y fin del arranque temporal en Biblioteca."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -152,15 +157,15 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 162,
-      "aristas": 285,
+      "nodos": 163,
+      "aristas": 287,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
         "restriccion": 5,
         "actor": 3,
         "tecnologia": 20,
-        "decision": 29,
+        "decision": 30,
         "invariante": 11,
         "pregunta_abierta": 8,
         "fuera_de_alcance": 7,
@@ -453,7 +458,7 @@
       "id": "DEC-03",
       "tipo": "decision",
       "nombre": "Navegación",
-      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña. TEMPORAL (2026-11-14): mientras Inicio no exista, la app abre en Biblioteca.",
+      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña. TEMPORAL (2026-11-14): mientras Inicio no exista, la app abre en Biblioteca. FIN DE LO TEMPORAL (tarea 07): con Inicio listo, la app vuelve a abrir en Inicio.",
       "estado": "decidido"
     },
     {
@@ -467,7 +472,7 @@
       "id": "DEC-05",
       "tipo": "decision",
       "nombre": "Biblioteca y abecedario",
-      "descripcion": "Chips: Listas, Álbumes, Artistas, Canciones. Barra de abecedario vertical a la derecha solo en Biblioteca y en la hoja para agregar canciones (no en Buscar). Ilumina la letra visible al desplazarse; al tocar una letra salta a la primera coincidencia. Orden por título por defecto; botón de filtros para ordenar por artista, álbum, ascendente o descendente. Normalización: se quitan acentos para agrupar (Á→A), Ñ es letra propia, números y símbolos van en «#».",
+      "descripcion": "Chips: Listas, Álbumes, Artistas, Canciones. Barra de abecedario vertical a la derecha solo en Biblioteca y en la hoja para agregar canciones (no en Buscar). Ilumina la letra visible al desplazarse; al tocar una letra salta a la primera coincidencia. Orden por título por defecto; botón de filtros para ordenar por artista, álbum, ascendente o descendente. Normalización: se quitan acentos para agrupar (Á→A), Ñ es letra propia, números y símbolos van en «#». Álbumes y artistas se agrupan por ALBUM_ARTIST y, si falta, por ARTIST; los desconocidos van en «#» al final.",
       "estado": "decidido",
       "detalles": {
         "detalles_pendientes": "PEND-05"
@@ -702,7 +707,7 @@
       "id": "DEC-25",
       "tipo": "decision",
       "nombre": "Buscar",
-      "descripcion": "Buscador general sobre canciones, álbumes, artistas y listas, con resultados agrupados. Sin abecedario (los resultados van por relevancia). Mismo menú de opciones que Biblioteca.",
+      "descripcion": "Buscador general sobre canciones, álbumes, artistas y listas, con resultados agrupados. Sin abecedario (los resultados van por relevancia). Mismo menú de opciones que Biblioteca. Mientras no se escribe nada, Buscar muestra solo el campo con un texto de ayuda. Los resultados se actualizan al escribir (sin botón), con la coincidencia resaltada.",
       "estado": "decidido"
     },
     {
@@ -821,8 +826,8 @@
       "id": "PEND-05",
       "tipo": "pregunta_abierta",
       "nombre": "Artículos al ordenar",
-      "descripcion": "¿Ignorar «The», «El», «La» al ordenar por título/artista? Propuesta: no, por simplicidad.",
-      "estado": "propuesto"
+      "descripcion": "¿Ignorar «The», «El», «La» al ordenar por título/artista? Propuesta: no, por simplicidad. RESUELTO (2026-11-19): no se ignoran artículos.",
+      "estado": "resuelto"
     },
     {
       "id": "PEND-06",
@@ -1225,14 +1230,15 @@
       "tipo": "tabla",
       "nombre": "play_history",
       "descripcion": "Escuchado hace poco y conteo de reproducciones.",
-      "estado": "propuesto",
+      "estado": "decidido",
       "detalles": {
         "almacen": "Room",
         "campos": [
+          "id",
           "media_id",
-          "last_played_at",
-          "play_count"
-        ]
+          "played_at"
+        ],
+        "regla": "Se registra una reproducción cuando la canción suena ≥ 30 s o termina si dura menos."
       }
     },
     {
@@ -1772,7 +1778,7 @@
       "id": "DEC-27",
       "tipo": "decision",
       "nombre": "Estilo visual: plano con bento y relieve acotado",
-      "descripcion": "Toda la app es plana (flat), minimalista y en bento: tarjetas de color sólido sin sombras. El relieve (neumorfismo suave) solo se usa en el onboarding (SCR-02 a SCR-04, Permisos SCR-05 y Permiso denegado SCR-06, salvo los íconos de permisos y la ruta de Ajustes), Sin canciones (SCR-12), Buscar (SCR-40, SCR-41) y Sin letra (SCR-63). En Figma son los estilos de efecto «Neumorfismo/Elevado», «Neumorfismo/Hundido» y «Neumorfismo/Acento». La portada de Reproduciendo va plana (sin sombra).",
+      "descripcion": "Toda la app es plana (flat), minimalista y en bento: tarjetas de color sólido sin sombras. El relieve (neumorfismo suave) solo se usa en el onboarding (SCR-02 a SCR-04, Permisos SCR-05 y Permiso denegado SCR-06, salvo los íconos de permisos y la ruta de Ajustes), Sin canciones (SCR-12), Buscar (SCR-40, SCR-41) y Sin letra (SCR-63). En Figma son los estilos de efecto «Neumorfismo/Elevado», «Neumorfismo/Hundido» y «Neumorfismo/Acento». La portada de Reproduciendo va plana (sin sombra). Figma limpiado (2026-11-19): portadas de Álbumes y detalles de álbum/artista sin sombra.",
       "estado": "decidido",
       "detalles": {
         "efectos": {
@@ -1872,6 +1878,13 @@
         "requiere_red": false,
         "tema": "oscuro y claro listos"
       }
+    },
+    {
+      "id": "DEC-30",
+      "tipo": "decision",
+      "nombre": "Inicio",
+      "descripcion": "Saludo según la hora y fecha; «Escuchado hace poco» con las últimas 10 canciones distintas (carrusel); «Para ti» en bento: «Tu más escuchada» (la canción con más reproducciones, con botón reproducir), mosaico «Aleatorio · N canciones» y mosaico «Favoritas · N» (el de Letras llega con la tarea 09). Sin historial: SCR-11. Sin canciones en el teléfono: SCR-12 con «Escanear de nuevo». «Ver todo» y el engrane de Ajustes no se muestran hasta tener su pantalla.",
+      "estado": "decidido"
     }
   ],
   "aristas": [
@@ -3329,6 +3342,16 @@
       "a": "SCR-55",
       "relacion": "navega_a",
       "nota": "Añadir a una lista"
+    },
+    {
+      "de": "DEC-30",
+      "a": "TBL-HISTORY",
+      "relacion": "usa"
+    },
+    {
+      "de": "DEC-30",
+      "a": "DEC-29",
+      "relacion": "depende_de"
     }
   ]
 }
