@@ -285,13 +285,14 @@ fun RolaNavHost(container: AppContainer) {
                 // Al crear una lista se abre con la hoja encima (DEC-06), una sola vez.
                 var hoja by rememberSaveable { mutableStateOf(args.getBoolean("agregar")) }
                 val d = detalle ?: return@composable
+                val origen = if (id == FAVORITAS_ID) res.getString(R.string.favoritas) else d.name
                 PlaylistScreen(
                     d,
                     isFavorites = id == FAVORITAS_ID,
                     currentId = playerState.current?.id,
                     onBack = { nav.popBackStack() },
-                    onPlay = { i -> player.play(d.songs, i) },
-                    onShuffle = { player.shuffle(d.songs) },
+                    onPlay = { i -> player.play(d.songs, i, origen) },
+                    onShuffle = { player.shuffle(d.songs, origen) },
                     onAdd = { hoja = true },
                     onSongAction = { s, a -> onSongAction(s, a, id) },
                     contentPadding = PaddingValues(bottom = abajo),
@@ -340,7 +341,9 @@ fun RolaNavHost(container: AppContainer) {
         val song = playerState.current
         if (sheet.visible && song != null) {
             val favorita = song.id in favoriteIds
-            PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita) { vm.setFavorite(song.id, !favorita) }
+            PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita, onAddToPlaylist = { eligiendo = song }) {
+                vm.setFavorite(song.id, !favorita)
+            }
         }
         eligiendo?.let { s ->
             ChoosePlaylistSheet(
@@ -434,6 +437,7 @@ private fun PlayerOverlay(
     snackbar: SnackbarHostState,
     avisos: CoroutineScope,
     favorite: Boolean,
+    onAddToPlaylist: () -> Unit,
     onToggleFavorite: () -> Unit,
 ) {
     val reduce = LocalReduceMotion.current
@@ -468,6 +472,7 @@ private fun PlayerOverlay(
             onOpenTimer = { temporizador = true },
             favorite = favorite,
             onToggleFavorite = onToggleFavorite,
+            onAddToPlaylist = onAddToPlaylist,
         )
         AnimatedVisibility(
             sheet.queueOpen,

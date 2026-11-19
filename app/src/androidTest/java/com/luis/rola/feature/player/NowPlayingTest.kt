@@ -11,6 +11,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.RolaTheme
 import com.luis.rola.core.media.PlayerState
@@ -66,5 +68,27 @@ class NowPlayingTest {
 
         estado = estado.copy(repeat = Repeat.OFF)
         compose.onNodeWithContentDescription("Repetir apagado").assertIsDisplayed()
+    }
+
+    @Test
+    fun muestraElOrigenRealYAnadirAUnaLista() {
+        var estado by mutableStateOf(PlayerState(current = cancion))
+        var anadir = 0
+        compose.setContent {
+            RolaTheme {
+                NowPlayingScreen(
+                    estado, coloresDePrueba(), remember { mutableLongStateOf(0) },
+                    onClose = {}, onToggle = {}, onPrevious = {}, onNext = {}, onSeek = {},
+                    onShuffle = {}, onRepeat = {}, onOpenQueue = {}, onOpenTimer = {},
+                    onAddToPlaylist = { anadir++ },
+                )
+            }
+        }
+        compose.onNodeWithText("Biblioteca").assertIsDisplayed()
+        estado = estado.copy(source = "Viaje")
+        compose.onNodeWithText("Viaje").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Añadir a una lista").performClick()
+        assertEquals(1, anadir)
+        compose.onNodeWithContentDescription("Opciones", substring = true).assertDoesNotExist()
     }
 }

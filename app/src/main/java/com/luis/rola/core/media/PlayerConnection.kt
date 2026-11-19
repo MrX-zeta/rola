@@ -35,6 +35,8 @@ data class PlayerState(
     val timer: SleepTimerOption = SleepTimerOption.OFF,
     /** Fin del temporizador en `elapsedRealtime`; solo opciones por tiempo. */
     val timerEndsAtMs: Long? = null,
+    /** «Reproduciendo desde» (DEC-24): nombre del origen de la cola; `null` = Biblioteca. */
+    val source: String? = null,
 )
 
 /** Una fila de la cola; [index] es su lugar en la lista de Media3. */
@@ -106,18 +108,21 @@ class PlayerConnection(context: Context) {
         controller?.let(order) ?: pendientes.addLast(order)
     }
 
-    fun play(queue: List<Song>, startIndex: Int) = whenConnected {
+    /** [source]: lo que dirá «Reproduciendo desde»; viaja en los metadatos de la cola de Media3. */
+    fun play(queue: List<Song>, startIndex: Int, source: String? = null) = whenConnected {
         it.setMediaItems(queue.map { s -> s.toMediaItem() }, startIndex, 0)
+        it.playlistMetadata = MediaMetadata.Builder().setTitle(source).build()
         it.prepare()
         it.play()
     }
 
-    fun shuffle(queue: List<Song>) = play(queue.shuffled(), 0)
+    fun shuffle(queue: List<Song>, source: String? = null) = play(queue.shuffled(), 0, source)
 
     /** Al final de la cola sin cortar lo que suena (INV-11); sin nada cargado, la deja lista sin reproducir. */
     fun addToQueue(song: Song) = whenConnected {
         if (it.mediaItemCount == 0) {
             it.setMediaItems(listOf(song.toMediaItem()))
+            it.playlistMetadata = MediaMetadata.EMPTY // cola nueva: sin origen de antes
             it.prepare()
         } else {
             val order = _queue.value.order
@@ -253,6 +258,7 @@ class PlayerConnection(context: Context) {
             timer = SleepTimerOption.entries.find { it.name == extras.getString(PlaybackService.EXTRA_TEMPORIZADOR) }
                 ?: SleepTimerOption.OFF,
             timerEndsAtMs = extras.getLong(PlaybackService.EXTRA_TERMINA_EN).takeIf { it > 0 },
+            source = p.playlistMetadata.title?.toString(),
         )
     }
 

@@ -68,7 +68,7 @@ import kotlin.math.sign
 
 /**
  * Reproduciendo (SCR-51, nodos 36:1465 y 51:4482). Plana (DEC-27): la portada no lleva sombra.
- * Corazón de favoritas sobre la portada (DEC-29). Sin letra, ⋮ ni «Añadir a una lista» todavía.
+ * Corazón de favoritas sobre la portada (DEC-29). «Añadir a una lista» junto al título; sin letra ni ⋮ todavía.
  */
 @Composable
 fun NowPlayingScreen(
@@ -87,6 +87,7 @@ fun NowPlayingScreen(
     modifier: Modifier = Modifier,
     favorite: Boolean = false,
     onToggleFavorite: () -> Unit = {},
+    onAddToPlaylist: () -> Unit = {},
 ) {
     val song = state.current ?: return
     val c = colors
@@ -107,12 +108,14 @@ fun NowPlayingScreen(
                 Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.reproduciendo_desde), style = MaterialTheme.typography.timeSmall, color = c.contentVariant)
                     Text(
-                        stringResource(R.string.nav_biblioteca),
+                        state.source ?: stringResource(R.string.nav_biblioteca),
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                         color = c.content,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Spacer(Modifier.size(48.dp)) // lugar del ⋮ (tarea 08): mantiene el origen centrado
+                Spacer(Modifier.size(48.dp)) // lugar del ⋮ (Letras, tarea 09): mantiene el origen centrado
             }
             // La portada toma el alto que sobra (cuadrada, lo más grande que quepa): los controles quedan abajo (FR-007).
             Box(
@@ -127,15 +130,21 @@ fun NowPlayingScreen(
                     FavoriteButton(favorite, onToggleFavorite, Modifier.align(Alignment.BottomStart).padding(14.dp))
                 }
             }
-            Column(Modifier.padding(horizontal = RolaSpacing.xxl), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(song.title, style = MaterialTheme.typography.headlineMedium, color = c.content, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(
-                    song.artist ?: stringResource(R.string.artista_desconocido),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = c.contentVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            // Título y «Añadir a una lista» a la derecha (36:1465, FR-041).
+            Row(Modifier.padding(start = RolaSpacing.xxl, end = RolaSpacing.md), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(song.title, style = MaterialTheme.typography.headlineMedium, color = c.content, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        song.artist ?: stringResource(R.string.artista_desconocido),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = c.contentVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                IconButton(onAddToPlaylist) {
+                    Icon(painterResource(R.drawable.ic_playlist_add), stringResource(R.string.anadir_a_lista), tint = c.content)
+                }
             }
             SeekBar(
                 position,
