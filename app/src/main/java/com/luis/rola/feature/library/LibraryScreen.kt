@@ -35,8 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +44,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.luis.rola.core.data.Album
+import com.luis.rola.core.data.Artist
+import com.luis.rola.core.data.SongSort
+import com.luis.rola.core.data.TitleOrder
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
@@ -63,16 +71,19 @@ import com.luis.rola.core.designsystem.RolaTheme
 import com.luis.rola.core.designsystem.esqueleto
 import com.luis.rola.core.designsystem.pill
 
-// Despliegue al entrar (DEC-28 despliegue_listas): 7 escalones × 25 ms + 125 ms por fila = 300 ms.
-private const val FILAS_CASCADA = 8
-private const val ESCALON_MS = 25
-private const val FILA_MS = 125
-private const val CASCADA_MS = (FILAS_CASCADA - 1) * ESCALON_MS + FILA_MS
+/** Chips de Biblioteca en el orden de DEC-05. */
+enum class LibraryTab(val label: Int, val tag: String) {
+    Listas(R.string.chip_listas, "chip_listas"),
+    Albumes(R.string.chip_albumes, "chip_albumes"),
+    Artistas(R.string.chip_artistas, "chip_artistas"),
+    Canciones(R.string.chip_canciones, "chip_canciones"),
+}
 
 /**
- * Biblioteca con los chips Listas (SCR-23) y Canciones (SCR-20); Álbumes y Artistas llegan en la tarea 06.
- * Canciones: ⋮ y pulsación larga abren el menú (SCR-54); sin filtros ni abecedario todavía.
- * Cada vez que [visible] pasa a `true` las filas visibles entran en cascada; si aún cargan, cuando llegan.
+ * Biblioteca con los chips Listas (SCR-23), Álbumes (SCR-21), Artistas (SCR-22) y Canciones (SCR-20); abre en Canciones.
+ * Canciones: ⋮ y pulsación larga abren el menú (SCR-54); el botón de filtros abre la hoja de orden (SCR-26).
+ * Cada vez que [visible] pasa a `true` o se cambia de chip, las filas visibles entran en cascada (DEC-28).
+ * Cada chip guarda su posición mientras la app esté abierta (FR-002).
  */
 @Composable
 fun LibraryScreen(
@@ -89,34 +100,58 @@ fun LibraryScreen(
     onOpenPlaylist: (Long) -> Unit = {},
     onPlaylistAction: (PlaylistSummary, PlaylistAction) -> Unit = { _, _ -> },
     onSongAction: (Song, SongAction) -> Unit = { _, _ -> },
+    sort: SongSort = SongSort(),
+    onSortChange: (SongSort) -> Unit = {},
+    albums: List<Album>? = null,
+    artists: List<Artist>? = null,
+    onOpenAlbum: (Long) -> Unit = {},
+    onOpenArtist: (String?) -> Unit = {},
 ) {
     val c = MaterialTheme.colorScheme
-    val lista = rememberLazyListState()
     val reduce = LocalReduceMotion.current
-    val listo = !songs.isNullOrEmpty()
-    // Se guarda para que al rotar no se repita la cascada.
-    var desplegada by rememberSaveable { mutableStateOf(false) }
+    var pestana by rememberSaveable { mutableStateOf(LibraryTab.Canciones) }
+    val listaCanciones = rememberLazyListState()
+    val listaListas = rememberLazyListState()
+    val listaArtistas = rememberLazyListState()
+    val cuadricula = rememberLazyGridState()
+    fun primeraVisible() = when (pestana) {
+        LibraryTab.Listas -> listaListas.firstVisibleItemIndex
+        LibraryTab.Albumes -> cuadricula.firstVisibleItemIndex
+        LibraryTab.Artistas -> listaArtistas.firstVisibleItemIndex
+        LibraryTab.Canciones -> listaCanciones.firstVisibleItemIndex
+    }
+    val listo = when (pestana) {
+        LibraryTab.Listas -> true
+        LibraryTab.Albumes -> !albums.isNullOrEmpty()
+        LibraryTab.Artistas -> !artists.isNullOrEmpty()
+        LibraryTab.Canciones -> !songs.isNullOrEmpty()
+    }
+    // Chip ya desplegado (se guarda para que al rotar no se repita la cascada); null al salir de Biblioteca.
+    var desplegada by rememberSaveable { mutableStateOf<LibraryTab?>(null) }
     // Milisegundos de la cascada; arranca en 0 para que el primer cuadro ya muestre las filas en su inicio.
-    val reloj = remember { Animatable(if (reduce || desplegada) CASCADA_MS.toFloat() else 0f) }
+    val reloj = remember { Animatable(if (reduce || desplegada != null) CASCADA_MS.toFloat() else 0f) }
     var primera by remember { mutableIntStateOf(0) }
-    LaunchedEffect(visible, listo, reduce) {
+    LaunchedEffect(visible, listo, reduce, pestana) {
         when {
             reduce -> reloj.snapTo(CASCADA_MS.toFloat())
             !visible -> {
-                desplegada = false
+                desplegada = null
                 delay(RolaMotion.RAPIDA.toLong()) // tras el fundido de salida, ya sin dibujarse
-                primera = lista.firstVisibleItemIndex
+                primera = primeraVisible()
                 reloj.snapTo(0f) // así la próxima entrada arranca en su inicio desde el primer cuadro
             }
-            listo && !desplegada -> {
-                desplegada = true
-                primera = lista.firstVisibleItemIndex
+            listo && desplegada != pestana -> {
+                desplegada = pestana
+                primera = primeraVisible()
                 reloj.snapTo(0f)
                 withFrameNanos {} // DEC-28 arranque_en_primer_cuadro: cuenta desde que las filas ya están dibujadas
                 reloj.animateTo(CASCADA_MS.toFloat(), tween(CASCADA_MS, easing = LinearEasing))
             }
         }
     }
+    val enCascada = { i: Int -> Modifier.cascada(i, { primera }, reloj) }
+    val scope = rememberCoroutineScope()
+    var ordenando by rememberSaveable { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         Text(
             stringResource(R.string.nav_biblioteca),
@@ -124,25 +159,43 @@ fun LibraryScreen(
             color = c.onSurface,
             modifier = Modifier.padding(horizontal = RolaSpacing.lg, vertical = RolaSpacing.lg),
         )
-        // Por defecto Canciones, como antes de la tarea 05; se recuerda al rotar.
-        var enListas by rememberSaveable { mutableStateOf(false) }
         Row(
-            Modifier.padding(start = RolaSpacing.lg, top = RolaSpacing.xxs, bottom = RolaSpacing.xs),
+            Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(start = RolaSpacing.lg, end = RolaSpacing.lg, top = RolaSpacing.xxs, bottom = RolaSpacing.xs),
             horizontalArrangement = Arrangement.spacedBy(RolaSpacing.xs),
         ) {
-            Chip(R.string.chip_listas, enListas, "chip_listas") { enListas = true }
-            Chip(R.string.chip_canciones, !enListas, "chip_canciones") { enListas = false }
+            LibraryTab.entries.forEach { t -> Chip(t.label, pestana == t, t.tag) { pestana = t } }
         }
         when {
-            enListas -> PlaylistsTab(favorites, playlists, onCreatePlaylist, onOpenPlaylist, onPlaylistAction, contentPadding)
+            pestana == LibraryTab.Listas ->
+                PlaylistsTab(favorites, playlists, onCreatePlaylist, onOpenPlaylist, onPlaylistAction, contentPadding, listaListas, enCascada)
             songs == null -> ListaCargando()
             songs.isEmpty() -> Box(Modifier.fillMaxSize().padding(RolaSpacing.xl), Alignment.Center) {
                 Text(stringResource(R.string.sin_canciones), style = MaterialTheme.typography.bodyLarge, color = c.onSurfaceVariant)
             }
+            pestana == LibraryTab.Albumes -> if (albums == null) {
+                ListaCargando()
+            } else {
+                ConAbecedario(
+                    remember(albums) { firstIndexBySection(albums) { TitleOrder.sectionOf(it.name.orEmpty()) } },
+                    { albums.getOrNull(cuadricula.firstVisibleItemIndex)?.let { TitleOrder.sectionOf(it.name.orEmpty()) } },
+                    { i -> scope.launch { cuadricula.scrollToItem(i) } },
+                ) { AlbumsTab(albums, cuadricula, onOpenAlbum, { primera }, reloj, contentPadding) }
+            }
+            pestana == LibraryTab.Artistas -> if (artists == null) {
+                ListaCargando()
+            } else {
+                ConAbecedario(
+                    remember(artists) { firstIndexBySection(artists) { TitleOrder.sectionOf(it.name.orEmpty()) } },
+                    { artists.getOrNull(listaArtistas.firstVisibleItemIndex)?.let { TitleOrder.sectionOf(it.name.orEmpty()) } },
+                    { i -> scope.launch { listaArtistas.scrollToItem(i) } },
+                ) { ArtistsTab(artists, listaArtistas, onOpenArtist, { primera }, reloj, contentPadding) }
+            }
             else -> {
                 Row(Modifier.padding(start = RolaSpacing.lg, end = RolaSpacing.xs), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        pluralStringResource(R.plurals.resumen_canciones, songs.size, songs.size),
+                        pluralStringResource(R.plurals.resumen_canciones, songs.size, songs.size, sortSummary(sort)),
                         style = MaterialTheme.typography.labelLarge,
                         color = c.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
@@ -150,33 +203,49 @@ fun LibraryScreen(
                     IconButton(onShuffle) {
                         Icon(painterResource(R.drawable.ic_shuffle), stringResource(R.string.aleatorio), tint = c.onSurface)
                     }
+                    IconButton({ ordenando = true }) {
+                        Icon(painterResource(R.drawable.ic_tune), stringResource(R.string.ordenar_y_filtrar), tint = c.onSurface)
+                    }
                 }
-                LazyColumn(state = lista, contentPadding = contentPadding) {
-                    itemsIndexed(songs, key = { _, s -> s.id }) { i, song ->
-                        SongItem(
-                            song,
-                            isCurrent = song.id == currentId,
-                            place = MenuPlace.Library,
-                            favorite = song.id in favoriteIds,
-                            onAction = { onSongAction(song, it) },
-                            // Solo se lee al dibujar: la cascada no recompone. Las filas fuera de las 8 entran normales.
-                            modifier = Modifier.graphicsLayer {
-                                val k = i - primera
-                                val p = if (k in 0 until FILAS_CASCADA) {
-                                    RolaMotion.EaseOut.transform(((reloj.value - k * ESCALON_MS) / FILA_MS).coerceIn(0f, 1f))
-                                } else {
-                                    1f
-                                }
-                                alpha = p
-                                translationY = (1f - p) * 8.dp.toPx()
-                                // Sin capa fuera de pantalla por fila (8 por cuadro al entrar, medido en T02e).
-                                compositingStrategy = CompositingStrategy.ModulateAlpha
-                            },
-                        ) { onSongClick(i) }
+                ConAbecedario(
+                    remember(songs, sort) { firstIndexBySection(songs, sort::sectionOf) },
+                    { songs.getOrNull(listaCanciones.firstVisibleItemIndex)?.let(sort::sectionOf) },
+                    { i -> scope.launch { listaCanciones.scrollToItem(i) } },
+                    reversed = !sort.ascending,
+                ) {
+                    LazyColumn(state = listaCanciones, contentPadding = contentPadding) {
+                        itemsIndexed(songs, key = { _, s -> s.id }) { i, song ->
+                            SongItem(
+                                song,
+                                isCurrent = song.id == currentId,
+                                place = MenuPlace.Library,
+                                favorite = song.id in favoriteIds,
+                                onAction = { onSongAction(song, it) },
+                                // 22 + 8 de la fila = 30 dp a la derecha: deja libre el abecedario (Figma 33:1090).
+                                modifier = enCascada(i).padding(end = 22.dp),
+                            ) { onSongClick(i) }
+                        }
                     }
                 }
             }
         }
+    }
+    if (ordenando) SortSheet(sort, onSortChange) { ordenando = false }
+}
+
+/** Contenido con el abecedario encima a la derecha (DEC-05); [activa] se lee al desplazar. */
+@Composable
+private fun ConAbecedario(
+    primeras: Map<String, Int>,
+    activa: () -> String?,
+    onJump: (Int) -> Unit,
+    reversed: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    val letra by remember(primeras) { derivedStateOf(activa) }
+    Box(Modifier.fillMaxSize()) {
+        content()
+        AlphabetBar(primeras, letra, onJump, Modifier.align(Alignment.TopEnd).padding(top = RolaSpacing.xl), reversed)
     }
 }
 

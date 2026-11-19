@@ -2,6 +2,9 @@ package com.luis.rola.navigation
 
 import androidx.activity.compose.BackHandler
 import android.app.Activity
+import android.net.Uri
+import com.luis.rola.feature.library.AlbumScreen
+import com.luis.rola.feature.library.ArtistScreen
 import android.content.ContentUris
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -109,7 +112,8 @@ fun RolaNavHost(container: AppContainer) {
     // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
     val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Biblioteca.ruta
     val enBiblioteca = ruta == Destino.Biblioteca.ruta
-    val enLista = ruta.startsWith(RUTA_LISTA)
+    // Pantallas hijas de Biblioteca (listas, álbum, artista): la píldora sigue en Biblioteca.
+    val enLista = ruta.startsWith(RUTA_LISTA) || ruta.startsWith(RUTA_ALBUM) || ruta.startsWith(RUTA_ARTISTA)
 
     val queue by player.queue.collectAsStateWithLifecycle()
     val sheet = rememberPlayerSheetState()
@@ -133,8 +137,12 @@ fun RolaNavHost(container: AppContainer) {
     val res = LocalResources.current
     val resolver = LocalContext.current.contentResolver
 
-    val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library))
+    val vm: LibraryViewModel = viewModel(factory = LibraryViewModel.factory(container.songs, container.library, container.preferences))
     val songs by vm.songs.collectAsStateWithLifecycle()
+    val ordenadas by vm.sortedSongs.collectAsStateWithLifecycle()
+    val orden by vm.sort.collectAsStateWithLifecycle()
+    val albumes by vm.albums.collectAsStateWithLifecycle()
+    val artistas by vm.artists.collectAsStateWithLifecycle()
     val favoriteIds by vm.favoriteIds.collectAsStateWithLifecycle()
     val favoritas by vm.favorites.collectAsStateWithLifecycle()
     val listas by vm.playlists.collectAsStateWithLifecycle()
@@ -241,10 +249,10 @@ fun RolaNavHost(container: AppContainer) {
                 ),
         ) {
             LibraryScreen(
-                songs = songs,
+                songs = ordenadas,
                 currentId = playerState.current?.id,
-                onSongClick = { i -> songs?.let { player.play(it, i) } },
-                onShuffle = { songs?.let { player.shuffle(it) } },
+                onSongClick = { i -> ordenadas?.let { player.play(it, i) } },
+                onShuffle = { ordenadas?.let { player.shuffle(it) } },
                 contentPadding = PaddingValues(bottom = abajo),
                 visible = enBiblioteca,
                 favoriteIds = favoriteIds,
@@ -254,6 +262,12 @@ fun RolaNavHost(container: AppContainer) {
                 onOpenPlaylist = { nav.navigate("$RUTA_LISTA/$it") },
                 onPlaylistAction = { p, a -> onPlaylistAction(p.id, p.name, a) },
                 onSongAction = { s, a -> onSongAction(s, a, null) },
+                sort = orden,
+                onSortChange = vm::setSort,
+                albums = albumes,
+                artists = artistas,
+                onOpenAlbum = { nav.navigate("$RUTA_ALBUM/$it") },
+                onOpenArtist = { nav.navigate(rutaArtista(it)) },
             )
             // Encima de la lista oculta: se lleva los toques para que no lleguen a las filas.
             if (!enBiblioteca) Box(Modifier.matchParentSize().pointerInput(Unit) {})
@@ -312,6 +326,57 @@ fun RolaNavHost(container: AppContainer) {
                         onDismiss = { hoja = false },
                     )
                 }
+            }
+            // Detalles de álbum y artista (SCR-24, SCR-25): hijas de Biblioteca dentro del NavHost (DEC-28).
+            composable("$RUTA_ALBUM/{id}", listOf(navArgument("id") { type = NavType.LongType })) { entrada ->
+                val id = requireNotNull(entrada.arguments).getLong("id")
+                val todos = albumes ?: return@composable
+                val album = todos.find { it.id == id }
+                if (album == null) {
+                    LaunchedEffect(Unit) { nav.popBackStack() } // dejó de existir (borrado o fuera de Rola)
+                    return@composable
+                }
+                val origen = album.name ?: res.getString(R.string.album_desconocido)
+                AlbumScreen(
+                    album,
+                    playerState.current?.id,
+                    onBack = { nav.popBackStack() },
+                    onPlay = { i -> player.play(album.songs, i, origen) },
+                    onShuffle = { player.shuffle(album.songs, origen) },
+                    onSongAction = { s, a -> onSongAction(s, a, null) },
+                    favoriteIds = favoriteIds,
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
+            }
+            composable(
+                "$RUTA_ARTISTA?nombre={nombre}",
+                listOf(
+                    navArgument("nombre") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entrada ->
+                val nombre = entrada.arguments?.getString("nombre")
+                val todos = artistas ?: return@composable
+                val artista = todos.find { it.name == nombre }
+                if (artista == null) {
+                    LaunchedEffect(Unit) { nav.popBackStack() }
+                    return@composable
+                }
+                val origen = nombre ?: res.getString(R.string.artista_desconocido)
+                ArtistScreen(
+                    artista,
+                    playerState.current?.id,
+                    onBack = { nav.popBackStack() },
+                    onOpenAlbum = { nav.navigate("$RUTA_ALBUM/$it") },
+                    onPlay = { i -> player.play(artista.songs, i, origen) },
+                    onShuffle = { player.shuffle(artista.songs, origen) },
+                    onSongAction = { s, a -> onSongAction(s, a, null) },
+                    favoriteIds = favoriteIds,
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
             }
         }
         Column(
@@ -531,6 +596,11 @@ private fun PlayerOverlay(
 }
 
 private const val RUTA_LISTA = "lista"
+private const val RUTA_ALBUM = "album"
+private const val RUTA_ARTISTA = "artista"
+
+/** Sin nombre = «Artista desconocido» (sin argumento); el nombre va codificado porque puede traer «/» o «?». */
+private fun rutaArtista(nombre: String?) = if (nombre == null) RUTA_ARTISTA else "$RUTA_ARTISTA?nombre=${Uri.encode(nombre)}"
 
 /** «Próximamente» de Inicio y Buscar mientras llegan sus tareas. */
 @Composable

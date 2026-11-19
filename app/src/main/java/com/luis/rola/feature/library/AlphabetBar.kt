@@ -32,12 +32,16 @@ import com.luis.rola.core.designsystem.RolaTheme
 /** Secciones del abecedario en orden (DEC-05): Ñ entre N y O, «#» al final. */
 val LETRAS: List<String> = ('A'..'N').map(Char::toString) + "Ñ" + ('O'..'Z').map(Char::toString) + "#"
 
-/** Primera fila de cada sección presente en [songs] (ya ordenadas por título). */
-fun firstIndexBySection(songs: List<Song>): Map<String, Int> {
+/** Primera fila de cada sección presente en [items] (ya ordenados); por defecto, el título de la canción. */
+fun <T> firstIndexBySection(items: List<T>, section: (T) -> String): Map<String, Int> {
     val m = LinkedHashMap<String, Int>()
-    songs.forEachIndexed { i, s -> m.putIfAbsent(TitleOrder.sectionOf(s.title), i) }
+    items.forEachIndexed { i, x -> m.putIfAbsent(section(x), i) }
     return m
 }
+
+fun firstIndexBySection(songs: List<Song>): Map<String, Int> = firstIndexBySection(songs) { TitleOrder.sectionOf(it.title) }
+
+private val LETRAS_INVERSAS = LETRAS.reversed()
 
 private val ALTO_LETRA = 17.dp
 
@@ -46,10 +50,17 @@ private val ALTO_LETRA = 17.dp
  * Las letras miden 17 dp: para el lector de pantalla es un solo control con una acción por letra.
  */
 @Composable
-fun AlphabetBar(firstIndex: Map<String, Int>, active: String?, onJump: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun AlphabetBar(
+    firstIndex: Map<String, Int>,
+    active: String?,
+    onJump: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    reversed: Boolean = false, // Z→A: «#» arriba, para que bajar por la barra sea bajar por la lista
+) {
+    val letras = if (reversed) LETRAS_INVERSAS else LETRAS
     val res = LocalResources.current
     val salto = rememberUpdatedState { y: Float, altoPx: Float ->
-        LETRAS.getOrNull((y / altoPx).toInt())?.let(firstIndex::get)?.let(onJump)
+        letras.getOrNull((y / altoPx).toInt())?.let(firstIndex::get)?.let(onJump)
     }
     val descripcion = stringResource(R.string.abecedario)
     Column(
@@ -60,13 +71,13 @@ fun AlphabetBar(firstIndex: Map<String, Int>, active: String?, onJump: (Int) -> 
             .pointerInput(Unit) { detectVerticalDragGestures { c, _ -> salto.value(c.position.y, ALTO_LETRA.toPx()) } }
             .clearAndSetSemantics {
                 contentDescription = descripcion
-                customActions = LETRAS.filter { it in firstIndex }.map { l ->
+                customActions = letras.filter { it in firstIndex }.map { l ->
                     CustomAccessibilityAction(res.getString(R.string.ir_a_letra, l)) { onJump(firstIndex.getValue(l)); true }
                 }
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        LETRAS.forEach { l ->
+        letras.forEach { l ->
             val activa = l == active
             Box(
                 Modifier

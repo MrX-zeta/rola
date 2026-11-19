@@ -48,9 +48,9 @@
     <!-- Biblioteca (SCR-20) -->
     <string name="chip_canciones">Canciones</string>
     <plurals name="resumen_canciones">
-        <item quantity="one">%1$d canción · Título A–Z</item>
-        <item quantity="many">%1$d canciones · Título A–Z</item>
-        <item quantity="other">%1$d canciones · Título A–Z</item>
+        <item quantity="one">%1$d canción · %2$s</item>
+        <item quantity="many">%1$d canciones · %2$s</item>
+        <item quantity="other">%1$d canciones · %2$s</item>
     </plurals>
     <string name="aleatorio">Aleatorio</string>
     <string name="cargando_canciones">Cargando canciones</string>
@@ -172,4 +172,26 @@
     <string name="borrar">Borrar</string>
     <string name="borraste_lista">Borraste «%1$s»</string>
     <string name="cancion_y_artista">%1$s · %2$s</string>
+
+    <!-- Biblioteca completa (SCR-21, SCR-22, SCR-24, SCR-25, SCR-26) -->
+    <string name="chip_albumes">Álbumes</string>
+    <string name="chip_artistas">Artistas</string>
+    <string name="album_desconocido">Álbum desconocido</string>
+    <plurals name="n_albumes">
+        <item quantity="one">%1$d álbum</item>
+        <item quantity="many">%1$d álbumes</item>
+        <item quantity="other">%1$d álbumes</item>
+    </plurals>
+    <string name="separados">%1$s · %2$s</string>
+    <string name="ordenar_y_filtrar">Ordenar y filtrar</string>
+    <string name="ordenar_por">Ordenar por</string>
+    <string name="direccion">Dirección</string>
+    <string name="orden_titulo">Título</string>
+    <string name="orden_artista">Artista</string>
+    <string name="orden_album">Álbum</string>
+    <string name="orden_az">A → Z</string>
+    <string name="orden_za">Z → A</string>
+    <string name="orden_resumen_az">%1$s A–Z</string>
+    <string name="orden_resumen_za">%1$s Z–A</string>
+    <string name="listo">Listo</string>
 </resources>

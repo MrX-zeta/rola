@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -177,13 +180,17 @@ fun PlaylistsTab(
     onOpen: (Long) -> Unit,
     onAction: (PlaylistSummary, PlaylistAction) -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
+    state: LazyListState = rememberLazyListState(),
+    rowModifier: (index: Int) -> Modifier = { Modifier }, // cascada de entrada de Biblioteca (DEC-28)
 ) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = contentPadding) {
-        item { NewPlaylistRow(onCreate) }
+    LazyColumn(Modifier.fillMaxSize(), state = state, contentPadding = contentPadding) {
+        item { Box(rowModifier(0)) { NewPlaylistRow(onCreate) } }
         item {
-            SummaryRow(favorites, stringResource(R.string.favoritas), Modifier.testTag("fila_favoritas")) { onOpen(favorites.id) }
+            SummaryRow(favorites, stringResource(R.string.favoritas), rowModifier(1).testTag("fila_favoritas")) { onOpen(favorites.id) }
         }
-        items(playlists, key = { it.id }) { p -> SummaryRow(p, p.name, onAction = { onAction(p, it) }) { onOpen(p.id) } }
+        itemsIndexed(playlists, key = { _, p -> p.id }) { i, p ->
+            SummaryRow(p, p.name, rowModifier(i + 2), onAction = { onAction(p, it) }) { onOpen(p.id) }
+        }
     }
 }
 

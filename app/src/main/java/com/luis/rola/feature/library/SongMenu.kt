@@ -49,6 +49,7 @@ fun SongRow(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     trailing: @Composable () -> Unit = {},
+    subtitle: String? = null, // por defecto el artista; en el detalle de artista, el álbum (SCR-25)
     onClick: (() -> Unit)?, // null: el toque lo maneja [modifier] (casillas de la hoja de agregar)
 ) {
     val c = MaterialTheme.colorScheme
@@ -71,7 +72,7 @@ fun SongRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                song.artist ?: stringResource(R.string.artista_desconocido),
+                subtitle ?: song.artist ?: stringResource(R.string.artista_desconocido),
                 style = MaterialTheme.typography.bodyMedium,
                 color = c.onSurfaceVariant,
                 maxLines = 1,
@@ -91,10 +92,11 @@ fun SongItem(
     favorite: Boolean,
     onAction: (SongAction) -> Unit,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
     onClick: () -> Unit,
 ) {
     var abierto by remember { mutableStateOf(false) }
-    SongRow(song, isCurrent, modifier, onLongClick = { abierto = true }, trailing = {
+    SongRow(song, isCurrent, modifier, onLongClick = { abierto = true }, subtitle = subtitle, trailing = {
         Box {
             IconButton({ abierto = true }) {
                 Icon(
