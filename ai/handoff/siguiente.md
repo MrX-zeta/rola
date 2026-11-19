@@ -1,6 +1,6 @@
 # Tarea 06 · Biblioteca completa y pendientes de listas
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-18 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.9.0 · **Spec Kit:** Parte A, corrección sobre `specs/004-favoritas-y-listas/` con `/speckit-converge`; Parte B, función nueva en `specs/005-biblioteca-completa/`.

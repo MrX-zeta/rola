@@ -31,3 +31,7 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 - Íconos temáticos (capa monocroma): verlos en el teléfono; el emulador no los mostró.
 
 **Revisada por la sesión de diseño (2026-11-14):** configuración aprobada. Se agrega `local.properties` a las lecturas denegadas en la tarea 01b. Spec Kit pasa a la 01b. Íconos temáticos: pendiente que Brian los vea en su teléfono.
+
+### Tarea 06 (2026-11-19)
+- Fluidez de Biblioteca con 2 000 canciones y 200 álbumes (SC-004): el emulador dibuja por software; falta verla en el Redmi con `perfil`.
+- Artistas agrupados por artista del álbum: una canción con invitado no crea su propio artista (reporte, decisión 1).
