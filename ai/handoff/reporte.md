@@ -1,67 +1,98 @@
-# Reporte · Tarea 04 · Cola sin fugas (librería) y onboarding completo
+# Reporte · Tarea 05 · Favoritas y Listas (Room)
 
 **Estado:** esperando revisión.
 
 ## Paso 0 · Comprobación
-- Adelanté el worktree a `origin/development` con fast-forward. `git log` incluye `766499b docs: sesión de diseño tarea 04`.
-- Skills usadas: `speckit-converge`, `speckit-specify`, `-clarify`, `-plan`, `-tasks`, `-analyze` e `-implement`; `figma-design-to-code` (antes de leer Figma), `animate` (movimiento del onboarding), `design-critique` y `ponytail-review` (antes de cada commit). No faltó ninguna.
-- Ponytail: full en la Parte A, off de B1 a B5 y full desde B6, cambiado por Brian en cada punto.
-- Dispositivos: emulador Pixel 7 Pro. El Redmi se desconectó a mitad de la tarea; cuando Brian lo volvió a conectar, le instalé `perfil` (`app-perfil.apk` del commit `15767e2`).
+- Worktree actualizado a `origin/development` (avance rápido). `git log` incluía `docs: sesión de diseño tarea 05`. ✅
+- Skills disponibles: Spec Kit, `animate`, `figma-design-to-code`, `design-critique`, `ponytail-review`. No faltó ninguna.
+- Ponytail: off en los pasos 1–5 y full desde el 6, con el cambio hecho por Brian.
 
-## Parte A · Cola sin fugas
-- **Librería:** `sh.calvin.reorderable:reorderable` **3.1.0** (la estable más nueva en Maven Central; Apache 2.0; sin red). Quité todo el arrastre propio: vista previa, `reordenar`, `limitar` y el autodesplazamiento con `withFrameNanos` (unas 90 líneas menos). Solo las filas de «A continuación» son `ReorderableItem`; «Sonando ahora», la fila actual y las etiquetas no son destinos (FR-059).
-- **Cola que cambia a mitad del arrastre (DEC-24, FR-058):** el orden del arrastre se guarda como lista de ids y se aplica sobre la cola viva (`ordenComo`). Si termina la canción, el arrastre sigue y al soltar el movimiento se aplica sobre la cola nueva; si la fila arrastrada pasó a sonar, no se mueve nada. Quité el `shortcut:` de la vista previa: ahora `moveUpNext` devuelve si mandó la orden y, si no la mandó, la vista suelta su orden al instante (ya no puede quedar un orden falso).
-- Se conservan: tocar para reproducir, quitar deslizando con «Deshacer», «Limpiar» y las acciones «Subir», «Bajar» y «Quitar de la cola».
-- **Spec 002:** FR-051 actualizado (marquesina mientras suena, 2 s entre pasadas; ya lo cumplía el código), FR-058 y FR-059 nuevos y la dependencia en `plan.md`. `/speckit-converge` agregó la Fase 12 (T057–T060), todas hechas.
-- **Emulador, app real** (45 audios de prueba de 2:30, ya borrados): cola de 44 con la lista a la mitad.
-  - Arriba: «Pista 20» sube con el autodesplazamiento hasta arriba, se sostiene 7 s y al soltar queda **primera** de «A continuación».
-  - Abajo: «Pista 15» baja hasta el final, se sostiene 8 s y queda **última**.
-  - A mitad del arrastre mandé «siguiente» con la tecla multimedia: el arrastre siguió y «Pista 08» quedó primera en la cola nueva.
-- **Capturas:** `t04-cola-arriba-sosteniendo.png`, `t04-cola-arriba-soltada.png`, `t04-cola-abajo-sosteniendo.png`, `t04-cola-abajo-soltada.png`, `t04-cola-cambia-sosteniendo.png` y `t04-cola-cambia-soltada.png`. **No grabé `t04-cola-arriba.mp4` ni `t04-cola-abajo.mp4`**: Brian pidió antes solo capturas.
-- Commits: `docs(spec): 002 cola con librería` y `fix(player): cola con reorderable`.
+## Pasos 1–5 · Spec Kit (`specs/004-favoritas-y-listas/`)
+- Spec con 6 historias y 37 requisitos. Las respuestas del Paso 2 quedaron en «Aclaraciones»; no hubo preguntas a Brian.
+- Plan, research, data-model, contratos, quickstart y 51 tareas.
+- `/speckit-analyze`: sin problemas críticos. Se aplicaron 3 arreglos menores aprobados por Brian: Favoritas es la primera lista debajo de «Nueva lista», las canciones se agregan en el orden de la hoja, y se agregó la prueba de 2 000 canciones.
+- Commit `docs(spec): 004 favoritas y listas`.
 
-## Parte B · Onboarding
-- **B1–B5:** `specs/003-onboarding/` con spec (22 FR), aclaraciones de la tarea, plan, research, data-model, contratos, quickstart y 25 tareas. `/speckit-analyze` no encontró nada crítico. Commit `docs(spec): 003 onboarding`.
-- **Implementado:**
-  - `core/data/PreferencesRepository.kt`: interfaz y DataStore (`androidx.datastore:datastore-preferences` 1.3.0, la dependencia permitida), con la clave `onboarding_completed` en el archivo `rola_ajustes`. Si no se puede leer se toma «no completada»; si no se puede escribir (disco lleno), la app no se cierra.
-  - `MainActivity`: el splash del sistema sigue hasta leer el valor, así que no parpadea otra pantalla. Orden: bienvenida → Permisos → Biblioteca.
-  - `feature/onboarding/OnboardingScreen.kt`: `HorizontalPager` de 3 páginas, «Omitir» en las páginas 1 y 2, botón «Siguiente»/«Empezar» y Atrás que vuelve una página.
-  - `OnboardingIllustrations.kt`: portadas en abanico, tarjeta de letra y wifi tachado con el interruptor decorativo, todo con formas del tema y el relieve de `Relief.kt` (`elevado`, `acento`).
-  - Permisos: queda solo «Música y audio» (quité la fila de Notificaciones, sus textos y `ic_notifications.xml`). Permiso denegado no necesitó cambios.
-- **Movimiento** (skill `animate`; primera vez → cabe el deleite, todo con `RolaMotion`):
-  - Indicador: la marca activa se estira hacia la página nueva y luego se recoge. Sigue al dedo porque lee la posición del pager al dibujar, sin animación propia.
-  - Ilustraciones: al alejarse del centro bajan a escala 0.94 y opacidad 0.6. La primera entra al primer cuadro dibujado (0.96→1 y fundido, 250 ms con `EaseOut`).
-  - Botón: tamaño fijo; el texto cambia con un fundido (entra en 150 ms, sale en 100 ms). «Omitir» se funde al llegar a la página 3.
-  - Reducir movimiento: las páginas no se desplazan, solo se funden; sin escala ni entrada.
-- **Pruebas:**
-  - JUnit `PreferencesRepositoryTest` (3), con DataStore real en un archivo temporal.
-  - Compose `OnboardingTest` (5), con un repositorio falso en memoria: «Siguiente» hasta «Empezar»; «Omitir» guarda y muestra Permisos sin «Notificaciones»; con reducir movimiento la página nueva no se desplaza; con la bienvenida completada y el permiso abre directo; mientras se lee no se muestra nada.
-- **Emulador:** recorrido completo desde `pm clear`. Al reabrir con el permiso, entra directo a Biblioteca. Rotar en la página 2 conserva la página. Con letra al 200 % los textos caben y las ilustraciones se encogen para caber.
-- **Capturas:** `t04-onboarding-1.png`, `t04-onboarding-2.png`, `t04-onboarding-3.png` y `t04-permisos.png`.
-- Commits: `feat(data): preferencias con DataStore` y `feat(onboarding): bienvenida de tres páginas y permisos según Figma`.
+## Paso 6 · Implementación
+| Commit | Qué |
+|---|---|
+| `feat(database): favoritas y listas con Room` | Room 2.8.5 + KSP 2.3.14; tablas `favorites`, `playlists`, `playlist_songs` (cascada, índice en `media_id`); esquema v1 en `app/schemas/`; pruebas de DAO |
+| `feat(data): repositorio de favoritas y listas, buscador y cola` | `LibraryRepository` (oculta las canciones que ya no existen sin borrar su fila), `SearchText`, `PlaylistName`, una sola consulta al MediaStore compartida, `addToQueue` (al final también con aleatorio) y `removeSong` |
+| `feat(player): corazón de favoritas` | `FavoriteButton` sobre la portada (DEC-29) |
+| `feat(playlists): listas, Favoritas, hoja para agregar y menú de opciones` | Chips Listas/Canciones, `PlaylistsTab`, `CreatePlaylistDialog`, `PlaylistScreen` (vacía, con canciones, Favoritas), `AddSongsSheet` + `AlphabetBar`, `SongMenu` (⋮ y pulsación larga), «Añadir a una lista», borrar con `createDeleteRequest` |
+| `fix(player): orden de parámetros de Reproduciendo (lint)` | Aviso de lint que había introducido yo |
+| `test(player): la prueba del corazón mide dentro de su capa` | Arreglo de la prueba (ver abajo) |
 
-### `design-critique` (SCR-02 a SCR-06 contra Figma, oscuro)
-Coinciden en estructura, colores, relieve y textos. Diferencias menores:
-- SCR-03: la línea activa usa `headlineSmall` (24 sp) en vez de 26 sp, así que cabe en una línea (en Figma usa dos). Título 16 sp en vez de 15; artista y tiempo 12 sp en vez de 13. Son los estilos del tema más cercanos (INV-04).
-- SCR-04: el interruptor es el `Switch` de M3 apagado, muy parecido al de Figma.
-- SCR-05: título en `headlineLarge` (32 sp) en vez de 34, como ya estaba.
-- SCR-06: la ruta de Ajustes tiene radio de 20 dp (`shapes.medium`) y en Figma es de 16; no hay token de 16. La pantalla no cambió en esta tarea.
-- Tema claro: la app sigue en oscuro fijo (DEC-15), así que el claro solo se revisó con las vistas previas `@Preview`; no hay capturas claras.
+**El corazón (skill `animate`).** Se usa decenas de veces al día y su fin es confirmar el toque, con un toque de deleite que pide DEC-29.
+- Al marcar: el ícono pasa a relleno lima al instante, rebota desde 0.8 con un resorte (amortiguación 0.5, rigidez 800, se asienta en unos 330 ms), sueltan 7 partículas lima en 300 ms con la curva `EaseOut` de `RolaMotion` y hay vibración `Confirm`.
+- Al desmarcar: contorno, sin ráfaga.
+- Solo se anima al tocarlo, no cuando cambia la canción. Cada toque retoma la animación desde donde iba, así que no se encolan.
+- Con reducir movimiento solo cambia el relleno.
+- Para el lector de pantalla es un interruptor «Favorita» con área táctil de 48 dp.
+- La ráfaga se lee en la fase de dibujo, sin recomponer.
+- Falta juzgar la sensación en el Redmi con `perfil`.
 
-## Comprobaciones finales
-- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` → **BUILD SUCCESSFUL**. Unitarias: **44 OK**. Lint: 0 errores y las 2 advertencias de antes (`VectorRaster` en `splash_icono` y `ExportedService`).
-- `:app:connectedDebugAndroidTest` → **33 OK**, sin fallos.
-- `ponytail-review`:
-  - Parte A: «Ship»; una sugerencia de -3 líneas que no apliqué.
-  - Parte B: un hallazgo (un disco lleno cerraba la app al tocar «Empezar»), ya arreglado; una sugerencia de -8 líneas que no apliqué (unir los dos ayudantes que encogen las ilustraciones).
-- `git log` sin autoría de IA.
+## Decisiones que tomé (por favor revisa)
+1. **«Favorita» en el menú (SCR-54).** El nodo 35:1458 no la tiene porque es anterior a DEC-29. La agregué como tercera opción en Biblioteca, con el ícono de corazón. En una lista el menú lleva solo «Quitar de la lista» y «Añadir a la cola», como pidió la tarea.
+2. **Contorno del corazón.** En Figma solo existe `icon/favorite_filled` (78:3332). Para el estado apagado usé el `favorite` de contorno de Material Symbols, con el mismo trazo.
+3. **«Añadir a una lista» no tiene pantalla en Figma.** Hice una hoja inferior con «Nueva lista» arriba y las filas de Biblioteca · Listas, sin Favoritas. Si eliges «Nueva lista», se crea y la canción se agrega.
+4. **Favoritas** usa la pantalla de lista sin el botón Agregar. Su estado vacío dice «Aún no tienes favoritas» y no tiene botón. «Quitar de la lista» en Favoritas quita la favorita y se puede deshacer, conservando su fecha.
+5. **Biblioteca abre en el chip «Canciones»**, como antes. Figma muestra «Listas» primero; si lo prefieres, es un cambio de una línea.
+6. **Orden de las listas:** la más nueva arriba, debajo de Favoritas. No estaba definido.
+7. **Una lista que desaparece por fuera de Rola** (otra app o una SD retirada): sus canciones se ocultan y su fila se conserva. Las filas solo se borran cuando Rola confirma un borrado propio.
+8. **Sin `PlaylistViewModel`.** El detalle se lee directo del repositorio con `collectAsStateWithLifecycle`, que es menos código. Las acciones compartidas viven en `LibraryViewModel`.
+9. **Nuevos tokens:** `RolaColors.overCover` / `onOverCover` para el círculo translúcido del corazón (Figma `rgba(17,17,17,.7)`) y `Shapes.tile` (16 dp) para los mosaicos y el menú.
+10. **Esquema exportado con el argumento de KSP** `room.schemaLocation`, sin el plugin de Gradle de Room, porque la tarea no lo permitía.
 
-## Dudas y decisiones
-- **Pruebas de Compose con autodesplazamiento largo de la cola:** con el reloj manual de Compose, la librería avanza ~1 fila/s y una prueba se colgó. Quité esas tres pruebas y lo dejé como `shortcut:` en `QueueScreenTest`; lo verifiqué en la app real con capturas. Si se quiere automatizar, propongo Maestro.
-- **La fila arrastrada ya no se limita a la lista** (FR-057): la librería la deja bajo el dedo aunque pase por el encabezado; `LazyColumn` la recorta en su borde, así que nunca se ve fuera de la lista. En el orden sí se cumple.
-- **KV-DATASTORE sigue «propuesto»** en el grafo; lo usé porque DEC-18 (decidido) y la tarea piden `onboarding_completed`. Solo creé esa clave. Propongo pasarlo a «decidido».
-- **Instalaciones de tareas anteriores** que ya tenían el permiso pero no la bienvenida la ven una vez (DEC-18 solo mira `onboarding_completed`). ¿Se prefiere saltarla en ese caso?
-- **«Omitir» no está en la página 3**, como en Figma 22:383 (ahí está «Empezar»). Ajusté FR-006.
-- **Colores de las portadas de ejemplo** (`#2F4BB8`, `#E4572E`, `#1F7A5C` y sus tonos claros) quedaron como tokens en `Color.kt` (`RolaIlustracion`), no en las pantallas.
-- **Emulador lleno:** quedó al 94 %, con archivos viejos en `/sdcard` (`s1.raw`…`s10.raw`, ~180 MB, y videos `rec_nav*.mp4`) que no son de esta tarea y no borré. Varias instalaciones fallaron por espacio hasta quitar mis audios de prueba. ¿Los borro?
-- **Redmi:** ya tiene `perfil`; falta que Brian juzgue ahí la fluidez del indicador y de la cola (DEC-28 `fluidez`).
+## Dudas para la sesión de diseño
+- **INV-06 y el abecedario:** las letras miden 17 dp de alto (Figma). Para el lector de pantalla son un solo control «Abecedario» con una acción por letra, y el ancho táctil es de 32 dp para no tapar las casillas. ¿Se acepta como excepción, o se propone en el grafo?
+- **Fuera de alcance según la tarea, pero visible en Figma:**
+  - el ⋮ de cada lista en Listas (32:1128) y el de la pantalla de lista (34:1345), que servirían para renombrar o borrar;
+  - el botón «Añadir a una lista» junto al título y el ⋮ en Reproduciendo (36:1465).
+
+  No los agregué. ¿Van en otra tarea?
+- **«Reproduciendo desde» sigue diciendo «Biblioteca»** aunque suene una lista. ¿Debe decir el nombre de la lista?
+- **Tema claro:** la app tiene `darkTheme = true` fijo (ya era así antes). Las pantallas nuevas usan solo tokens del tema, pero en la app no se pudo ver el modo claro.
+- **Lo que Figma no pidió:** al crear una lista no sale un aviso, porque se abre la lista misma. Al cerrar la hoja sin confirmar tampoco hay aviso.
+
+## design-critique (capturas del emulador contra Figma, oscuro)
+| Pantalla | Diferencias |
+|---|---|
+| SCR-51 corazón | Coincide en posición (14 dp desde la esquina), tamaño (48 dp) y colores. Faltan «Letra», «Añadir a una lista» y ⋮, de otras tareas. La portada es genérica porque los audios de prueba no tienen carátula. |
+| SCR-23 Listas | Solo 2 chips (por la tarea). Sin ⋮ en las filas. Los mosaicos salen con un solo recuadro porque los audios de prueba no tienen carátula; con 4 o más canciones con carátula se arma el 2×2. |
+| SCR-30 Crear lista | El campo usa `OutlinedTextField` de M3 (etiqueta sobre el borde). En Figma la etiqueta va dentro del recuadro. Lo demás coincide. |
+| SCR-31/32 Lista | Coincide (portada 112 dp radio 24, título 28, Reproducir lima, círculos de 48). Falta el ⋮ de la lista (fuera de alcance). |
+| SCR-33 Hoja | Coincide (buscador, casillas lima de 22 dp, abecedario, botón «Agregar N canciones»). Diferencias: la hoja llega hasta arriba (Figma deja unos 77 dp de velo); las letras sin canciones salen atenuadas (no está en Figma); el abecedario está centrado en vertical. |
+| SCR-54 Menú | Coincide (fondo `surfaceContainer`, radio 16, divisor antes de Borrar), más la opción «Favorita». |
+| Accesibilidad | Chips con toque de 48 dp, ⋮ «Opciones de X», casillas con su título, corazón como interruptor. El aviso (snackbar) tapa unos píxeles de la mini tarjeta; eso ya pasaba antes. |
+
+## Paso 7 · Comprobaciones
+- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug`: **BUILD SUCCESSFUL**. Lint: 0 errores y 2 avisos que ya existían (`VectorRaster` en `splash_icono`, `ExportedService`).
+- `connectedDebugAndroidTest` en el emulador: **53 pruebas**. La primera vez falló 1, la del rebote del corazón: la etiqueta de prueba estaba fuera del `graphicsLayer` y medía sin escala, y además miraba a los 50 ms. Lo corregí y las 3 del corazón pasan; no volví a correr las 53 completas tras el arreglo.
+- **Recorrido en el emulador**, con 14 audios WAV de prueba generados por mí en `/sdcard/Music`:
+  - marcar el corazón ✅
+  - Favoritas con su conteo ✅
+  - crear «Viaje» y abrirla con la hoja ✅
+  - marcar 3 y agregar ✅
+  - el abecedario salta ✅
+  - menú en Canciones ✅
+  - «Añadir a una lista» y luego «Ya estaba» ✅
+  - «Añadir a la cola» ✅
+  - «Borrar del dispositivo»: solo el aviso de Android y luego «Se borró…»; desapareció de Canciones (14→13), Favoritas (3→2), «Viaje» (4→3) y de la cola, donde estaba dos veces ✅
+  - «Quitar de la lista» y Deshacer, que vuelve a su lugar ✅
+- **SC-007 (2 000 canciones):** cargué 2 000 audios de 1 s y abrí la hoja en `perfil`. Funciona: busca, salta de letra y desplaza. Pero el emulador dibuja por software (`ro.hardware.egl=emulation`, GPU de 4,9 s por cuadro): hasta Biblioteca, que no cambió, da 97 % de cuadros lentos. **La fluidez no se puede juzgar aquí; falta probarla en el Redmi.** Los archivos de carga ya se borraron.
+- **Redmi:** estaba conectado al principio, pero al final ya no aparecía en adb, así que **no se instaló `perfil`**.
+- Emulador: borré `s*.raw` y `rec_nav*.mp4` de `/sdcard`, como autorizó la tarea. Quedan los 13 WAV de prueba en `/sdcard/Music`.
+- No reinicié el emulador colgado yo mismo (el permiso lo bloqueó); lo reinició Brian.
+
+## Capturas (`ai/handoff/capturas/`)
+`t05-favorita.png`, `t05-listas.png`, `t05-agregar.png`, `t05-menu.png`, y además `t05-crear.png`, `t05-lista.png` y `t05-borrar-aviso.png`.
+**Sin video `t05-corazon.mp4`:** la regla del proyecto dice que bastan las capturas. Si hace falta el video, se graba aparte.
+
+## Ponytail
+`/ponytail:ponytail-review` antes de cada commit. Encontró y se corrigió:
+1. «Añadir a la cola» con aleatorio caía en un lugar al azar; ahora va al final.
+2. Un commit no compilaba sin `strings.xml`; se incluyó.
+
+## Git
+Rama del worktree subida a `origin development` (avance rápido). Sin autoría de IA en los mensajes.

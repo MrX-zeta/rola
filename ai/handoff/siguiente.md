@@ -1,6 +1,6 @@
 # Tarea 05 · Favoritas y Listas (Room)
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-15 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.8.0 · **Spec Kit:** `specs/004-favoritas-y-listas/`.
