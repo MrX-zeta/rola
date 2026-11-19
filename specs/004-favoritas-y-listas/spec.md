@@ -23,7 +23,16 @@ Respondidas por la tarea 05 (Paso 2); no se preguntan a Brian.
 - P: ¿Cómo se borra del dispositivo y qué se limpia? → R: con el aviso del sistema (`MediaStore.createDeleteRequest`), sin confirmación propia; al terminar, snackbar y limpieza de Favoritas, listas y cola (FR-028, FR-029).
 - P: ¿Qué pasa con una canción guardada que ya no existe? → R: las referencias se guardan por el identificador de la canción en el sistema; si ya no existe se omite al mostrar, sin borrar la referencia hasta confirmar que no existe. En esta función, «confirmar» es que Rola misma la borró con el aviso del sistema; si desaparece por fuera, solo se oculta (FR-031).
 - P: ¿Qué muestran la lista vacía, la lista con canciones y su menú? → R: SCR-31 y SCR-32 según DEC-06; en una lista el menú lleva «Quitar de la lista» y «Añadir a la cola» (FR-018, FR-019, FR-024).
-- P: ¿Qué queda fuera? → R: renombrar y borrar listas, reordenar canciones dentro de una lista, Álbumes y Artistas (tarea 06) e historial (tarea 07).
+- P: ¿Qué queda fuera? → R: ~~renombrar y borrar listas~~ (entran en la tarea 06), reordenar canciones dentro de una lista, Álbumes y Artistas (tarea 06) e historial (tarea 07).
+
+### Sesión 2026-11-19 (tarea 06, Parte A)
+
+Respondidas por la tarea 06; no se preguntan a Brian.
+
+- P: ¿Se pueden renombrar y borrar listas? → R: sí, desde el ⋮ de cada lista en Biblioteca · Listas (Figma 32:1128) y en la pantalla de lista (34:1345). Favoritas no tiene ⋮ (FR-038, FR-039).
+- P: ¿Cómo se ve «Añadir a una lista»? → R: SCR-55 (Figma 85:3348 / 85:3541) (FR-040).
+- P: ¿Reproduciendo tiene «Añadir a una lista»? → R: sí, el botón junto al título; el ⋮ de Reproduciendo queda para Letras (tarea 09) y no se muestra (FR-041).
+- P: ¿Qué dice «Reproduciendo desde»? → R: el origen real (DEC-24): Biblioteca, Favoritas o el nombre de la lista (FR-042).
 
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
@@ -210,6 +219,14 @@ Desde el menú elijo «Borrar del dispositivo». Android muestra su propio aviso
 - **FR-035**: Botones con área táctil ≥ 48 dp, descripciones accesibles en los íconos (⋮, corazón, casillas, letras del abecedario), contraste ≥ 4.5:1 y textos que respetan el tamaño de letra del sistema (INV-06).
 - **FR-036**: Toda animación nueva (salvo el corazón, FR-003) DEBE durar ≤ 300 ms, ser interrumpible y respetar «reducir movimiento» (DEC-28).
 - **FR-037**: Todas las pantallas DEBEN verse según sus nodos de Figma en oscuro y claro. Todos los textos, en español.
+
+**Pendientes de listas (tarea 06, Parte A)**
+
+- **FR-038**: Cada lista del usuario DEBE tener un ⋮ (en su fila de Biblioteca · Listas y en su pantalla) con «Renombrar» y «Borrar lista». Favoritas no tiene ⋮.
+- **FR-039**: «Renombrar» DEBE abrir un diálogo igual a Crear lista con el nombre actual; «Guardar» se apaga si queda vacío. «Borrar lista» DEBE pedir confirmación con un diálogo propio (Android no da uno); al confirmar se borra la lista (no las canciones) y se muestra un snackbar con «Deshacer», que la restaura con sus canciones, su orden y sus fechas. Si se borra desde su pantalla, se vuelve a Biblioteca.
+- **FR-040**: La hoja «Añadir a una lista» DEBE seguir SCR-55: título, la canción debajo («Título · Artista»), «Nueva lista» con ícono en `primaryContainer` y las listas con mosaicos de 48 dp.
+- **FR-041**: Reproduciendo DEBE tener el botón «Añadir a una lista» junto al título, que abre la hoja de FR-040 para la canción que suena. El ⋮ de Reproduciendo no se muestra todavía.
+- **FR-042**: «Reproduciendo desde» DEBE mostrar el origen real de la cola (DEC-24): «Biblioteca», «Favoritas» o el nombre de la lista desde la que se empezó a reproducir.
 
 ### Entidades clave
 

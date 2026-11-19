@@ -181,3 +181,14 @@ MVP = Fases 1–3 (corazón y persistencia). Después US2+US3 (listas), US5+US4 
 - `LibraryRepository.remove` devuelve la acción de deshacer (en vez de `removeFromPlaylist`/`restore`); `PlaylistSummary.covers` son canciones.
 - T035/T043/T045: un solo commit `feat(playlists): …` (listas, menú y borrar dependen entre sí para compilar).
 - T049: en el emulador la fluidez no se puede juzgar (render por software); pendiente en el Redmi.
+
+## Phase 10: Convergence
+
+Tarea 06, Parte A (FR-038 a FR-042).
+
+- [ ] T052 Agregar renombrar (`PlaylistDao.rename`) y borrar con deshacer (`LibraryRepository.deletePlaylist` devuelve cómo restaurar la lista con sus canciones) per FR-039 (missing)
+- [ ] T053 Agregar el ⋮ con «Renombrar» y «Borrar lista» en `PlaylistsTab.kt` (no en Favoritas) y en `PlaylistScreen.kt`, con diálogo de renombrar (como Crear lista) y de confirmación; al borrar desde la pantalla, volver a Biblioteca per FR-038 (missing)
+- [ ] T054 Ajustar `ChoosePlaylistSheet` a SCR-55: canción debajo del título, «Nueva lista» en `primaryContainer`, mosaicos de 48 dp per FR-040 (partial)
+- [ ] T055 Agregar el botón «Añadir a una lista» junto al título en `NowPlayingScreen.kt`, que abre la hoja con la canción que suena per FR-041 (missing)
+- [ ] T056 Guardar el origen de la cola en `PlayerConnection.play` (metadatos de la lista de Media3) y mostrarlo en «Reproduciendo desde» per FR-042 (missing)
+- [ ] T057 Pruebas: renombrar/borrar/restaurar en `RolaDatabaseTest`; ⋮ de lista en `PlaylistsTest`; botón y origen en `NowPlayingTest` per FR-038–FR-042 (missing)
