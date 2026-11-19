@@ -59,9 +59,31 @@ abstract class PlaylistDao {
         touch(id, now)
     }
 
-    /** Sin interfaz por ahora (fuera de alcance); las pruebas la usan para la cascada. */
+    @Query("UPDATE playlists SET name = :name, updated_at = :now WHERE id = :id")
+    abstract suspend fun rename(id: Long, name: String, now: Long)
+
+    @Query("SELECT * FROM playlists WHERE id = :id")
+    abstract suspend fun get(id: Long): PlaylistEntity?
+
+    @Query("SELECT * FROM playlist_songs WHERE playlist_id = :id")
+    abstract suspend fun rows(id: Long): List<PlaylistSongEntity>
+
+    /** Sus canciones de lista se van en cascada. */
     @Query("DELETE FROM playlists WHERE id = :id")
     abstract suspend fun deletePlaylist(id: Long)
+
+    @Insert
+    protected abstract suspend fun insertPlaylist(playlist: PlaylistEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun insertAll(songs: List<PlaylistSongEntity>)
+
+    /** «Deshacer» de borrar una lista: vuelve con su id, fechas y canciones en su orden. */
+    @Transaction
+    open suspend fun restore(playlist: PlaylistEntity, songs: List<PlaylistSongEntity>) {
+        insertPlaylist(playlist)
+        insertAll(songs)
+    }
 
     @Query("DELETE FROM favorites WHERE media_id = :mediaId")
     protected abstract suspend fun forgetFavorite(mediaId: Long)

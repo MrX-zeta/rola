@@ -39,6 +39,10 @@ class LibraryViewModel(songs: Flow<List<Song>>, private val library: LibraryRepo
 
     suspend fun remove(listId: Long, mediaId: Long): suspend () -> Unit = library.remove(listId, mediaId)
 
+    suspend fun renamePlaylist(id: Long, name: String) = library.renamePlaylist(id, name)
+
+    suspend fun deletePlaylist(id: Long): suspend () -> Unit = library.deletePlaylist(id)
+
     suspend fun forgetSong(mediaId: Long) = library.forgetSong(mediaId)
 
     companion object {

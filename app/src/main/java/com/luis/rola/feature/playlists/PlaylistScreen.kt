@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,7 +44,7 @@ import com.luis.rola.feature.library.SongItem
 
 /**
  * Lista vacía (SCR-31) o con canciones (SCR-32); también Favoritas ([isFavorites]: sin Agregar, otro
- * vacío). Sin ⋮ de la lista: renombrar y borrar quedan fuera de esta tarea.
+ * vacío). ⋮ de la lista con renombrar y borrar (FR-038), salvo en Favoritas.
  */
 @Composable
 fun PlaylistScreen(
@@ -56,14 +57,17 @@ fun PlaylistScreen(
     onAdd: () -> Unit,
     onSongAction: (Song, SongAction) -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
+    onPlaylistAction: (PlaylistAction) -> Unit = {},
 ) {
     val c = MaterialTheme.colorScheme
     val nombre = if (isFavorites) stringResource(R.string.favoritas) else detail.name
     val minutos = (detail.totalMs / 60_000).toInt()
     LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = contentPadding) {
         item {
-            Row(Modifier.height(64.dp).padding(horizontal = RolaSpacing.xs), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = RolaSpacing.xs), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onBack) { Icon(painterResource(R.drawable.ic_arrow_back), stringResource(R.string.volver), tint = c.onSurface) }
+                Spacer(Modifier.weight(1f))
+                if (!isFavorites) PlaylistMenuButton(nombre, onPlaylistAction, tint = c.onSurface)
             }
         }
         item {

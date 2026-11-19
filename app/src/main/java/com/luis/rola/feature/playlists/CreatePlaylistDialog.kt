@@ -21,29 +21,41 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.luis.rola.R
 import com.luis.rola.core.data.PlaylistName
 import com.luis.rola.core.designsystem.RolaTheme
 import com.luis.rola.core.designsystem.pill
 
-/** Crear lista (SCR-30, Figma 34:1168): solo el nombre; «Crear» se apaga si queda vacío. */
+/**
+ * Crear lista (SCR-30, Figma 34:1168): solo el nombre; «Crear» se apaga si queda vacío.
+ * Renombrar usa el mismo diálogo con [initial], otro título y «Guardar» (FR-039).
+ */
 @Composable
-fun CreatePlaylistDialog(onCreate: (String) -> Unit, onDismiss: () -> Unit) {
-    var nombre by rememberSaveable { mutableStateOf("") }
-    val limpio = PlaylistName.clean(nombre)
+fun CreatePlaylistDialog(
+    onCreate: (String) -> Unit,
+    onDismiss: () -> Unit,
+    initial: String = "",
+    title: Int = R.string.nueva_lista,
+    confirm: Int = R.string.crear,
+) {
+    // Cursor al final para renombrar.
+    var campo by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
+    val limpio = PlaylistName.clean(campo.text)
     val foco = remember { FocusRequester() }
     LaunchedEffect(Unit) { foco.requestFocus() }
     val boton = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
     AlertDialog(
         onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text(stringResource(R.string.nueva_lista), style = MaterialTheme.typography.headlineSmall) },
+        title = { Text(stringResource(title), style = MaterialTheme.typography.headlineSmall) },
         text = {
             OutlinedTextField(
-                nombre,
-                { if (it.length <= PlaylistName.MAX) nombre = it },
+                campo,
+                { if (it.text.length <= PlaylistName.MAX) campo = it },
                 Modifier.focusRequester(foco),
                 label = { Text(stringResource(R.string.nombre)) },
                 singleLine = true,
@@ -58,7 +70,29 @@ fun CreatePlaylistDialog(onCreate: (String) -> Unit, onDismiss: () -> Unit) {
                 enabled = limpio != null,
                 shape = MaterialTheme.shapes.pill,
                 colors = ButtonDefaults.buttonColors(containerColor = RolaTheme.colors.accent, contentColor = RolaTheme.colors.onAccent),
-            ) { Text(stringResource(R.string.crear), style = boton) }
+            ) { Text(stringResource(confirm), style = boton) }
+        },
+        dismissButton = {
+            TextButton(onDismiss) { Text(stringResource(R.string.cancelar), style = boton, color = MaterialTheme.colorScheme.onSurface) }
+        },
+    )
+}
+
+/** Confirmación propia de «Borrar lista» (Android no da una): se puede deshacer en el aviso. */
+@Composable
+fun DeletePlaylistDialog(name: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val boton = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+    AlertDialog(
+        onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.borrar_lista_titulo, name), style = MaterialTheme.typography.headlineSmall) },
+        text = { Text(stringResource(R.string.borrar_lista_texto), style = MaterialTheme.typography.bodyLarge) },
+        confirmButton = {
+            Button(
+                onConfirm,
+                shape = MaterialTheme.shapes.pill,
+                colors = ButtonDefaults.buttonColors(containerColor = RolaTheme.colors.accent, contentColor = RolaTheme.colors.onAccent),
+            ) { Text(stringResource(R.string.borrar), style = boton) }
         },
         dismissButton = {
             TextButton(onDismiss) { Text(stringResource(R.string.cancelar), style = boton, color = MaterialTheme.colorScheme.onSurface) }

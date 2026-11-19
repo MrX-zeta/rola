@@ -162,4 +162,14 @@
     <string name="quitada_de_favoritas">Quitada de Favoritas</string>
     <string name="se_borro">Se borró «%1$s»</string>
     <string name="no_se_pudo_borrar">No se pudo borrar «%1$s»</string>
+    <!-- Renombrar y borrar listas, origen de Reproduciendo (tarea 06) -->
+    <string name="renombrar">Renombrar</string>
+    <string name="renombrar_lista">Renombrar lista</string>
+    <string name="guardar">Guardar</string>
+    <string name="borrar_lista">Borrar lista</string>
+    <string name="borrar_lista_titulo">¿Borrar «%1$s»?</string>
+    <string name="borrar_lista_texto">Las canciones siguen en tu biblioteca.</string>
+    <string name="borrar">Borrar</string>
+    <string name="borraste_lista">Borraste «%1$s»</string>
+    <string name="cancion_y_artista">%1$s · %2$s</string>
 </resources>

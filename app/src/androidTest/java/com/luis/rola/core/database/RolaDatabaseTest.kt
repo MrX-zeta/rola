@@ -80,4 +80,21 @@ class RolaDatabaseTest {
         playlists.create(PlaylistEntity(name = "Nueva", createdAt = 2, updatedAt = 2))
         assertEquals(listOf("Nueva", "Vieja"), playlists.playlists().first().map { it.name })
     }
+
+    @Test
+    fun renombrarYBorrarConDeshacerRestauraTodo() = runBlocking {
+        val id = playlists.create(PlaylistEntity(name = "Viaje", createdAt = 1, updatedAt = 1))
+        playlists.append(id, listOf(3, 1, 2), now = 5)
+        playlists.rename(id, "Noche", now = 7)
+        val antes = playlists.get(id)!!
+        assertEquals("Noche", antes.name)
+        assertEquals(7L, antes.updatedAt)
+
+        val filas = playlists.rows(id)
+        playlists.deletePlaylist(id)
+        assertEquals(null, playlists.get(id))
+        playlists.restore(antes, filas)
+        assertEquals(antes, playlists.get(id))
+        assertEquals(listOf(3L, 1L, 2L), ids(id))
+    }
 }

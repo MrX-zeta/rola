@@ -17,6 +17,8 @@ import com.luis.rola.feature.library.SongAction
 import com.luis.rola.feature.playlists.AddSongsSheet
 import com.luis.rola.feature.playlists.ChoosePlaylistSheet
 import com.luis.rola.feature.playlists.CreatePlaylistDialog
+import com.luis.rola.feature.playlists.DeletePlaylistDialog
+import com.luis.rola.feature.playlists.PlaylistAction
 import com.luis.rola.feature.playlists.PlaylistScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -150,6 +152,9 @@ fun RolaNavHost(container: AppContainer) {
     var paraAgregar by remember { mutableStateOf<Song?>(null) }
     var borrandoId by rememberSaveable { mutableStateOf<Long?>(null) }
     var borrandoTitulo by rememberSaveable { mutableStateOf("") }
+    // ⋮ de una lista (FR-038): la que se renombra o se va a borrar (id y nombre).
+    var renombrando by rememberSaveable { mutableStateOf<Pair<Long, String>?>(null) }
+    var borrandoLista by rememberSaveable { mutableStateOf<Pair<Long, String>?>(null) }
     // DEC-08/INV-02: Android muestra su aviso; aquí solo se mira el resultado y se limpian las referencias.
     val borrar = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { r ->
         val id = borrandoId ?: return@rememberLauncherForActivityResult
@@ -201,6 +206,13 @@ fun RolaNavHost(container: AppContainer) {
         }
     }
 
+    fun onPlaylistAction(id: Long, nombre: String, action: PlaylistAction) {
+        when (action) {
+            PlaylistAction.Rename -> renombrando = id to nombre
+            PlaylistAction.Delete -> borrandoLista = id to nombre
+        }
+    }
+
     Box(Modifier.fillMaxSize().background(fondo)) {
         // Biblioteca vive fuera del NavHost y no se desmonta al cambiar de pestaña: desmontarla y rearmarla
         // ocupaba el hilo principal a media animación de la píldora (medido en T02d). Oculta sigue medida y
@@ -240,6 +252,7 @@ fun RolaNavHost(container: AppContainer) {
                 playlists = listas,
                 onCreatePlaylist = { creando = true },
                 onOpenPlaylist = { nav.navigate("$RUTA_LISTA/$it") },
+                onPlaylistAction = { p, a -> onPlaylistAction(p.id, p.name, a) },
                 onSongAction = { s, a -> onSongAction(s, a, null) },
             )
             // Encima de la lista oculta: se lleva los toques para que no lleguen a las filas.
@@ -282,6 +295,7 @@ fun RolaNavHost(container: AppContainer) {
                     onAdd = { hoja = true },
                     onSongAction = { s, a -> onSongAction(s, a, id) },
                     contentPadding = PaddingValues(bottom = abajo),
+                    onPlaylistAction = { onPlaylistAction(id, d.name, it) },
                 )
                 if (hoja) {
                     AddSongsSheet(
@@ -330,6 +344,7 @@ fun RolaNavHost(container: AppContainer) {
         }
         eligiendo?.let { s ->
             ChoosePlaylistSheet(
+                s,
                 listas,
                 onChoose = { p ->
                     eligiendo = null
@@ -366,6 +381,33 @@ fun RolaNavHost(container: AppContainer) {
                     creando = false
                     paraAgregar = null
                 },
+            )
+        }
+        renombrando?.let { (id, nombre) ->
+            CreatePlaylistDialog(
+                onCreate = { nuevo ->
+                    renombrando = null
+                    avisos.launch { vm.renamePlaylist(id, nuevo) }
+                },
+                onDismiss = { renombrando = null },
+                initial = nombre,
+                title = R.string.renombrar_lista,
+                confirm = R.string.guardar,
+            )
+        }
+        borrandoLista?.let { (id, nombre) ->
+            DeletePlaylistDialog(
+                nombre,
+                onConfirm = {
+                    borrandoLista = null
+                    // Desde su pantalla se vuelve a Biblioteca antes de que la lista deje de existir.
+                    if (enLista) nav.popBackStack(Destino.Biblioteca.ruta, inclusive = false)
+                    avisos.launch {
+                        val deshacer = vm.deletePlaylist(id)
+                        avisar(res.getString(R.string.borraste_lista, nombre), res.getString(R.string.deshacer), deshacer)
+                    }
+                },
+                onDismiss = { borrandoLista = null },
             )
         }
         // Encima de la capa del reproductor: el aviso de Deshacer de la cola también se ve (DEC-09).

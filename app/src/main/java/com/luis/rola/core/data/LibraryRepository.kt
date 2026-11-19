@@ -72,6 +72,16 @@ class LibraryRepository(
         return { before?.let { playlistDao.insert(it) } }
     }
 
+    suspend fun renamePlaylist(id: Long, name: String) = playlistDao.rename(id, name, clock())
+
+    /** Borra la lista (no las canciones) y devuelve cómo deshacerlo. */
+    suspend fun deletePlaylist(id: Long): suspend () -> Unit {
+        val before = playlistDao.get(id) ?: return {}
+        val rows = playlistDao.rows(id)
+        playlistDao.deletePlaylist(id)
+        return { playlistDao.restore(before, rows) }
+    }
+
     /** Tras un borrado del dispositivo confirmado (DEC-08). */
     suspend fun forgetSong(mediaId: Long) = playlistDao.forgetSong(mediaId)
 }

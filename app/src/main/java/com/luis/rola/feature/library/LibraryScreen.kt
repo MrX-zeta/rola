@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.Role
 import com.luis.rola.R
 import com.luis.rola.core.data.FAVORITAS_ID
 import com.luis.rola.core.data.PlaylistSummary
+import com.luis.rola.feature.playlists.PlaylistAction
 import com.luis.rola.feature.playlists.PlaylistsTab
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.LocalReduceMotion
@@ -86,6 +87,7 @@ fun LibraryScreen(
     playlists: List<PlaylistSummary> = emptyList(),
     onCreatePlaylist: () -> Unit = {},
     onOpenPlaylist: (Long) -> Unit = {},
+    onPlaylistAction: (PlaylistSummary, PlaylistAction) -> Unit = { _, _ -> },
     onSongAction: (Song, SongAction) -> Unit = { _, _ -> },
 ) {
     val c = MaterialTheme.colorScheme
@@ -132,7 +134,7 @@ fun LibraryScreen(
             Chip(R.string.chip_canciones, !enListas, "chip_canciones") { enListas = false }
         }
         when {
-            enListas -> PlaylistsTab(favorites, playlists, onCreatePlaylist, onOpenPlaylist, contentPadding)
+            enListas -> PlaylistsTab(favorites, playlists, onCreatePlaylist, onOpenPlaylist, onPlaylistAction, contentPadding)
             songs == null -> ListaCargando()
             songs.isEmpty() -> Box(Modifier.fillMaxSize().padding(RolaSpacing.xl), Alignment.Center) {
                 Text(stringResource(R.string.sin_canciones), style = MaterialTheme.typography.bodyLarge, color = c.onSurfaceVariant)

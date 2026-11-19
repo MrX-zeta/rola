@@ -10,6 +10,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.luis.rola.R
 import com.luis.rola.core.data.FAVORITAS_ID
 import com.luis.rola.core.data.PlaylistDetail
 import com.luis.rola.core.data.PlaylistSummary
@@ -38,6 +42,7 @@ class PlaylistsTest {
                     listOf(PlaylistSummary(5, "Noche", 2, listOf(agua, brillo))),
                     onCreate = {},
                     onOpen = {},
+                    onAction = { _, _ -> },
                 )
             }
         }
@@ -90,5 +95,65 @@ class PlaylistsTest {
         compose.onNodeWithText("Buscar en tu biblioteca").performTextInput("cancion")
         compose.onNodeWithText("Canción").assertExists()
         compose.onNodeWithText("Brillo").assertDoesNotExist()
+    }
+
+    @Test
+    fun menuDeListaRenombraYBorraYFavoritasNoLoTiene() {
+        val acciones = mutableListOf<Pair<Long, PlaylistAction>>()
+        compose.setContent {
+            RolaTheme {
+                PlaylistsTab(
+                    PlaylistSummary(FAVORITAS_ID, "", 1, listOf(agua)),
+                    listOf(PlaylistSummary(5, "Noche", 0, emptyList())),
+                    onCreate = {},
+                    onOpen = {},
+                    onAction = { p, a -> acciones += p.id to a },
+                )
+            }
+        }
+        compose.onNodeWithContentDescription("Opciones de Favoritas").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Opciones de Noche").performClick()
+        compose.onNodeWithText("Renombrar").performClick()
+        compose.onNodeWithContentDescription("Opciones de Noche").performClick()
+        compose.onNodeWithText("Borrar lista").performClick()
+        assertEquals(listOf(5L to PlaylistAction.Rename, 5L to PlaylistAction.Delete), acciones)
+    }
+
+    @Test
+    fun pantallaDeListaTieneMenuYFavoritasNo() {
+        var favoritas by mutableStateOf(false)
+        compose.setContent {
+            RolaTheme {
+                PlaylistScreen(PlaylistDetail(5, "Viaje", listOf(agua)), favoritas, null, {}, {}, {}, {}, { _, _ -> })
+            }
+        }
+        compose.onNodeWithContentDescription("Opciones de Viaje").assertExists()
+        favoritas = true
+        compose.onNodeWithContentDescription("Opciones de Favoritas").assertDoesNotExist()
+    }
+
+    @Test
+    fun renombrarTraeElNombreYGuarda() {
+        var nuevo: String? = null
+        compose.setContent {
+            RolaTheme {
+                CreatePlaylistDialog({ nuevo = it }, {}, initial = "Viaje", title = R.string.renombrar_lista, confirm = R.string.guardar)
+            }
+        }
+        compose.onNodeWithText("Renombrar lista").assertExists()
+        compose.onNodeWithText("Viaje").performTextInput(" largo")
+        compose.onNodeWithText("Guardar").performClick()
+        assertEquals("Viaje largo", nuevo)
+    }
+
+    @Test
+    fun hojaAnadirMuestraLaCancionYLasListas() {
+        compose.setContent {
+            RolaTheme { ChoosePlaylistSheet(agua, listOf(PlaylistSummary(5, "Noche", 2, listOf(agua, brillo))), {}, {}, {}) }
+        }
+        compose.onNodeWithText("Añadir a una lista").assertExists()
+        compose.onNodeWithText("Agua de mar · Ana Vela").assertExists()
+        compose.onNodeWithText("Nueva lista").assertExists()
+        compose.onNodeWithText("2 canciones").assertExists()
     }
 }
