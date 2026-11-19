@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.8.0",
+    "version": "1.9.0",
     "actualizado": "2026-11-14",
-    "fase": "Onboarding y cola listos (tarea 04). Siguiente: tarea 05, Favoritas y Listas.",
+    "fase": "Favoritas y Listas listas (tarea 05). Siguiente: tarea 06, Biblioteca completa.",
     "historial": [
       {
         "version": "1.0.0",
@@ -84,6 +84,11 @@
         "version": "1.8.0",
         "fecha": "2026-11-15",
         "cambio": "DEC-29 Favoritas (pedido de Brian) y TBL-FAVORITES; KV-DATASTORE y tablas de listas decididas; Listas se adelanta a la tarea 05 junto con Favoritas."
+      },
+      {
+        "version": "1.9.0",
+        "fecha": "2026-11-18",
+        "cambio": "Revisión tarea 05: SCR-55 (hoja añadir a una lista) y «Favorita» en el menú diseñados en Figma; excepción del abecedario en INV-06; origen real en «Reproduciendo desde»."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -147,8 +152,8 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 161,
-      "aristas": 282,
+      "nodos": 162,
+      "aristas": 285,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
@@ -163,7 +168,7 @@
         "operacion": 19,
         "tabla": 6,
         "almacen_clave_valor": 1,
-        "pantalla": 38
+        "pantalla": 39
       }
     },
     "plan_de_tareas": {
@@ -479,7 +484,7 @@
       "id": "DEC-07",
       "tipo": "decision",
       "nombre": "Menú de opciones de canción",
-      "descripcion": "Menú desplegable (M3 DropdownMenu) desde el botón ⋮ o pulsación larga. En una lista: Quitar de la lista, Añadir a la cola. En Biblioteca/Canciones y Buscar: Añadir a la cola, Añadir a una lista, Borrar del dispositivo. Se agrega «Favorita / Quitar de favoritas» (DEC-29).",
+      "descripcion": "Menú desplegable (M3 DropdownMenu) desde el botón ⋮ o pulsación larga. En una lista: Quitar de la lista, Añadir a la cola. En Biblioteca/Canciones y Buscar: Añadir a la cola, Añadir a una lista, Borrar del dispositivo. Se agrega «Favorita / Quitar de favoritas» (DEC-29). Figma actualizado: «Favorita» va después de «Añadir a una lista» (35:1458 / 51:4249).",
       "estado": "decidido"
     },
     {
@@ -690,7 +695,7 @@
       "id": "DEC-24",
       "tipo": "decision",
       "nombre": "Reproduciendo y cola",
-      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo). Arrastre en la cola: la fila se queda siempre bajo el dedo; en los bordes la lista se desplaza sola y se detiene al llegar al inicio o al final; la fila nunca sale de los límites de la lista. Si la cola cambia a mitad del arrastre (termina la canción), el arrastre sigue y el movimiento se aplica sobre la cola nueva.",
+      "descripcion": "Reproduciendo: carátula completa (tocarla abre letras), título, artista, barra de avance con tiempos en Geist Mono, anterior/reproducir/siguiente, aleatorio, repetir, acceso a la cola. Cola: lista reordenable arrastrando, quitar deslizando, con Deshacer. CAMBIOS (2026-11-14): tocar una canción de la cola la reproduce; al arrastrar cerca del borde la lista se desplaza sola; «Limpiar» quita todo lo que sigue (deja la actual) con Deshacer. La portada de Reproduciendo se pide al tamaño real. Los controles se reparten en toda la altura (sin hueco abajo). Arrastre en la cola: la fila se queda siempre bajo el dedo; en los bordes la lista se desplaza sola y se detiene al llegar al inicio o al final; la fila nunca sale de los límites de la lista. Si la cola cambia a mitad del arrastre (termina la canción), el arrastre sigue y el movimiento se aplica sobre la cola nueva. «Reproduciendo desde» muestra el origen real: Biblioteca, Favoritas, el nombre de la lista, el álbum o el artista.",
       "estado": "decidido"
     },
     {
@@ -746,7 +751,7 @@
       "id": "INV-06",
       "tipo": "invariante",
       "nombre": "INV-06",
-      "descripcion": "Accesibilidad: objetivos táctiles ≥ 48 dp, descripción en botones de solo ícono, texto con contraste ≥ 4.5:1, se respeta «reducir movimiento» y el tamaño de letra del sistema.",
+      "descripcion": "Accesibilidad: objetivos táctiles ≥ 48 dp, descripción en botones de solo ícono, texto con contraste ≥ 4.5:1, se respeta «reducir movimiento» y el tamaño de letra del sistema. Excepción aceptada: el abecedario es un solo control accesible («Abecedario», una acción por letra) con 32 dp de ancho táctil y letras de 17 dp, para no tapar el contenido; se usa arrastrando.",
       "estado": "obligatorio"
     },
     {
@@ -1853,6 +1858,19 @@
       "detalles": {
         "figma": "icon/favorite_filled 78:3332; botón en 36:1465 y 51:4482",
         "almacen": "TBL-FAVORITES"
+      }
+    },
+    {
+      "id": "SCR-55",
+      "tipo": "pantalla",
+      "nombre": "Hoja · añadir a una lista",
+      "descripcion": "Hoja inferior desde «Añadir a una lista» (menú de opciones o Reproduciendo): título, canción, «Nueva lista» y las listas del usuario (sin Favoritas). Al elegir «Nueva lista» se crea y se agrega la canción.",
+      "estado": "decidido",
+      "detalles": {
+        "figma_nodo": "85:3348",
+        "figma_nodo_claro": "85:3541",
+        "requiere_red": false,
+        "tema": "oscuro y claro listos"
       }
     }
   ],
@@ -3295,6 +3313,22 @@
       "de": "DEC-29",
       "a": "DEC-06",
       "relacion": "depende_de"
+    },
+    {
+      "de": "SCR-55",
+      "a": "MOD-PLAYLIST",
+      "relacion": "parte_de"
+    },
+    {
+      "de": "SCR-55",
+      "a": "OP-06",
+      "relacion": "invoca"
+    },
+    {
+      "de": "SCR-54",
+      "a": "SCR-55",
+      "relacion": "navega_a",
+      "nota": "Añadir a una lista"
     }
   ]
 }
