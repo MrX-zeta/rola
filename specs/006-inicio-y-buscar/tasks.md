@@ -27,7 +27,7 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 - [X] T001 Confirmar con Brian la columna `play_order` de `playback_queue` (plan · Seguimiento) y anotar la respuesta en `specs/006-inicio-y-buscar/research.md` §3; sin la columna, `position` es el orden en que suena
 - [X] T002 [P] Agregar `ic_refresh` (Figma 30:538) en `app/src/main/res/drawable/ic_refresh.xml` como vector de 24 dp
-- [ ] T003 [P] Comparar por captura los nodos claros 51:2090, 51:2217, 51:2302, 51:4081 y 51:4183 con los oscuros y anotar diferencias en `specs/006-inicio-y-buscar/research.md` §11
+- [X] T003 [P] Comparar por captura los nodos claros 51:2090, 51:2217, 51:2302, 51:4081 y 51:4183 con los oscuros y anotar diferencias en `specs/006-inicio-y-buscar/research.md` §11
 
 ---
 
@@ -122,12 +122,12 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 ## Fase 7: Cierre
 
-- [ ] T042 Recorrido manual de `quickstart.md` en el emulador (restaurar deslizando y forzando cierre, pestañas con detalles abiertos, escaneo, reducir movimiento) y 2 000 canciones con `perfil` (SC-003, SC-004, SC-005); letra grande y TalkBack en Inicio y Buscar (FR-045)
-- [ ] T043 `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `connectedDebugAndroidTest` completas tras el último cambio
-- [ ] T044 Capturas `t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-restaurada.png` en `ai/handoff/capturas/` (`t07-opciones-album.png` ya está)
-- [ ] T045 `design-critique` de SCR-10, 11, 12, 40 y 41 contra Figma; diferencias al reporte (SC-006, FR-044)
-- [ ] T046 Si el Redmi aparece en adb, instalarle `perfil`
-- [ ] T047 Comprobar que no se agregó red ni permiso ni se guarda el temporizador (FR-029, FR-043); `/ponytail:ponytail-review` antes de cada commit; `git log` sin autoría de IA; push a `origin development`; `ai/handoff/reporte.md` y estado «esperando revisión»
+- [X] T042 Recorrido manual de `quickstart.md` en el emulador (restaurar deslizando y forzando cierre, pestañas con detalles abiertos, escaneo, reducir movimiento) y 2 000 canciones con `perfil` (SC-003, SC-004, SC-005); letra grande y TalkBack en Inicio y Buscar (FR-045)
+- [X] T043 `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `connectedDebugAndroidTest` completas tras el último cambio
+- [X] T044 Capturas `t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-restaurada.png` en `ai/handoff/capturas/` (`t07-opciones-album.png` ya está)
+- [X] T045 `design-critique` de SCR-10, 11, 12, 40 y 41 contra Figma; diferencias al reporte (SC-006, FR-044)
+- [X] T046 Si el Redmi aparece en adb, instalarle `perfil`
+- [X] T047 Comprobar que no se agregó red ni permiso ni se guarda el temporizador (FR-029, FR-043); `/ponytail:ponytail-review` antes de cada commit; `git log` sin autoría de IA; push a `origin development`; `ai/handoff/reporte.md` y estado «esperando revisión»
 
 ---
 
@@ -148,3 +148,11 @@ description: "Tareas de implementación de Inicio y Buscar"
 ## Estrategia
 
 MVP = Fases 1–3 (restaurar, lo que Brian reportó). Después US2 (Inicio), US4 (Buscar) y US3 (vacíos y escaneo). Cada fase termina con sus pruebas en verde y su commit.
+
+## Notas de implementación
+
+- US2 y US3 quedaron en un solo commit `feat(home): …`: comparten `HomeScreen` y `HomeViewModel`.
+- T033: el texto de Buscar vive en `rememberSaveable` (el destino lo conserva entre pestañas), no en `SavedStateHandle`.
+- T032: `matchIn` quedó como `SearchableText.find`.
+- T042: sin TalkBack, sin el gesto de deslizar (adb no lo reproduce) y sin arrastrar en la cola con 2 000 canciones; pendientes en el Redmi.
+- T046: el Redmi no apareció en adb; no se instaló `perfil`.

@@ -1,98 +1,105 @@
-# Reporte · Tarea 06 · Biblioteca completa y pendientes de listas
+# Reporte · Tarea 07 · Inicio y Buscar
 
 **Estado:** esperando revisión.
 
 ## Paso 0 · Comprobación
-- Worktree actualizado a `origin/development` (avance rápido). `git log` incluía `docs: sesión de diseño tarea 06`. ✅
-- Skills disponibles: Spec Kit (con `/speckit-converge`), `figma-design-to-code`, `design-critique`, `ponytail-review`. No faltó ninguna.
-- Ponytail: full en la Parte A; off del B1 al B5; full desde el B6. Brian hizo cada cambio.
-- **Figma** respondió con error 500 por las dos conexiones mientras escribía la spec (B1–B3). En B6 ya funcionaba y leí los 5 nodos antes de construir.
+- Worktree actualizado a `origin/development` (avance rápido). `git log` incluía `docs: sesión de diseño tarea 07`. ✅
+- Skills disponibles: Spec Kit, `figma-design-to-code`, `animate`, `design-critique`, `ponytail-review`. No faltó ninguna. Figma respondió bien.
+- Ponytail: full en la Parte A, off del B1 al B5, full desde el B6. Brian hizo cada cambio.
 
-## Parte A · Pendientes de listas
+## Parte A · Pendientes de Biblioteca
 | Commit | Qué |
 |---|---|
-| `docs(spec): 004 pendientes` | FR-038 a FR-042 y aclaraciones en la spec 004; `/speckit-converge` agregó T052–T057 |
-| `feat(playlists): renombrar y borrar listas` | ⋮ en cada lista de Listas y en la pantalla de lista (Favoritas sin ⋮); «Renombrar» reusa el diálogo de Crear lista (nombre actual, «Guardar»); «Borrar lista» con diálogo propio y aviso con «Deshacer» que restaura la lista, sus canciones en orden y sus fechas; borrar desde su pantalla vuelve a Biblioteca. Hoja «Añadir a una lista» según SCR-55 |
-| `feat(player): añadir a una lista y origen real` | Botón «Añadir a una lista» junto al título de Reproduciendo (sin ⋮). «Reproduciendo desde» muestra el origen real; viaja en los metadatos de la cola de Media3 (`playlistMetadata`), sin estado nuevo |
+| `docs(spec): 005 pendientes` | «< 1 min», «se vuelve atrás», PEND-05 resuelto, FR-027 y FR-028; `/speckit-converge` agregó T037–T041 |
+| `feat(library): opciones de álbum y artista` | ⋮ en los dos detalles con «Añadir a la cola» y «Añadir a una lista» (todas las canciones, al final también con aleatorio). SCR-55 muestra «Ventanas · 3 canciones» y el aviso dice cuántas se agregaron |
 
-## Parte B · Biblioteca completa (`specs/005-biblioteca-completa/`)
-- **B1–B5:** spec (4 historias, 26 requisitos), 5 aclaraciones que vienen todas de la tarea (sin preguntas a Brian), plan, research, data-model, contratos, quickstart y 36 tareas. `/speckit-analyze`: sin problemas críticos y 100 % de cobertura. Commit `docs(spec): 005 biblioteca completa`.
+## Parte B · Inicio y Buscar (`specs/006-inicio-y-buscar/`)
+- **B1–B5:** spec (4 historias, 45 requisitos y 7 criterios de éxito), plan, research, data-model, contratos, quickstart y 47 tareas. `/speckit-analyze`: sin problemas críticos.
 - **B6:**
 
 | Commit | Qué |
 |---|---|
-| `feat(data): álbumes, artistas y orden de canciones` | `Song` suma `albumId`, `albumArtist`, `track` (disco × 1000 + pista) y `year`. `LibraryGrouping` deriva álbumes y artistas de la misma consulta al MediaStore, sin segunda consulta. `SongSort` con criterio y dirección; `sort_order` en DataStore |
-| `feat(library): álbumes, artistas, detalles y orden de canciones` | 4 chips (abre en Canciones; cada uno guarda su posición). Cuadrícula de álbumes, lista de artistas, detalles de álbum y de artista (rutas `album/{id}` y `artista?nombre=` dentro del NavHost; Biblioteca sigue fuera). Hoja de orden SCR-26. Abecedario en Canciones (según el criterio, invertido en Z→A), Álbumes y Artistas. Cascada de DEC-28 compartida por los 4 chips (`Cascada.kt`) |
+| `feat(database): historial y cola con migración` | `play_history` y `playback_queue`; una sola `AutoMigration` v1→v2; borrar una canción del dispositivo borra su historial |
+| `feat(media): la reproducción se conserva al cerrar` | `PlaybackStore` (cola en Room, valores sueltos en el DataStore `rola_reproduccion`), guardado fuera del hilo principal y restauración en pausa. La interfaz retiene sus órdenes hasta que el servicio termina de restaurar |
+| `feat(home): Inicio con historial, primera vez y escaneo` | `PlayCounter` (regla de 30 s), historial, SCR-10/11/12, «Escanear de nuevo», la app abre en Inicio y la píldora sigue a la pestaña dueña de la pila |
+| `feat(search): buscador con resultados agrupados` | SCR-40/41, resaltado sobre el texto original, hasta 5 por grupo |
+| `fix(media): guardar también al terminar la cola` y `fix(home): color en claro y recortes` | Lo que encontraron la prueba manual y la revisión visual |
 
-- Origen real también para álbum y artista. Comprobado: «Reproduciendo desde · Ventanas».
+## Respuestas de Brian durante la tarea
+- **Columna `play_order` en `playback_queue`: sí.** TBL-QUEUE solo lista `position` y `media_id`. Con aleatorio hay dos órdenes; sin la columna, al apagar aleatorio después de reabrir no volvería el orden del álbum. **Propuesta para el grafo:** agregarla a TBL-QUEUE.
+- **Temporizador de sueño: preguntado dos veces, sin respuesta.** No se guarda. **El grafo se contradice:** DEC-31 propone «no» y KV-DATASTORE lista `sleep_timer_end`. Falta decidir y quitar uno.
 
 ## Decisiones que tomé (por favor revisa)
-1. **Artista del álbum antes que el de la canción.** Un artista se agrupa por `ALBUM_ARTIST` y, si no hay, por `ARTIST`. Una canción con invitado (por ejemplo «Sal» de Club Sol en un álbum de Marea Alta) aparece dentro de Marea Alta, y Club Sol no sale como artista. Es la lectura de «`ARTIST`/`ALBUM_ARTIST`» de la tarea. ¿Se queda así?
-2. **Desconocidos al final.** «Álbum desconocido» y «Artista desconocido» van en «#», al final de la lista (en Z→A, al principio). Lo mismo pasa con las canciones sin artista o sin álbum al ordenar por esos criterios.
-3. **Sin relieve.** Las portadas de Álbumes, del detalle y del carrusel, y la foto de artista, traen sombra «Neumorfismo/Elevado» en Figma. DEC-27 deja Biblioteca plana y manda el grafo, así que van planas. Propongo quitar esas sombras de Figma.
-4. **⋮ de los detalles.** Figma pone ⋮ en la barra del detalle de álbum y de artista, pero ni la tarea ni el grafo le dan opciones. No lo mostré. ¿Qué lleva?
-5. **Número de pista.** El detalle muestra la posición (1, 2, 3…), no el número de la etiqueta. Si no, un álbum de dos discos diría 1001, 1002, 2001.
-6. **Orden de las canciones de un artista:** por álbum (el más reciente primero) y luego por pista. El año de un álbum es el mayor de sus canciones.
-7. **«Listo» de la hoja de orden** solo cierra. Cada opción se aplica y se guarda al tocarla (DEC-09: la lista de atrás cambia al momento).
-8. **Origen al renombrar.** Si se renombra la lista que está sonando, «Reproduciendo desde» sigue con el nombre viejo hasta que se vuelva a reproducir.
-9. **Análisis de la spec:** G1 (posición de cada chip) y G2 (vacíos y carga) ya los pedía la spec y están hechos. I1 (al desaparecer un detalle se «vuelve atrás», no «a Biblioteca») quedó así en el código; la frase de la spec dice «a Biblioteca».
+1. **Cola al tocar una canción en Inicio o Buscar:** la de Biblioteca · Canciones desde esa canción, con origen «Biblioteca». El grafo no lo define y DEC-24 no trae otro origen.
+2. **Buscar compara nombres,** no el artista ni el álbum de cada canción. Así está SCR-40: con «mar», Marea Alta sale como artista y sus canciones no.
+3. **Grupo Listas:** Figma no lo dibuja; usa la fila de Álbumes con chevron. El ⋮ va solo en canciones (DEC-07).
+4. **Fecha y mosaico:** Figma dice «Viernes, 9:30 p. m.» y «Letras»; DEC-30 pide fecha y «Favoritas». Seguí el grafo.
+5. **Favoritas desde Inicio** es hija de Inicio: la píldora no salta y «atrás» regresa a Inicio. Lo mismo con los detalles abiertos desde Buscar. Tocar la pestaña activa vuelve a su raíz.
+6. **Teclado:** al volver a Buscar con texto no se abre, para no tapar los resultados.
+7. **Canción ilegible:** el código anterior llamaba `play()` al pasar a la siguiente. Con la restauración, la app habría sonado sola al abrir. Se quitó (si sonaba, sigue sonando) y tiene prueba.
+8. **Segundo DataStore:** el minuto se guarda cada 5 s; en `rola_ajustes` reescribiría los ajustes cada vez.
+9. **Arreglo fuera de la lista:** los avisos tapaban la píldora porque su alto se medía sin márgenes. Lo corregí (una línea en `RolaNavHost`) porque el aviso del escaneo caía encima y cortaba el final de Inicio.
+10. **`t07-sin-resultados.png` dice «lluvia acida»** porque adb no escribe acentos; la app los acepta (hay pruebas).
 
-## Dudas para la sesión de diseño
-- **PEND-05** (ignorar «El», «La» y «The» al ordenar) sigue en «propuesto»: no lo asumí.
-- **Duración del álbum menor de 1 min:** no se muestra «0 min». Pasa con los audios de prueba de 1 s.
-- **Tamaños sin token exacto en Figma:**
-  - títulos de sección «Álbumes» y «Canciones» del artista: Figma usa 18 y yo `titleLarge` (22);
-  - carrusel: Figma usa radio 18 y yo `medium` (20);
-  - nombres en celdas y filas: Figma usa 15 y yo `titleSmall` (14), como en el resto de la app.
+## Riesgos y dudas para la sesión de diseño
+- **SCR-12 dice «revisa qué carpetas se escanean»,** pero «Abrir Ajustes» no se muestra hasta la tarea 08. ¿Se cambia el texto mientras tanto?
+- **Copia de seguridad de Android:** `allowBackup` está activo, así que `rola.db` y la cola viajan a otro teléfono. Ahí los ids del MediaStore son otros: Favoritas, listas, historial y cola podrían señalar canciones distintas. **REQUIERE REVISIÓN HUMANA.** Ya pasaba con Favoritas y listas. ¿Se excluye la base?
+- **Canciones en una tarjeta SD desmontada:** al restaurar se omiten y la cola guardada queda sin ellas (así lo pide DEC-31).
+- **Historial:** crece sin límite y no hay forma de borrarlo a mano.
+- **Retomar desde audífonos o notificación con la app cerrada:** no está pedido y no se hizo.
 
-  ¿Se agregan tokens o se acepta?
+## design-critique (oscuro, capturas del emulador contra Figma)
+La app solo muestra el tema oscuro todavía. Comparé los cinco nodos claros por captura y encontré una diferencia: en claro el círculo de «Tu más escuchada» es negro. Ya sale de `onPrimaryContainer`/`background`.
 
-## design-critique (capturas del emulador contra Figma, oscuro)
-Los audios de prueba no traen carátula, así que todas las portadas salen con la nota genérica.
-
-| Pantalla | Diferencias |
+| Pantalla | Resultado |
 |---|---|
-| SCR-21 Álbumes | Coincide la cuadrícula: 2 columnas, márgenes 20/36, separación 16/20, «Artista · año» y abecedario con la letra activa. Las portadas van planas (decisión 3). Aparece un álbum «Music» con los WAV sueltos de la tarea 05. |
-| SCR-22 Artistas | Coincide: foto redonda de 56, «N canciones · N álbumes», chevron y abecedario. «Artista desconocido» va al final. |
-| SCR-24 Álbum | Coincide: portada de 200, título centrado, datos, Reproducir lima y Aleatorio, filas con número en mono, duración y ⋮. No hay ⋮ en la barra (decisión 4) ni «N min» cuando dura menos de 1 min. |
-| SCR-25 Artista | Coincide: foto de 140, datos, botones, carrusel y canciones con el álbum como segunda línea. Diferencias: títulos de sección en 22 en lugar de 18 y radio del carrusel 20 en lugar de 18. |
-| SCR-26 Hoja de orden | Coincide: «Ordenar y filtrar», radios lima, selector segmentado A → Z / Z → A y «Listo». |
-| SCR-55 Añadir a una lista | Coincide: título, «Canción · Artista», «Nueva lista» en `primaryContainer` y mosaicos de 48. El mosaico de «Noche» sale con un solo recuadro porque tiene 1 canción. |
-| Accesibilidad | Chips con 48 dp de toque y rol de pestaña. Las opciones de la hoja son radios con rol; el segmentado también. Volver, Reproducir, Aleatorio y filtros tienen descripción. El abecedario sigue la excepción de INV-06. |
+| SCR-10 Inicio | Coincide: saludo, carrusel de 112, destacado y bento. Diferencias a propósito: fecha, «Favoritas», sin «Ver todo» ni engrane. Tokens: saludo 36 (Figma 34), secciones 22 (20), logo 22 con símbolo de marca (24/30). |
+| SCR-11 Primera vez | Coincide: tarjeta, círculo, dos botones y mosaicos. Con letra grande los botones bajan de línea. |
+| SCR-12 Sin canciones | Coincide: círculo elevado y botón de acento. Sin «Abrir Ajustes» ni engrane. El bloque queda unos dp más abajo que en Figma. |
+| SCR-40 Buscar | Coincide: campo hundido, grupos, resaltado lima y chevrons. «Borrar búsqueda» mide 48 (Figma 44, INV-06). Separación portada-texto 12 (14), como en Biblioteca. Título 28 (30). |
+| SCR-41 Sin resultados | Coincide: campo hundido, círculo elevado y textos. |
+| Accesibilidad | Encabezados con rol, objetivos ≥ 48 dp, «sin resultados» se anuncia. Con letra del sistema a 1.8 todo se desplaza; los dos mosaicos se igualan en alto. El resaltado es solo color, pero el texto se lee sin él. **No probé TalkBack.** |
+
+Arreglos que salieron de la crítica: relieve del campo invisible por el orden de los modificadores, artista recortado en la esquina del carrusel, círculo en claro y mosaicos de distinto alto.
+
+## Movimiento (`animate`)
+- **Inicio:** cambiar de pestaña pasa decenas de veces al día, así que usa la cascada existente (fundido + 8 dp, 300 ms en total, DEC-28) en orden de lectura.
+- **Buscar:** cascada solo al aparecer los primeros resultados. Al seguir escribiendo no se anima nada.
+- Con «reducir movimiento» no hay cascada (comprobado en el emulador).
+- **Por ver en el Redmi:** la sensación de la cascada de Inicio.
 
 ## Comprobaciones
-- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug`: **BUILD SUCCESSFUL**. Lint: 0 errores y 6 avisos. 2 ya existían (`VectorRaster`, `ExportedService`) y 4 son versiones más nuevas de Lifecycle y del BOM de Compose, que no toqué.
-- **Pruebas:**
-  - **Unitarias: 65, todas pasan.** Las nuevas: `LibraryGroupingTest` (6), `SongSortTest` (5), columnas nuevas en `SongMapperTest` y `sort_order` en `PreferencesRepositoryTest`.
-  - **Compose en el emulador: 62, todas pasan.** Las nuevas: menú de lista, renombrar, hoja SCR-55, botón y origen en Reproduciendo, restaurar una lista en Room, chips y su contenido, detalle de álbum en orden de pista, y la hoja de orden que guarda la elección.
-  - Corrí las 62 completas después del último cambio de código.
-- **Recorrido manual** en el emulador con 12 MP3 etiquetados (`/sdcard/Music/t06`, generados por mí):
-  - chips ✅
-  - Álbumes ✅
-  - Artistas ✅
-  - detalle de artista y su carrusel ✅
-  - detalle de álbum con el disco 1 antes del 2 ✅
-  - Reproducir → «Reproduciendo desde · Ventanas» ✅
-  - «Añadir a una lista» y «Nueva lista» desde Reproduciendo ✅
-  - orden «Artista Z→A» que se conserva al reiniciar la app, con el abecedario invertido ✅
-- **Rendimiento (SC-004):**
-  - Cargué 2 025 canciones en 200 álbumes y 60 artistas y probé con `perfil`.
-  - Funciona: entra, cambia de chip, desplaza la cuadrícula y salta con el abecedario.
-  - Pero el emulador dibuja por software (`ro.hardware.egl=emulation`, mediana de 150 ms por cuadro), igual que en la tarea 05. **La fluidez no se puede juzgar aquí; falta probarla en el Redmi.**
-  - Ya borré los archivos de carga del emulador.
-- **Redmi:** estaba en adb al empezar, pero al final ya no aparecía, así que **no se instaló `perfil`**.
-- **Emulador:**
-  - Quedan los 13 WAV de la tarea 05 y los 12 MP3 de `t06`. El orden quedó en Artista Z→A en `perfil`.
-  - Se colgó una vez: había 2 085 procesos `adb` atascados. Los cerré y Brian hizo el arranque en frío.
-  - `connectedDebugAndroidTest` desinstala la app al terminar, por eso la bienvenida vuelve a salir después de las pruebas. No es un error de la app.
+- `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug`: **BUILD SUCCESSFUL**. Lint: 0 errores y 7 avisos. Dos ya existían (`VectorRaster`, `ExportedService`) y cinco son versiones nuevas de AGP, Lifecycle y Compose, que no toqué.
+- **Unitarias: 95, todas pasan** (65 antes).
+- **Compose e instrumentadas en el emulador: 80, todas pasan** (62 antes; 64 tras la Parte A), completas tras el último cambio de código.
+- **Restauración:** `RestorePlaybackTest` destruye y recrea el servicio de verdad (ExoPlayer nuevo, comprobado en el registro) con audios propios: actividad y servicio recreados, aleatorio, canción actual borrada y canción ilegible.
+
+### Prueba manual en el emulador (cola de «Mar adentro», Sal movida al primer lugar, minuto 0:46)
+| Prueba | Resultado |
+|---|---|
+| Forzar cierre en pausa y reabrir | Misma canción, 46 912 ms exactos, mismo orden, origen «Mar adentro», en pausa ✅ |
+| Quitar la tarea en pausa y reabrir | Mismo minuto y canción, en pausa ✅ |
+| Quitar la tarea sonando | Sigue sonando, como antes (INV-11); al volver se pudo pausar ✅ |
+| Forzar cierre sonando | Vuelve en pausa en 72.6 s; el último dato medido, justo antes de cerrar, era 74.1 s (≤ 5 s) ✅ |
+| Borrar por fuera canciones de la cola | Se omiten sin aviso ✅ |
+| Reinstalar encima (actualizar) | Conserva la reproducción ✅ |
+
+- **El gesto de deslizar no lo pude reproducir con adb** (recientes no lo toma). Quité la tarea con `am stack remove`, y el proceso siguió vivo en los dos casos. **Falta que Brian deslice en el Redmi.**
+- **Actualizar desde v1 (SC-007):** cubierto por `MigrationTest`, no con un APK viejo.
+- **Escaneo:** sin música avisa «No encontramos música en tu teléfono»; con música, «Encontramos 25 canciones» y aparece Inicio. El MediaStore ya había indexado los archivos al copiarlos, así que falta ver un archivo que el sistema no conociera.
+- **Notificación:** al abrir con una cola restaurada, Media3 publica su notificación en pausa, sin servicio en primer plano.
+- **Pestañas:** un detalle abierto en cada una, ida y vuelta, «atrás» y tocar la activa ✅
+- **2 025 canciones en `perfil`:** reproducir, pausar, restaurar y buscar funcionan. El emulador dibuja por software y salta cuadros (30 a 47 en las cargas): **la fluidez no se puede juzgar aquí.** No probé arrastrar en la cola con 2 025. Ya borré los audios de carga.
+- **Redmi:** no apareció en adb; no se instaló `perfil`.
+- **Emulador:** los 12 MP3 de `t06` ahora duran 93 s (uno, 8 s) y tienen carátula, para poder probar el minuto. El orden de Canciones volvió a Título A–Z porque las pruebas desinstalan la app.
 
 ## Capturas (`ai/handoff/capturas/`)
-`t06-albumes.png`, `t06-artistas.png`, `t06-album.png`, `t06-artista.png`, `t06-orden.png`, `t06-anadir-lista.png`.
+`t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-opciones-album.png`, `t07-restaurada.png`.
 
 ## Ponytail
-Corrí `/ponytail:ponytail-review` antes de cada commit de código. Encontró y se corrigió:
-1. Los diálogos de renombrar y borrar lista se cerraban al rotar (`remember` → `rememberSaveable`).
-2. `research.md` decía otro orden para los desconocidos; se corrigió el texto.
+Corrí la revisión antes de cada commit de código. Hallazgos corregidos: las pruebas de restauración pasaban sin destruir el servicio, y el repositorio falso de `LibraryScreenTest` no compilaba con `scan()`.
+
+Sin prueba propia: `addToQueue` con varias canciones y aleatorio encendido.
 
 ## Git
 Rama del worktree subida a `origin development` (avance rápido). Sin autoría de IA en los mensajes.

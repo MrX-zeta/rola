@@ -1,6 +1,6 @@
 # Tarea 07 · Inicio y Buscar
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-19 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.11.0 · **Spec Kit:** Parte A, corrección sobre `specs/005-biblioteca-completa/` con `/speckit-converge`; Parte B, función nueva en `specs/006-inicio-y-buscar/`.

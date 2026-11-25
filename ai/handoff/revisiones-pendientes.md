@@ -35,3 +35,8 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 ### Tarea 06 (2026-11-19)
 - Fluidez de Biblioteca con 2 000 canciones y 200 álbumes (SC-004): el emulador dibuja por software; falta verla en el Redmi con `perfil`.
 - Artistas agrupados por artista del álbum: una canción con invitado no crea su propio artista (reporte, decisión 1).
+
+### Tarea 07 (2026-11-25)
+- **REQUIERE REVISIÓN HUMANA:** `allowBackup` lleva `rola.db` y la cola a otro teléfono, donde los ids del MediaStore son otros (reporte, riesgos).
+- Temporizador de sueño: DEC-31 y KV-DATASTORE se contradicen; hoy no se guarda.
+- Deslizar la app fuera de recientes y fluidez con 2 000 canciones: verlas en el Redmi.

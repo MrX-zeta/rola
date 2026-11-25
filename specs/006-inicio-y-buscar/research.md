@@ -84,4 +84,4 @@ El alcance de escritura es el del proceso, no el del servicio: un guardado pedid
 - **SCR-41 (35:1392)**: círculo 112 **elevado** con lupa 48, título 22 «Sin resultados para «…»», consejo 15.
 - **Tokens**: 34 → `displaySmall` (36), 30 → `headlineMedium` (28), 24 → `headlineSmall`, 22 → `titleLarge`, 20/18 → `titleLarge` (22), 15 → `titleSmall`/`bodyLarge`, 13 → `bodyMedium`, 11 mono → `timeSmall` (12). Mismo criterio aceptado en la tarea 06.
 - **Faltan**: `ic_refresh`. `ic_cerrar`, `ic_search`, `ic_chevron_forward`, `ic_favorite`, `ic_shuffle`, `ic_music_note` e `ic_play` ya existen.
-- **Claro** (51:2090, 51:2217, 51:2302, 51:4081, 51:4183): mismos nodos con el modo claro; se comparan por captura en B6.
+- **Claro** (51:2090, 51:2217, 51:2302, 51:4081, 51:4183): comparados por captura: iguales salvo el círculo de «Tu más escuchada», que en claro es negro (`onPrimaryContainer`).
