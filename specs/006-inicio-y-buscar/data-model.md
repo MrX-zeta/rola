@@ -22,7 +22,7 @@ Consulta agrupada → `PlayStats(mediaId, plays, lastPlayedAt)`.
 |---|---|---|
 | position | INTEGER, clave | lugar en la lista de Media3, desde 0, sin huecos |
 | media_id | INTEGER | `Song.id`; puede repetirse |
-| play_order | INTEGER | lugar en el orden en que suena; igual a `position` sin aleatorio (**propuesta**, plan · Seguimiento) |
+| play_order | INTEGER | lugar en el orden en que suena; igual a `position` sin aleatorio (confirmada por Brian, plan · Seguimiento) |
 
 Se reemplaza completa en una transacción. Vacía = sin cola.
 

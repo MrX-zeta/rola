@@ -91,10 +91,14 @@ abstract class PlaylistDao {
     @Query("DELETE FROM playlist_songs WHERE media_id = :mediaId")
     protected abstract suspend fun forgetInPlaylists(mediaId: Long)
 
-    /** Tras un borrado del dispositivo confirmado (DEC-08): fuera de Favoritas y de todas las listas. */
+    @Query("DELETE FROM play_history WHERE media_id = :mediaId")
+    protected abstract suspend fun forgetHistory(mediaId: Long)
+
+    /** Tras un borrado del dispositivo confirmado (DEC-08): fuera de Favoritas, de todas las listas y del historial. */
     @Transaction
     open suspend fun forgetSong(mediaId: Long) {
         forgetFavorite(mediaId)
         forgetInPlaylists(mediaId)
+        forgetHistory(mediaId)
     }
 }

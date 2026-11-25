@@ -42,3 +42,19 @@ data class PlaylistSongEntity(
     val position: Long,
     @ColumnInfo(name = "added_at") val addedAt: Long,
 )
+
+/** TBL-HISTORY: una fila por escucha que contó. */
+@Entity(tableName = "play_history", indices = [Index("media_id", "played_at")])
+data class PlayHistoryEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "media_id") val mediaId: Long,
+    @ColumnInfo(name = "played_at") val playedAt: Long,
+)
+
+/** TBL-QUEUE: la cola guardada (DEC-31). [position]: lugar en la lista de Media3; [playOrder]: lugar en que suena. */
+@Entity(tableName = "playback_queue")
+data class QueueEntity(
+    @PrimaryKey val position: Int,
+    @ColumnInfo(name = "media_id") val mediaId: Long,
+    @ColumnInfo(name = "play_order") val playOrder: Int,
+)

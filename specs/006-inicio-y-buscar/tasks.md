@@ -25,7 +25,7 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 ## Fase 1: Preparación
 
-- [ ] T001 Confirmar con Brian la columna `play_order` de `playback_queue` (plan · Seguimiento) y anotar la respuesta en `specs/006-inicio-y-buscar/research.md` §3; sin la columna, `position` es el orden en que suena
+- [X] T001 Confirmar con Brian la columna `play_order` de `playback_queue` (plan · Seguimiento) y anotar la respuesta en `specs/006-inicio-y-buscar/research.md` §3; sin la columna, `position` es el orden en que suena
 - [ ] T002 [P] Agregar `ic_refresh` (Figma 30:538) en `app/src/main/res/drawable/ic_refresh.xml` como vector de 24 dp
 - [ ] T003 [P] Comparar por captura los nodos claros 51:2090, 51:2217, 51:2302, 51:4081 y 51:4183 con los oscuros y anotar diferencias en `specs/006-inicio-y-buscar/research.md` §11
 
@@ -33,12 +33,12 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 ## Fase 2: Base (bloquea todas las historias)
 
-- [ ] T004 Crear `PlayHistoryEntity` (`play_history`: «id clave autogenerada, media_id, played_at»; índice en `media_id, played_at`) y `QueueEntity` (`playback_queue`: «position clave, media_id puede repetirse, play_order») en `rola/core/database/Entities.kt`
-- [ ] T005 Crear `HistoryDao` (`add`, `stats(): Flow<List<PlayStats>>` agrupado por `media_id` con conteo y última) en `rola/core/database/HistoryDao.kt` y `QueueDao` (`rows()` por `position`, `replace()` en una transacción) en `rola/core/database/QueueDao.kt`
-- [ ] T006 Subir `RolaDatabase` a versión 2 con `AutoMigration(from = 1, to = 2)` y los DAO nuevos en `rola/core/database/RolaDatabase.kt`; agregar a git `app/schemas/com.luis.rola.core.database.RolaDatabase/2.json` (FR-046)
-- [ ] T007 Borrar también `play_history` en `forgetSong` (misma transacción) en `rola/core/database/PlaylistDao.kt` (FR-013)
-- [ ] T008 Prueba de migración v1→v2: base v1 creada con las sentencias de `schemas/1.json`, con una favorita y una lista con canciones; abrir con Room v2 y comprobar que siguen y que las tablas nuevas están vacías, en `androidTest/core/database/MigrationTest.kt` (SC-007)
-- [ ] T009 [P] Pruebas de `HistoryDao.stats`, `QueueDao.replace` (reemplaza, permite ids repetidos, vacía) y de `forgetSong` borrando historial en `androidTest/core/database/RolaDatabaseTest.kt`
+- [X] T004 Crear `PlayHistoryEntity` (`play_history`: «id clave autogenerada, media_id, played_at»; índice en `media_id, played_at`) y `QueueEntity` (`playback_queue`: «position clave, media_id puede repetirse, play_order») en `rola/core/database/Entities.kt`
+- [X] T005 Crear `HistoryDao` (`add`, `stats(): Flow<List<PlayStats>>` agrupado por `media_id` con conteo y última) en `rola/core/database/HistoryDao.kt` y `QueueDao` (`rows()` por `position`, `replace()` en una transacción) en `rola/core/database/QueueDao.kt`
+- [X] T006 Subir `RolaDatabase` a versión 2 con `AutoMigration(from = 1, to = 2)` y los DAO nuevos en `rola/core/database/RolaDatabase.kt`; agregar a git `app/schemas/com.luis.rola.core.database.RolaDatabase/2.json` (FR-046)
+- [X] T007 Borrar también `play_history` en `forgetSong` (misma transacción) en `rola/core/database/PlaylistDao.kt` (FR-013)
+- [X] T008 Prueba de migración v1→v2: base v1 creada con las sentencias de `schemas/1.json`, con una favorita y una lista con canciones; abrir con Room v2 y comprobar que siguen y que las tablas nuevas están vacías, en `androidTest/core/database/MigrationTest.kt` (SC-007)
+- [X] T009 [P] Pruebas de `HistoryDao.stats`, `QueueDao.replace` (reemplaza, permite ids repetidos, vacía) y de `forgetSong` borrando historial en `androidTest/core/database/RolaDatabaseTest.kt`
 - [ ] T010 Compartir una sola base en `AppContainer` (biblioteca, historial, cola) en `rola/AppContainer.kt`
 
 **Punto de control**: compila, migra sin perder datos. Commit `feat(database): historial y cola con migración`.

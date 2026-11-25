@@ -17,7 +17,7 @@
 ## 3. Cola guardada
 
 - **Decisión**: `playback_queue(position, media_id, play_order)`. `position` es el lugar en la lista de Media3; `play_order`, su lugar en el orden en que suena (igual a `position` sin aleatorio).
-- **Razón**: ver «Seguimiento de complejidad» del plan. Se propone al grafo y se confirma con Brian.
+- **Razón**: ver «Seguimiento de complejidad» del plan. Brian la confirmó el 2026-11-25; se propone al grafo en el reporte.
 - **Escritura**: se reemplaza completa en una transacción (borrar + insertar) solo cuando cambia la lista o el orden aleatorio (`onTimelineChanged` con `PLAYLIST_CHANGED` —Media3 también lo manda con `setShuffleOrder`— y al encender/apagar aleatorio). `SOURCE_UPDATE` (Media3 descubre la duración) no escribe.
 - **Ráfagas**: el servicio lee el estado en el hilo principal y lo entrega a un canal `CONFLATED`; un solo consumidor escribe en IO, en orden. Si llegan diez cambios seguidos, se escribe el último. El minuto va por otro canal `CONFLATED` para no arrastrar la cola.
 - **Coherencia**: cada guardado de cola escribe después sus valores sueltos. Si la app muere entre los dos, al leer se recorta el índice al tamaño de la cola.

@@ -68,10 +68,29 @@ class RolaDatabaseTest {
         playlists.append(a, listOf(7, 8), now = 3)
         playlists.append(b, listOf(7), now = 3)
         favorites.add(FavoriteEntity(7, addedAt = 3))
+        db.history().add(PlayHistoryEntity(mediaId = 7, playedAt = 4))
+        db.history().add(PlayHistoryEntity(mediaId = 8, playedAt = 5))
         playlists.forgetSong(7)
+        assertEquals(listOf(PlayStats(8, 1, 5)), db.history().stats().first())
         assertEquals(listOf(8L), ids(a))
         assertEquals(emptyList<Long>(), ids(b))
         assertEquals(emptyList<Long>(), favorites.ids().first())
+    }
+
+    @Test
+    fun historialAgrupaCuantasYCuandoPorUltimaVez() = runBlocking {
+        listOf(1L to 10L, 2L to 20L, 1L to 30L).forEach { (id, t) -> db.history().add(PlayHistoryEntity(mediaId = id, playedAt = t)) }
+        assertEquals(setOf(PlayStats(1, 2, 30), PlayStats(2, 1, 20)), db.history().stats().first().toSet())
+    }
+
+    @Test
+    fun laColaSeReemplazaCompletaYAdmiteRepetidas() = runBlocking {
+        val cola = listOf(QueueEntity(0, 5, 1), QueueEntity(1, 5, 0))
+        db.queue().replace(listOf(QueueEntity(0, 9, 0), QueueEntity(1, 8, 1), QueueEntity(2, 7, 2)))
+        db.queue().replace(cola)
+        assertEquals(cola, db.queue().rows())
+        db.queue().replace(emptyList())
+        assertEquals(emptyList<QueueEntity>(), db.queue().rows())
     }
 
     @Test
