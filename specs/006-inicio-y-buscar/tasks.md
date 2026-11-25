@@ -93,13 +93,13 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 **Prueba independiente**: escribir «mar», abrir un resultado de cada grupo y volver.
 
-- [ ] T031 [P] [US4] Prueba JUnit de `matchIn` (acentos, mayúsculas, «ñ», acento suelto, sin coincidencia, tramo sobre el texto original) y de la búsqueda (empieza > contiene, orden estable, 5 por grupo, solo espacios = nulo, desconocidos fuera, Favoritas por su nombre) en `test/core/data/SearchTest.kt`
-- [ ] T032 [US4] Crear `LibraryIndex` (nombres normalizados una vez) y `matchIn` en `rola/core/data/Search.kt` reusando `TitleOrder.normalizar` (FR-032 a FR-035)
-- [ ] T033 [US4] Crear `SearchViewModel` (texto en `SavedStateHandle`, `debounce(150)`, `mapLatest` en `Dispatchers.Default`, vaciar sin espera, conserva lo anterior mientras calcula) en `rola/feature/search/SearchViewModel.kt` (FR-031)
-- [ ] T034 [US4] Permitir el título resaltado en `SongRow`/`SongItem` en `rola/feature/library/SongMenu.kt` (FR-035, FR-038)
-- [ ] T035 [US4] Crear `SearchScreen` según SCR-40 (35:1288) y SCR-41 (35:1392): campo hundido con ayuda y «Borrar búsqueda» de 48 dp, teclado al entrar sin texto, grupos con encabezado, filas de álbum, artista y lista con chevron, sin resultados con círculo elevado, relleno por el teclado, cascada solo en los primeros resultados, en `rola/feature/search/SearchScreen.kt` (FR-030 a FR-039, FR-041, FR-042)
-- [ ] T036 [US4] Destino Buscar con su ViewModel, acciones y detalles hijos de Buscar en `rola/navigation/RolaNavHost.kt` (FR-037, FR-040); quitar `ComingSoonScreen` y el texto `proximamente`
-- [ ] T037 [P] [US4] Prueba Compose: vacío solo campo; agrupa y resalta («mar» en `primary`); grupos vacíos no salen; sin resultados con lo buscado; borrar; ⋮ de canción; toques de cada grupo, en `androidTest/feature/search/SearchScreenTest.kt`
+- [X] T031 [P] [US4] Prueba JUnit de `matchIn` (acentos, mayúsculas, «ñ», acento suelto, sin coincidencia, tramo sobre el texto original) y de la búsqueda (empieza > contiene, orden estable, 5 por grupo, solo espacios = nulo, desconocidos fuera, Favoritas por su nombre) en `test/core/data/SearchTest.kt`
+- [X] T032 [US4] Crear `LibraryIndex` (nombres normalizados una vez) y `matchIn` en `rola/core/data/Search.kt` reusando `TitleOrder.normalizar` (FR-032 a FR-035)
+- [X] T033 [US4] Crear `SearchViewModel` (texto en `SavedStateHandle`, `debounce(150)`, `mapLatest` en `Dispatchers.Default`, vaciar sin espera, conserva lo anterior mientras calcula) en `rola/feature/search/SearchViewModel.kt` (FR-031)
+- [X] T034 [US4] Permitir el título resaltado en `SongRow`/`SongItem` en `rola/feature/library/SongMenu.kt` (FR-035, FR-038)
+- [X] T035 [US4] Crear `SearchScreen` según SCR-40 (35:1288) y SCR-41 (35:1392): campo hundido con ayuda y «Borrar búsqueda» de 48 dp, teclado al entrar sin texto, grupos con encabezado, filas de álbum, artista y lista con chevron, sin resultados con círculo elevado, relleno por el teclado, cascada solo en los primeros resultados, en `rola/feature/search/SearchScreen.kt` (FR-030 a FR-039, FR-041, FR-042)
+- [X] T036 [US4] Destino Buscar con su ViewModel, acciones y detalles hijos de Buscar en `rola/navigation/RolaNavHost.kt` (FR-037, FR-040); quitar `ComingSoonScreen` y el texto `proximamente`
+- [X] T037 [P] [US4] Prueba Compose: vacío solo campo; agrupa y resalta («mar» en `primary`); grupos vacíos no salen; sin resultados con lo buscado; borrar; ⋮ de canción; toques de cada grupo, en `androidTest/feature/search/SearchScreenTest.kt`
 
 **Punto de control**: Commit `feat(search): buscador con resultados agrupados`.
 

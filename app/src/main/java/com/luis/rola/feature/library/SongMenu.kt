@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,7 @@ fun SongRow(
     onLongClick: (() -> Unit)? = null,
     trailing: @Composable () -> Unit = {},
     subtitle: String? = null, // por defecto el artista; en el detalle de artista, el álbum (SCR-25)
+    title: AnnotatedString = AnnotatedString(song.title), // en Buscar, con la coincidencia resaltada
     onClick: (() -> Unit)?, // null: el toque lo maneja [modifier] (casillas de la hoja de agregar)
 ) {
     val c = MaterialTheme.colorScheme
@@ -65,7 +67,7 @@ fun SongRow(
         Cover(song, Modifier.size(48.dp), MaterialTheme.shapes.extraSmall)
         Column(Modifier.weight(1f)) {
             Text(
-                song.title,
+                title,
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = if (isCurrent) c.primary else c.onSurface,
                 maxLines = 1,
@@ -93,6 +95,7 @@ fun SongItem(
     onAction: (SongAction) -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    title: AnnotatedString = AnnotatedString(song.title),
     onClick: () -> Unit,
 ) {
     var abierto by remember { mutableStateOf(false) }
@@ -110,7 +113,7 @@ fun SongItem(
                 onAction(it)
             }
         }
-    }, onClick = onClick)
+    }, title = title, onClick = onClick)
 }
 
 /** Menú de opciones (SCR-54, Figma 35:1626). «Favorita» se suma por DEC-29 (no está en ese nodo). */

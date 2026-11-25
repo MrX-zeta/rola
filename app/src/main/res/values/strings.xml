@@ -43,7 +43,6 @@
     <string name="nav_inicio">Inicio</string>
     <string name="nav_biblioteca">Biblioteca</string>
     <string name="nav_buscar">Buscar</string>
-    <string name="proximamente">Próximamente</string>
 
     <!-- Biblioteca (SCR-20) -->
     <string name="chip_canciones">Canciones</string>
@@ -226,4 +225,10 @@
         <item quantity="other">Encontramos %1$d canciones</item>
     </plurals>
     <string name="escaneo_sin_musica">No encontramos música en tu teléfono</string>
+
+    <!-- Buscar (SCR-40, SCR-41) -->
+    <string name="buscar_ayuda">Canciones, álbumes, artistas o listas</string>
+    <string name="borrar_busqueda">Borrar búsqueda</string>
+    <string name="sin_resultados_para">Sin resultados para «%1$s»</string>
+    <string name="sin_resultados_consejo">Revisa cómo se escribe o prueba con el nombre del artista o del álbum.</string>
 </resources>

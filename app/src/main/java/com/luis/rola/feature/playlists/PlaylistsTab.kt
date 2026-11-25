@@ -153,7 +153,7 @@ private fun NewPlaylistRow(onClick: () -> Unit) = PlaylistRow(
 }
 
 @Composable
-private fun countText(count: Int) =
+internal fun countText(count: Int) =
     if (count == 0) stringResource(R.string.lista_vacia_corto) else pluralStringResource(R.plurals.n_canciones, count, count)
 
 @Composable

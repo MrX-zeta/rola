@@ -68,7 +68,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -105,6 +104,8 @@ import com.luis.rola.feature.home.HomeViewModel
 import com.luis.rola.feature.library.LibraryScreen
 import com.luis.rola.feature.library.LibraryViewModel
 import com.luis.rola.feature.player.MiniPlayer
+import com.luis.rola.feature.search.SearchScreen
+import com.luis.rola.feature.search.SearchViewModel
 
 /** Pestañas (DEC-03) con la mini tarjeta y la píldora abajo. Sin deslizar; fundido corto entre pestañas (DEC-28). */
 @Composable
@@ -353,7 +354,24 @@ fun RolaNavHost(container: AppContainer) {
                 )
             }
             composable(Destino.Biblioteca.ruta) {} // se dibuja arriba, fuera del NavHost
-            composable(Destino.Buscar.ruta) { ComingSoonScreen() }
+            composable(Destino.Buscar.ruta) {
+                val buscador: SearchViewModel = viewModel(factory = SearchViewModel.factory(vm, res.getString(R.string.favoritas)))
+                val resultados by buscador.results.collectAsStateWithLifecycle()
+                var texto by rememberSaveable { mutableStateOf("") }
+                LaunchedEffect(texto) { buscador.search(texto) }
+                SearchScreen(
+                    texto,
+                    resultados,
+                    onQuery = { texto = it },
+                    onPlay = ::reproducir,
+                    onSongAction = { s, a -> onSongAction(s, a, null) },
+                    onOpenAlbum = { nav.navigate("$RUTA_ALBUM/$it") },
+                    onOpenArtist = { nav.navigate(rutaArtista(it)) },
+                    onOpenPlaylist = { nav.navigate("$RUTA_LISTA/$it") },
+                    favoriteIds = favoriteIds,
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
+            }
             // Favoritas (id -1) y las listas.
             composable(
                 "$RUTA_LISTA/{id}?agregar={agregar}",
@@ -660,10 +678,3 @@ private const val RUTA_ARTISTA = "artista"
 
 /** Sin nombre = «Artista desconocido» (sin argumento); el nombre va codificado porque puede traer «/» o «?». */
 private fun rutaArtista(nombre: String?) = if (nombre == null) RUTA_ARTISTA else "$RUTA_ARTISTA?nombre=${Uri.encode(nombre)}"
-/** «Próximamente» de Inicio y Buscar mientras llegan sus tareas. */
-@Composable
-fun ComingSoonScreen() {
-    Box(Modifier.fillMaxSize(), Alignment.Center) {
-        Text(stringResource(R.string.proximamente), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
