@@ -139,3 +139,13 @@ description: "Tareas de implementación de Biblioteca completa"
 ## Estrategia
 
 MVP = Fases 1–3 (álbumes). Después US2 (artistas), US3 (orden) y US4 (abecedario en todas). Cada fase termina con su commit y sus pruebas en verde.
+
+## Fase 8: Convergence
+
+Tarea 07, Parte A (FR-007, FR-027, FR-028).
+
+- [ ] T037 Agregar el ⋮ a la barra de `DetailList` (álbum y artista) con «Añadir a la cola» y «Añadir a una lista», reusando `SongMenu` con un lugar nuevo en `MenuPlace` per FR-027 (missing)
+- [ ] T038 Hacer que `PlayerConnection.addToQueue` acepte varias canciones (al final también con aleatorio) y avisar cuántas en `RolaNavHost.kt` per FR-027 (missing)
+- [ ] T039 Hacer que `ChoosePlaylistSheet` y «Nueva lista» acepten varias canciones, con nombre y conteo debajo del título y el aviso de cuántas se agregaron per FR-028 (missing)
+- [ ] T040 Mostrar «< 1 min» en el detalle de álbum cuando dura menos de un minuto per FR-007 (partial)
+- [ ] T041 Pruebas Compose: ⋮ del álbum y del artista, «< 1 min» y la hoja con varias canciones en `AlbumArtistTest` y `PlaylistsTest` per Constitution IX (missing)

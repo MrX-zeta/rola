@@ -24,6 +24,14 @@ Respondidas por la tarea 06 (Paso B2); no se preguntan a Brian.
 - P: ¿Cómo se sale de un detalle? → R: con «atrás» del sistema y con el botón de volver; la raíz de Biblioteca sigue fuera del NavHost (FR-004).
 - P: ¿A qué aplica la cascada de entrada? → R: a las cuadrículas y listas de cada chip al entrar (DEC-28) (FR-003).
 
+### Sesión 2026-11-25 (tarea 07, Parte A)
+
+Respondidas por la tarea 07; no se preguntan a Brian.
+
+- P: ¿Qué lleva el ⋮ de los detalles de álbum y artista? → R: «Añadir a la cola» y «Añadir a una lista», con todas las canciones del álbum o artista y el mismo estilo de menú que SCR-54 (FR-027, FR-028).
+- P: ¿Qué duración muestra un álbum de menos de 1 min? → R: «< 1 min» (FR-007).
+- P: ¿Se ignoran artículos al ordenar? → R: no (PEND-05 resuelto).
+
 ## Escenarios de usuario y pruebas *(obligatorio)*
 
 ### Historia 1 · Recorrer mis álbumes (Prioridad: P1)
@@ -107,7 +115,7 @@ Quiero cambiar entre Listas, Álbumes, Artistas y Canciones con los chips y, en 
 - Canciones sin número de pista en un álbum: van después de las que sí lo tienen, ordenadas por título; los números de pista que traen el disco (p. ej. 1001, 2001) se respetan para que el disco 1 vaya antes del 2.
 - Artista con un solo álbum: el carrusel muestra un solo álbum.
 - Un álbum con canciones de varios artistas: el artista del álbum es su «artista del álbum»; si no lo trae, el de la primera pista.
-- La biblioteca cambia (se agrega o se borra una canción) con un detalle abierto: el detalle se actualiza; si el álbum o artista desaparece, se vuelve a Biblioteca.
+- La biblioteca cambia (se agrega o se borra una canción) con un detalle abierto: el detalle se actualiza; si el álbum o artista desaparece, se vuelve atrás.
 - Un valor de `sort_order` guardado que ya no es válido: se usa el orden por defecto (Título A→Z).
 - 2 000 canciones y unos 200 álbumes: entrar a Biblioteca y cambiar de chip no se traba.
 
@@ -126,7 +134,7 @@ Quiero cambiar entre Listas, Álbumes, Artistas y Canciones con los chips y, en 
 
 - **FR-005**: Los álbumes DEBEN salir de la biblioteca del sistema (DEC-26), uno por identificador de álbum del sistema.
 - **FR-006**: Álbumes DEBE mostrar una cuadrícula con portada, nombre, artista y año de cada álbum, ordenada por nombre con las reglas de DEC-05.
-- **FR-007**: El detalle de álbum DEBE mostrar la portada grande, nombre, artista, año, número de canciones y duración total, Reproducir y Aleatorio, y sus canciones por número de pista; sin número de pista, por título.
+- **FR-007**: El detalle de álbum DEBE mostrar la portada grande, nombre, artista, año, número de canciones y duración total («< 1 min» si dura menos de un minuto), Reproducir y Aleatorio, y sus canciones por número de pista; sin número de pista, por título.
 - **FR-008**: Reproducir, Aleatorio o tocar una canción en el detalle de álbum DEBE poner como cola las canciones del álbum en su orden, y «Reproduciendo desde» DEBE decir el nombre del álbum (DEC-24).
 
 **Artistas (SCR-22, SCR-25)**
@@ -159,6 +167,11 @@ Quiero cambiar entre Listas, Álbumes, Artistas y Canciones con los chips y, en 
 - **FR-025**: Todas las pantallas DEBEN verse según sus nodos de Figma en oscuro y claro. Textos en español.
 - **FR-026**: Ninguna acción de esta función detiene lo que suena salvo reproducir otra cosa (INV-11).
 
+**Pendientes de detalles (tarea 07, Parte A)**
+
+- **FR-027**: Los detalles de álbum y artista DEBEN tener un ⋮ en su barra con «Añadir a la cola» y «Añadir a una lista», con el mismo estilo de menú que SCR-54. «Añadir a la cola» agrega al final todas las canciones del álbum o artista, en el orden del detalle, sin cortar lo que suena (INV-11), y el aviso dice cuántas.
+- **FR-028**: «Añadir a una lista» DEBE abrir SCR-55 con el nombre del álbum o artista y cuántas canciones son; al elegir una lista (o crear una nueva) se agregan todas sin repetir las que ya estaban, y el aviso dice cuántas se agregaron.
+
 ### Entidades clave
 
 - **Álbum**: agrupación del sistema. Identificador, nombre, artista del álbum, año, portada, canciones con su número de pista. Se deriva de las canciones; no se guarda en la app.
@@ -179,7 +192,7 @@ Quiero cambiar entre Listas, Álbumes, Artistas y Canciones con los chips y, en 
 
 ## Supuestos
 
-- Los artículos («The», «El», «La») no se ignoran al ordenar: PEND-05 sigue propuesto y no se asume; se ordena por el texto tal cual, con las reglas de DEC-05.
+- Los artículos («The», «El», «La») no se ignoran al ordenar: PEND-05 quedó resuelto así; se ordena por el texto tal cual, con las reglas de DEC-05.
 - El año de un álbum es el mayor año de sus canciones.
 - «Álbum más reciente» es el de mayor año; con el mismo año o sin año, el de nombre menor según DEC-05.
 - El carrusel de álbumes de un artista y su lista de canciones no tienen abecedario.
