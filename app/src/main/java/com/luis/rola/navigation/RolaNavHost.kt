@@ -71,6 +71,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -99,6 +100,8 @@ import com.luis.rola.AppContainer
 import com.luis.rola.R
 import com.luis.rola.core.designsystem.RolaMotion
 import com.luis.rola.core.designsystem.RolaSpacing
+import com.luis.rola.feature.home.HomeScreen
+import com.luis.rola.feature.home.HomeViewModel
 import com.luis.rola.feature.library.LibraryScreen
 import com.luis.rola.feature.library.LibraryViewModel
 import com.luis.rola.feature.player.MiniPlayer
@@ -110,10 +113,21 @@ fun RolaNavHost(container: AppContainer) {
     val player = container.player
     val playerState by player.state.collectAsStateWithLifecycle()
     // Antes del primer destino la ruta es null: se asume el de arranque para no animar al abrir.
-    val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Biblioteca.ruta
+    val ruta = nav.currentBackStackEntryAsState().value?.destination?.route ?: Destino.Inicio.ruta
     val enBiblioteca = ruta == Destino.Biblioteca.ruta
-    // Pantallas hijas de Biblioteca (listas, álbum, artista): la píldora sigue en Biblioteca.
-    val enLista = ruta.startsWith(RUTA_LISTA) || ruta.startsWith(RUTA_ALBUM) || ruta.startsWith(RUTA_ARTISTA)
+    // Pestaña dueña de la pila: las listas, álbumes y artistas son hijos de la pestaña desde la que se abrieron (DEC-03).
+    val enRaiz = Destino.entries.any { it.ruta == ruta }
+    var ultima by rememberSaveable { mutableStateOf(ruta) }
+    val pestana = if (enRaiz) ruta else ultima
+    SideEffect { ultima = pestana }
+    fun irA(d: Destino) {
+        ultima = d.ruta // al volver puede restaurarse una hija suya, sin pasar por su raíz
+        nav.navigate(d.ruta) {
+            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     val queue by player.queue.collectAsStateWithLifecycle()
     val sheet = rememberPlayerSheetState()
@@ -183,6 +197,13 @@ fun RolaNavHost(container: AppContainer) {
                 avisar(res.getString(R.string.se_borro, titulo))
             }
         }
+    }
+
+    /** Desde Inicio o Buscar: como en Biblioteca · Canciones (FR-004). */
+    fun reproducir(song: Song) {
+        val lista = ordenadas ?: return
+        val i = lista.indexOfFirst { it.id == song.id }
+        if (i >= 0) player.play(lista, i)
     }
 
     fun elegirLista(song: Song) {
@@ -306,15 +327,34 @@ fun RolaNavHost(container: AppContainer) {
         }
         NavHost(
             nav,
-            startDestination = Destino.Biblioteca.ruta, // DEC-03 temporal: Inicio todavía no existe
+            startDestination = Destino.Inicio.ruta,
             // Fundido corto entre pestañas hermanas, sin desplazamiento (DEC-28); válido también con reducir movimiento.
             enterTransition = { fadeIn(tween(RolaMotion.MEDIA, easing = RolaMotion.EaseOut)) },
             exitTransition = { fadeOut(tween(RolaMotion.RAPIDA)) },
         ) {
-            composable(Destino.Inicio.ruta) { ComingSoonScreen() }
+            composable(Destino.Inicio.ruta) {
+                val home: HomeViewModel = viewModel(factory = HomeViewModel.factory(container))
+                val estado by home.state.collectAsStateWithLifecycle()
+                val escaneando by home.scanning.collectAsStateWithLifecycle()
+                HomeScreen(
+                    estado,
+                    onPlay = ::reproducir,
+                    onShuffle = { ordenadas?.let { player.shuffle(it) } },
+                    onFavorites = { nav.navigate("$RUTA_LISTA/$FAVORITAS_ID") },
+                    onLibrary = { irA(Destino.Biblioteca) },
+                    onScan = {
+                        avisos.launch {
+                            val n = home.scan()
+                            avisar(if (n > 0) res.getQuantityString(R.plurals.encontramos_n, n, n) else res.getString(R.string.escaneo_sin_musica))
+                        }
+                    },
+                    scanning = escaneando,
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
+            }
             composable(Destino.Biblioteca.ruta) {} // se dibuja arriba, fuera del NavHost
             composable(Destino.Buscar.ruta) { ComingSoonScreen() }
-            // Favoritas (id -1) y las listas: pantallas hijas de Biblioteca (DEC-28 biblioteca_fuera_del_navhost).
+            // Favoritas (id -1) y las listas.
             composable(
                 "$RUTA_LISTA/{id}?agregar={agregar}",
                 listOf(
@@ -359,7 +399,7 @@ fun RolaNavHost(container: AppContainer) {
                     )
                 }
             }
-            // Detalles de álbum y artista (SCR-24, SCR-25): hijas de Biblioteca dentro del NavHost (DEC-28).
+            // Detalles de álbum y artista (SCR-24, SCR-25), dentro del NavHost (DEC-28).
             composable("$RUTA_ALBUM/{id}", listOf(navArgument("id") { type = NavType.LongType })) { entrada ->
                 val id = requireNotNull(entrada.arguments).getLong("id")
                 val todos = albumes ?: return@composable
@@ -417,25 +457,15 @@ fun RolaNavHost(container: AppContainer) {
             Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .onSizeChanged { abajoPx = it.height } // con sus márgenes: lo que de verdad tapa
                 .background(Brush.verticalGradient(0f to Color.Transparent, 0.45f to fondo.copy(alpha = 0.92f), 1f to fondo))
                 .navigationBarsPadding()
-                .padding(start = RolaSpacing.md, end = RolaSpacing.md, top = RolaSpacing.xs, bottom = RolaSpacing.sm)
-                .onSizeChanged { abajoPx = it.height },
+                .padding(start = RolaSpacing.md, end = RolaSpacing.md, top = RolaSpacing.xs, bottom = RolaSpacing.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MiniPlayer(playerState, player::togglePlayPause, player::next, onPrevious = player::previous, sheet = sheet)
-            RolaNavBar(if (enLista) Destino.Biblioteca.ruta else ruta, onSelect = { d ->
-                // Biblioteca desde una lista vuelve a su raíz.
-                if (enLista && d == Destino.Biblioteca) {
-                    nav.popBackStack(Destino.Biblioteca.ruta, inclusive = false)
-                    return@RolaNavBar
-                }
-                nav.navigate(d.ruta) {
-                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            })
+            // La pestaña activa vuelve a su raíz.
+            RolaNavBar(pestana, onSelect = { d -> if (d.ruta == pestana) nav.popBackStack(d.ruta, inclusive = false) else irA(d) })
         }
         val song = playerState.current
         if (sheet.visible && song != null) {
@@ -494,8 +524,8 @@ fun RolaNavHost(container: AppContainer) {
                 nombre,
                 onConfirm = {
                     borrandoLista = null
-                    // Desde su pantalla se vuelve a Biblioteca antes de que la lista deje de existir.
-                    if (enLista) nav.popBackStack(Destino.Biblioteca.ruta, inclusive = false)
+                    // Desde su pantalla se vuelve a la raíz de la pestaña antes de que la lista deje de existir.
+                    if (!enRaiz) nav.popBackStack(pestana, inclusive = false)
                     avisos.launch {
                         val deshacer = vm.deletePlaylist(id)
                         avisar(res.getString(R.string.borraste_lista, nombre), res.getString(R.string.deshacer), deshacer)
@@ -630,7 +660,6 @@ private const val RUTA_ARTISTA = "artista"
 
 /** Sin nombre = «Artista desconocido» (sin argumento); el nombre va codificado porque puede traer «/» o «?». */
 private fun rutaArtista(nombre: String?) = if (nombre == null) RUTA_ARTISTA else "$RUTA_ARTISTA?nombre=${Uri.encode(nombre)}"
-
 /** «Próximamente» de Inicio y Buscar mientras llegan sus tareas. */
 @Composable
 fun ComingSoonScreen() {

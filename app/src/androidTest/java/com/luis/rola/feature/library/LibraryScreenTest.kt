@@ -39,6 +39,7 @@ class LibraryScreenTest {
     val compose = createComposeRule()
 
     private val falso = object : SongRepository {
+        override suspend fun scan() = 0
         override fun songs() = flowOf(
             listOf(
                 Song(1, "Agua de mar", "Ana Vela", null, 1000),

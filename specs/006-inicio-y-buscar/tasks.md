@@ -26,7 +26,7 @@ description: "Tareas de implementación de Inicio y Buscar"
 ## Fase 1: Preparación
 
 - [X] T001 Confirmar con Brian la columna `play_order` de `playback_queue` (plan · Seguimiento) y anotar la respuesta en `specs/006-inicio-y-buscar/research.md` §3; sin la columna, `position` es el orden en que suena
-- [ ] T002 [P] Agregar `ic_refresh` (Figma 30:538) en `app/src/main/res/drawable/ic_refresh.xml` como vector de 24 dp
+- [X] T002 [P] Agregar `ic_refresh` (Figma 30:538) en `app/src/main/res/drawable/ic_refresh.xml` como vector de 24 dp
 - [ ] T003 [P] Comparar por captura los nodos claros 51:2090, 51:2217, 51:2302, 51:4081 y 51:4183 con los oscuros y anotar diferencias en `specs/006-inicio-y-buscar/research.md` §11
 
 ---
@@ -70,18 +70,18 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 **Prueba independiente**: con historial, abrir la app y tocar cada elemento.
 
-- [ ] T019 [P] [US2] Prueba JUnit de `PlayCounter`: cuenta a los 30 s sonando y una sola vez; pausar no suma; adelantar no suma; corta que termina cuenta y saltada no; repetir una cuenta por vuelta; pausa al final no cuenta dos veces, en `test/core/media/PlayCounterTest.kt`
-- [ ] T020 [US2] Crear `PlayCounter` puro en `rola/core/media/PlayCounter.kt` (FR-010)
-- [ ] T021 [P] [US2] Prueba JUnit de recientes (10 distintas existentes, más reciente primero, se completa al faltar una) y más escuchada (empate = la más reciente, se omite la que no existe) en `test/core/data/HistoryTest.kt`
-- [ ] T022 [US2] Crear `HistoryRepository` (`recent`, `mostPlayed`, `record`) en `rola/core/data/HistoryRepository.kt` (FR-011, FR-012)
-- [ ] T023 [US2] Contar y registrar desde el servicio (transiciones, `isPlaying`, final de canción, aviso a los 30 s con `Handler`; escribe en IO) en `rola/core/media/PlaybackService.kt` (FR-010, FR-014)
-- [ ] T024 [P] [US2] Prueba JUnit del saludo (4:59, 5:00, 11:59, 12:00, 18:59, 19:00, 0:00) y la fecha en español con mayúscula inicial en `test/feature/home/GreetingTest.kt`
-- [ ] T025 [US2] Crear `greeting(hour)` y la fecha en `rola/feature/home/Greeting.kt` (FR-002)
-- [ ] T026 [US2] Crear `HomeViewModel` (`HomeState`: cargando, sin canciones, contenido) en `rola/feature/home/HomeViewModel.kt` (FR-009)
-- [ ] T027 [US2] Reloj de cascada reutilizable (arranca en el primer cuadro con contenido, al final con «reducir movimiento») en `rola/feature/library/Cascada.kt` (FR-042)
-- [ ] T028 [US2] Crear `HomeScreen` según SCR-10 (30:408): logo, fecha y saludo (se actualiza en `ON_RESUME`), carrusel, destacado y mosaicos, esqueletos a los 300 ms, cascada; sin «Ver todo», engrane ni Letras, en `rola/feature/home/HomeScreen.kt` (FR-002, FR-003, FR-008, FR-009, FR-042)
-- [ ] T029 [US2] Abrir en Inicio, destino Inicio, pestaña dueña de la pila (píldora, tocar la activa vuelve a su raíz, borrar lista vuelve a la raíz de su pestaña) y acciones (FR-004 a FR-006) en `rola/navigation/RolaNavHost.kt` (FR-001, FR-040)
-- [ ] T030 [P] [US2] Prueba Compose de `HomeScreen` con historial: saludo, orden del carrusel, «N veces», totales, toques, y que no hay «Ver todo», engrane ni Letras, en `androidTest/feature/home/HomeScreenTest.kt`
+- [X] T019 [P] [US2] Prueba JUnit de `PlayCounter`: cuenta a los 30 s sonando y una sola vez; pausar no suma; adelantar no suma; corta que termina cuenta y saltada no; repetir una cuenta por vuelta; pausa al final no cuenta dos veces, en `test/core/media/PlayCounterTest.kt`
+- [X] T020 [US2] Crear `PlayCounter` puro en `rola/core/media/PlayCounter.kt` (FR-010)
+- [X] T021 [P] [US2] Prueba JUnit de recientes (10 distintas existentes, más reciente primero, se completa al faltar una) y más escuchada (empate = la más reciente, se omite la que no existe) en `test/core/data/HistoryTest.kt`
+- [X] T022 [US2] Crear `HistoryRepository` (`recent`, `mostPlayed`, `record`) en `rola/core/data/HistoryRepository.kt` (FR-011, FR-012)
+- [X] T023 [US2] Contar y registrar desde el servicio (transiciones, `isPlaying`, final de canción, aviso a los 30 s con `Handler`; escribe en IO) en `rola/core/media/PlaybackService.kt` (FR-010, FR-014)
+- [X] T024 [P] [US2] Prueba JUnit del saludo (4:59, 5:00, 11:59, 12:00, 18:59, 19:00, 0:00) y la fecha en español con mayúscula inicial en `test/feature/home/GreetingTest.kt`
+- [X] T025 [US2] Crear `greeting(hour)` y la fecha en `rola/feature/home/Greeting.kt` (FR-002)
+- [X] T026 [US2] Crear `HomeViewModel` (`HomeState`: cargando, sin canciones, contenido) en `rola/feature/home/HomeViewModel.kt` (FR-009)
+- [X] T027 [US2] Reloj de cascada reutilizable (arranca en el primer cuadro con contenido, al final con «reducir movimiento») en `rola/feature/library/Cascada.kt` (FR-042)
+- [X] T028 [US2] Crear `HomeScreen` según SCR-10 (30:408): logo, fecha y saludo (se actualiza en `ON_RESUME`), carrusel, destacado y mosaicos, esqueletos a los 300 ms, cascada; sin «Ver todo», engrane ni Letras, en `rola/feature/home/HomeScreen.kt` (FR-002, FR-003, FR-008, FR-009, FR-042)
+- [X] T029 [US2] Abrir en Inicio, destino Inicio, pestaña dueña de la pila (píldora, tocar la activa vuelve a su raíz, borrar lista vuelve a la raíz de su pestaña) y acciones (FR-004 a FR-006) en `rola/navigation/RolaNavHost.kt` (FR-001, FR-040)
+- [X] T030 [P] [US2] Prueba Compose de `HomeScreen` con historial: saludo, orden del carrusel, «N veces», totales, toques, y que no hay «Ver todo», engrane ni Letras, en `androidTest/feature/home/HomeScreenTest.kt`
 
 **Punto de control**: Commit `feat(home): Inicio con historial`.
 
@@ -111,10 +111,10 @@ description: "Tareas de implementación de Inicio y Buscar"
 
 **Prueba independiente**: sin historial; sin audios, copiar uno y escanear.
 
-- [ ] T038 [US3] Estado «primera vez» (SCR-11, 30:447) en `rola/feature/home/HomeScreen.kt` (FR-007)
-- [ ] T039 [US3] `scan()` en `MediaStoreSongRepository`: `MediaScannerConnection` sobre la carpeta Música con máximo de 15 s, nueva consulta y emisión en el flujo, devuelve cuántas canciones hay, en `rola/core/data/SongRepository.kt` y `rola/AppContainer.kt` (FR-016)
-- [ ] T040 [US3] Estado «sin canciones» (SCR-12, 30:512; círculo elevado y botón acento) con progreso, botón bloqueado y aviso del resultado, en `rola/feature/home/HomeScreen.kt`, `HomeViewModel.kt` y `rola/navigation/RolaNavHost.kt` (FR-015, FR-017, FR-018, FR-041)
-- [ ] T041 [US3] Prueba Compose: primera vez (invitación, sin carrusel ni destacado), «Ir a Biblioteca», sin canciones, escaneando, sin «Abrir Ajustes», en `androidTest/feature/home/HomeScreenTest.kt`
+- [X] T038 [US3] Estado «primera vez» (SCR-11, 30:447) en `rola/feature/home/HomeScreen.kt` (FR-007)
+- [X] T039 [US3] `scan()` en `MediaStoreSongRepository`: `MediaScannerConnection` sobre la carpeta Música con máximo de 15 s, nueva consulta y emisión en el flujo, devuelve cuántas canciones hay, en `rola/core/data/SongRepository.kt` y `rola/AppContainer.kt` (FR-016)
+- [X] T040 [US3] Estado «sin canciones» (SCR-12, 30:512; círculo elevado y botón acento) con progreso, botón bloqueado y aviso del resultado, en `rola/feature/home/HomeScreen.kt`, `HomeViewModel.kt` y `rola/navigation/RolaNavHost.kt` (FR-015, FR-017, FR-018, FR-041)
+- [X] T041 [US3] Prueba Compose: primera vez (invitación, sin carrusel ni destacado), «Ir a Biblioteca», sin canciones, escaneando, sin «Abrir Ajustes», en `androidTest/feature/home/HomeScreenTest.kt`
 
 **Punto de control**: Commit `feat(home): primera vez, sin canciones y escanear`.
 

@@ -50,6 +50,9 @@ class PlaybackService : MediaSessionService() {
     private val container get() = (application as RolaApp).container
     private lateinit var saver: PlaybackSaver
 
+    private val contador = PlayCounter(SystemClock::elapsedRealtime)
+    private val escucha = Runnable { registrar(contador.due()) }
+
     /** Hasta terminar de restaurar no se guarda nada y la interfaz retiene sus órdenes (FR-027). */
     private var listo = false
 
@@ -107,6 +110,19 @@ class PlaybackService : MediaSessionService() {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 handler.removeCallbacks(cada5s)
                 if (isPlaying) handler.postDelayed(cada5s, 5_000)
+                contador.playing(isPlaying)
+                programarEscucha()
+            }
+
+            // Llega antes que onMediaItemTransition: el final de la canción que terminó sola.
+            override fun onPositionDiscontinuity(old: Player.PositionInfo, new: Player.PositionInfo, reason: Int) {
+                if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) registrar(contador.ended(old.positionMs))
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState != Player.STATE_ENDED) return
+                registrar(contador.ended(player.currentPosition))
+                empezarEscucha() // si se vuelve a reproducir, es otra
             }
 
             override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
@@ -115,6 +131,7 @@ class PlaybackService : MediaSessionService() {
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                empezarEscucha()
                 // Lista nueva con el aleatorio encendido: que también empiece en la canción elegida.
                 if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED && player.shuffleModeEnabled) {
                     shuffleFromCurrent()
@@ -122,7 +139,9 @@ class PlaybackService : MediaSessionService() {
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM && timer.songEnded()) syncTimer()
+                if (reason != Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM) return
+                registrar(contador.ended(player.currentPosition))
+                if (timer.songEnded()) syncTimer()
             }
         })
         val abrirApp = PendingIntent.getActivity(
@@ -228,6 +247,20 @@ class PlaybackService : MediaSessionService() {
                 player.playlistMetadata.title?.toString(),
             ),
         )
+    }
+
+    private fun empezarEscucha() {
+        contador.start(player.currentMediaItem?.mediaId?.toLongOrNull())
+        programarEscucha()
+    }
+
+    private fun programarEscucha() {
+        handler.removeCallbacks(escucha)
+        contador.remainingMs?.let { handler.postDelayed(escucha, it) }
+    }
+
+    private fun registrar(id: Long?) {
+        if (id != null) container.scope.launch { container.history.record(id) }
     }
 
     // La app pasó a segundo plano.

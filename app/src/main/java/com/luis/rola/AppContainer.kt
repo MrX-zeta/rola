@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.luis.rola.core.data.DataStorePreferencesRepository
+import com.luis.rola.core.data.HistoryRepository
 import com.luis.rola.core.data.LibraryRepository
 import com.luis.rola.core.data.MediaStoreSongRepository
 import com.luis.rola.core.data.PreferencesRepository
 import com.luis.rola.core.data.Song
+import com.luis.rola.core.data.SongRepository
 import com.luis.rola.core.database.RolaDatabase
 import com.luis.rola.core.media.PlaybackStore
 import com.luis.rola.core.media.PlayerConnection
@@ -35,11 +37,14 @@ class AppContainer(context: Context) {
     private val db = Room.databaseBuilder(context, RolaDatabase::class.java, "rola.db").build()
     val playback = PlaybackStore(db.queue(), context.reproduccion)
 
+    val songRepository: SongRepository = MediaStoreSongRepository(context)
+
     /** Una sola consulta al MediaStore para todos; sin quien la mire caduca, para no restaurar con una lista vieja. */
-    val songs: SharedFlow<List<Song>> = MediaStoreSongRepository(context.contentResolver).songs()
+    val songs: SharedFlow<List<Song>> = songRepository.songs()
         .shareIn(scope, SharingStarted.WhileSubscribed(5_000, replayExpirationMillis = 0), replay = 1)
     var player = PlayerConnection(context)
         @VisibleForTesting set
     val preferences: PreferencesRepository = DataStorePreferencesRepository(context.ajustes)
     val library = LibraryRepository(db, songs)
+    val history = HistoryRepository(db.history(), songs)
 }
