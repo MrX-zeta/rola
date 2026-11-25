@@ -35,8 +35,8 @@ import com.luis.rola.core.data.Song
 import com.luis.rola.core.designsystem.RolaSpacing
 import com.luis.rola.core.designsystem.tile
 
-/** Dónde está la canción: decide las opciones del menú (DEC-07). */
-enum class MenuPlace { Library, Playlist }
+/** Dónde está la canción: decide las opciones del menú (DEC-07). [Group]: todas las de un álbum o artista. */
+enum class MenuPlace { Library, Playlist, Group }
 
 enum class SongAction { AddToQueue, AddToPlaylist, ToggleFavorite, Delete, RemoveFromPlaylist }
 
@@ -145,6 +145,10 @@ fun SongMenu(expanded: Boolean, place: MenuPlace, favorite: Boolean, onDismiss: 
             MenuPlace.Playlist -> {
                 Opcion(R.string.quitar_de_lista, R.drawable.ic_delete, SongAction.RemoveFromPlaylist)
                 Opcion(R.string.anadir_a_cola, R.drawable.ic_queue, SongAction.AddToQueue)
+            }
+            MenuPlace.Group -> {
+                Opcion(R.string.anadir_a_cola, R.drawable.ic_queue, SongAction.AddToQueue)
+                Opcion(R.string.anadir_a_lista, R.drawable.ic_playlist_add, SongAction.AddToPlaylist)
             }
         }
     }

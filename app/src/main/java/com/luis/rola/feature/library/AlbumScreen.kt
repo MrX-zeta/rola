@@ -63,18 +63,18 @@ fun AlbumScreen(
     onSongAction: (Song, SongAction) -> Unit,
     favoriteIds: Set<Long> = emptySet(),
     contentPadding: PaddingValues = PaddingValues(),
+    onGroupAction: (SongAction) -> Unit = {},
 ) {
+    val nombre = album.name ?: stringResource(R.string.album_desconocido)
     val minutos = (album.durationMs / 60_000).toInt()
     val datos = listOfNotNull(
         album.artist ?: stringResource(R.string.artista_desconocido),
         album.year.takeIf { it > 0 }?.toString(),
         pluralStringResource(R.plurals.n_canciones, album.songs.size, album.songs.size),
-        stringResource(R.string.minutos, minutos).takeIf { minutos > 0 },
+        if (minutos > 0) stringResource(R.string.minutos, minutos) else stringResource(R.string.menos_de_un_minuto),
     ).joinToString(" · ")
-    DetailList(onBack, contentPadding) {
-        item {
-            DetailHeader(album.songs.first(), 200.dp, MaterialTheme.shapes.large, album.name ?: stringResource(R.string.album_desconocido), datos)
-        }
+    DetailList(nombre, onBack, onGroupAction, contentPadding) {
+        item { DetailHeader(album.songs.first(), 200.dp, MaterialTheme.shapes.large, nombre, datos) }
         item { PlayShuffle({ onPlay(0) }, onShuffle) }
         itemsIndexed(album.songs, key = { _, s -> s.id }) { i, song ->
             TrackItem(song, i + 1, song.id == currentId, song.id in favoriteIds, { onSongAction(song, it) }) { onPlay(i) }
@@ -82,14 +82,30 @@ fun AlbumScreen(
     }
 }
 
-/** Lista de un detalle con la barra de volver arriba. */
+/** Lista de un detalle con la barra de arriba: volver y ⋮ con opciones para todas sus canciones (FR-027). */
 @Composable
-internal fun DetailList(onBack: () -> Unit, contentPadding: PaddingValues, content: LazyListScope.() -> Unit) {
+internal fun DetailList(
+    name: String,
+    onBack: () -> Unit,
+    onGroupAction: (SongAction) -> Unit,
+    contentPadding: PaddingValues,
+    content: LazyListScope.() -> Unit,
+) {
+    val c = MaterialTheme.colorScheme
     LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = contentPadding) {
         item {
-            Row(Modifier.height(64.dp).padding(horizontal = RolaSpacing.xs), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onBack) {
-                    Icon(painterResource(R.drawable.ic_arrow_back), stringResource(R.string.volver), tint = MaterialTheme.colorScheme.onSurface)
+            var abierto by remember { mutableStateOf(false) }
+            Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = RolaSpacing.xs), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onBack) { Icon(painterResource(R.drawable.ic_arrow_back), stringResource(R.string.volver), tint = c.onSurface) }
+                Spacer(Modifier.weight(1f))
+                Box {
+                    IconButton({ abierto = true }) {
+                        Icon(painterResource(R.drawable.ic_more_vert), stringResource(R.string.opciones_de, name), tint = c.onSurface)
+                    }
+                    SongMenu(abierto, MenuPlace.Group, favorite = false, onDismiss = { abierto = false }) {
+                        abierto = false
+                        onGroupAction(it)
+                    }
                 }
             }
         }

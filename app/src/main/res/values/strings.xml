@@ -128,6 +128,7 @@
         <item quantity="other">Lista · %1$d canciones</item>
     </plurals>
     <string name="minutos">%1$d min</string>
+    <string name="menos_de_un_minuto">&lt; 1 min</string>
     <string name="lista_vacia_titulo">Tu lista está vacía</string>
     <string name="lista_vacia_texto">Agrega canciones de tu biblioteca para empezar a escucharla.</string>
     <string name="favoritas_vacia_titulo">Aún no tienes favoritas</string>
@@ -150,6 +151,11 @@
     <string name="borrar_del_dispositivo">Borrar del dispositivo</string>
     <string name="quitar_de_lista">Quitar de la lista</string>
     <string name="anadida_a_cola">Añadida a la cola</string>
+    <plurals name="anadidas_a_cola">
+        <item quantity="one">%1$d canción añadida a la cola</item>
+        <item quantity="many">%1$d canciones añadidas a la cola</item>
+        <item quantity="other">%1$d canciones añadidas a la cola</item>
+    </plurals>
     <string name="anadida_a">Añadida a %1$s</string>
     <plurals name="se_agregaron">
         <item quantity="one">Se agregó %1$d canción a %2$s</item>

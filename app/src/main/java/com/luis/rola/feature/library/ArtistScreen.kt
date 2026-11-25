@@ -41,10 +41,11 @@ fun ArtistScreen(
     onSongAction: (Song, SongAction) -> Unit,
     favoriteIds: Set<Long> = emptySet(),
     contentPadding: PaddingValues = PaddingValues(),
+    onGroupAction: (SongAction) -> Unit = {},
 ) {
     val nombre = artist.name ?: stringResource(R.string.artista_desconocido)
     val desconocido = stringResource(R.string.album_desconocido)
-    DetailList(onBack, contentPadding) {
+    DetailList(nombre, onBack, onGroupAction, contentPadding) {
         item { DetailHeader(artist.cover, 140.dp, CircleShape, nombre, artistCounts(artist)) }
         item { PlayShuffle({ onPlay(0) }, onShuffle) }
         item { Section(R.string.chip_albumes) }

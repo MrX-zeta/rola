@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -54,6 +55,37 @@ class AlbumArtistTest {
         assertEquals(1, reproducida)
         compose.onNodeWithText("Aleatorio").performClick()
         assertTrue(aleatorio)
+    }
+
+    @Test
+    fun albumDeMenosDeUnMinutoYSusOpciones() {
+        val acciones = mutableListOf<SongAction>()
+        val album = LibraryGrouping.albums(canciones.map { it.copy(durationMs = 1_000) }).single()
+        compose.setContent {
+            RolaTheme { AlbumScreen(album, null, {}, {}, {}, { _, _ -> }, onGroupAction = { acciones += it }) }
+        }
+        compose.onNodeWithText("Ana Vela · 2022 · 3 canciones · < 1 min").assertIsDisplayed()
+        opcionesDelGrupo("Ventanas")
+        assertEquals(listOf(SongAction.AddToQueue, SongAction.AddToPlaylist), acciones)
+    }
+
+    @Test
+    fun opcionesDelArtista() {
+        val acciones = mutableListOf<SongAction>()
+        val artista = LibraryGrouping.artists(canciones).single()
+        compose.setContent {
+            RolaTheme { ArtistScreen(artista, null, {}, {}, {}, {}, { _, _ -> }, onGroupAction = { acciones += it }) }
+        }
+        opcionesDelGrupo("Ana Vela")
+        assertEquals(listOf(SongAction.AddToQueue, SongAction.AddToPlaylist), acciones)
+    }
+
+    private fun opcionesDelGrupo(nombre: String) {
+        compose.onNodeWithContentDescription("Opciones de $nombre").performClick()
+        compose.onNodeWithText("Borrar del dispositivo").assertDoesNotExist()
+        compose.onNodeWithText("Añadir a la cola").performClick()
+        compose.onNodeWithContentDescription("Opciones de $nombre").performClick()
+        compose.onNodeWithText("Añadir a una lista").performClick()
     }
 
     @Test

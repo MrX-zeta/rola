@@ -155,9 +155,9 @@ fun RolaNavHost(container: AppContainer) {
     }
 
     // Menú de opciones (DEC-07): elegir lista, crear lista y borrar del dispositivo.
-    var eligiendo by remember { mutableStateOf<Song?>(null) }
+    var eligiendo by remember { mutableStateOf<ParaLista?>(null) }
     var creando by rememberSaveable { mutableStateOf(false) }
-    var paraAgregar by remember { mutableStateOf<Song?>(null) }
+    var paraAgregar by remember { mutableStateOf<ParaLista?>(null) }
     var borrandoId by rememberSaveable { mutableStateOf<Long?>(null) }
     var borrandoTitulo by rememberSaveable { mutableStateOf("") }
     // ⋮ de una lista (FR-038): la que se renombra o se va a borrar (id y nombre).
@@ -185,14 +185,46 @@ fun RolaNavHost(container: AppContainer) {
         }
     }
 
+    fun elegirLista(song: Song) {
+        val artista = song.artist ?: res.getString(R.string.artista_desconocido)
+        eligiendo = ParaLista(listOf(song.id), res.getString(R.string.cancion_y_artista, song.title, artista))
+    }
+
+    suspend fun agregar(p: ParaLista, id: Long, lista: String) {
+        val n = vm.addToPlaylist(id, p.ids)
+        avisar(
+            when {
+                p.grupo -> res.getQuantityString(R.plurals.se_agregaron, n, n, lista)
+                n > 0 -> res.getString(R.string.anadida_a, lista)
+                else -> res.getString(R.string.ya_estaba_en, lista)
+            },
+        )
+    }
+
+    /** ⋮ de un álbum o artista: todas sus canciones (FR-027, FR-028). */
+    fun onGroupAction(nombre: String, canciones: List<Song>, action: SongAction) {
+        val n = canciones.size
+        when (action) {
+            SongAction.AddToQueue -> {
+                player.addToQueue(canciones)
+                avisar(res.getQuantityString(R.plurals.anadidas_a_cola, n, n))
+            }
+            SongAction.AddToPlaylist -> {
+                val detalle = res.getString(R.string.separados, nombre, res.getQuantityString(R.plurals.n_canciones, n, n))
+                eligiendo = ParaLista(canciones.map { it.id }, detalle, grupo = true)
+            }
+            else -> Unit // no están en ese menú
+        }
+    }
+
     /** [lista]: id de la lista abierta (o Favoritas) para «Quitar de la lista». */
     fun onSongAction(song: Song, action: SongAction, lista: Long?) {
         when (action) {
             SongAction.AddToQueue -> {
-                player.addToQueue(song)
+                player.addToQueue(listOf(song))
                 avisar(res.getString(R.string.anadida_a_cola))
             }
-            SongAction.AddToPlaylist -> eligiendo = song
+            SongAction.AddToPlaylist -> elegirLista(song)
             SongAction.ToggleFavorite -> {
                 val favorita = song.id !in favoriteIds
                 vm.setFavorite(song.id, favorita)
@@ -346,6 +378,7 @@ fun RolaNavHost(container: AppContainer) {
                     onSongAction = { s, a -> onSongAction(s, a, null) },
                     favoriteIds = favoriteIds,
                     contentPadding = PaddingValues(bottom = abajo),
+                    onGroupAction = { onGroupAction(origen, album.songs, it) },
                 )
             }
             composable(
@@ -376,6 +409,7 @@ fun RolaNavHost(container: AppContainer) {
                     onSongAction = { s, a -> onSongAction(s, a, null) },
                     favoriteIds = favoriteIds,
                     contentPadding = PaddingValues(bottom = abajo),
+                    onGroupAction = { onGroupAction(origen, artista.songs, it) },
                 )
             }
         }
@@ -406,24 +440,21 @@ fun RolaNavHost(container: AppContainer) {
         val song = playerState.current
         if (sheet.visible && song != null) {
             val favorita = song.id in favoriteIds
-            PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita, onAddToPlaylist = { eligiendo = song }) {
+            PlayerOverlay(sheet, playerState, song, queue, player, snackbar, avisos, favorita, onAddToPlaylist = { elegirLista(song) }) {
                 vm.setFavorite(song.id, !favorita)
             }
         }
-        eligiendo?.let { s ->
+        eligiendo?.let { e ->
             ChoosePlaylistSheet(
-                s,
+                e.detalle,
                 listas,
                 onChoose = { p ->
                     eligiendo = null
-                    avisos.launch {
-                        val n = vm.addToPlaylist(p.id, listOf(s.id))
-                        avisar(res.getString(if (n > 0) R.string.anadida_a else R.string.ya_estaba_en, p.name))
-                    }
+                    avisos.launch { agregar(e, p.id, p.name) }
                 },
                 onNew = {
                     eligiendo = null
-                    paraAgregar = s
+                    paraAgregar = e
                     creando = true
                 },
                 onDismiss = { eligiendo = null },
@@ -433,16 +464,11 @@ fun RolaNavHost(container: AppContainer) {
             CreatePlaylistDialog(
                 onCreate = { nombre ->
                     creando = false
-                    val s = paraAgregar
+                    val p = paraAgregar
                     paraAgregar = null
                     avisos.launch {
                         val id = vm.createPlaylist(nombre)
-                        if (s == null) {
-                            nav.navigate("$RUTA_LISTA/$id?agregar=true")
-                        } else {
-                            vm.addToPlaylist(id, listOf(s.id))
-                            avisar(res.getString(R.string.anadida_a, nombre))
-                        }
+                        if (p == null) nav.navigate("$RUTA_LISTA/$id?agregar=true") else agregar(p, id, nombre)
                     }
                 },
                 onDismiss = {
@@ -594,6 +620,9 @@ private fun PlayerOverlay(
         }
     }
 }
+
+/** Lo que se va a añadir a una lista; [detalle] va debajo del título de SCR-55. [grupo]: álbum o artista (el aviso cuenta). */
+private class ParaLista(val ids: List<Long>, val detalle: String, val grupo: Boolean = false)
 
 private const val RUTA_LISTA = "lista"
 private const val RUTA_ALBUM = "album"

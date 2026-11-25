@@ -119,16 +119,17 @@ class PlayerConnection(context: Context) {
     fun shuffle(queue: List<Song>, source: String? = null) = play(queue.shuffled(), 0, source)
 
     /** Al final de la cola sin cortar lo que suena (INV-11); sin nada cargado, la deja lista sin reproducir. */
-    fun addToQueue(song: Song) = whenConnected {
+    fun addToQueue(songs: List<Song>) = whenConnected {
+        val items = songs.map { s -> s.toMediaItem() }
         if (it.mediaItemCount == 0) {
-            it.setMediaItems(listOf(song.toMediaItem()))
+            it.setMediaItems(items)
             it.playlistMetadata = MediaMetadata.EMPTY // cola nueva: sin origen de antes
             it.prepare()
         } else {
             val order = _queue.value.order
-            it.addMediaItem(song.toMediaItem())
-            // DefaultShuffleOrder la metería en un lugar al azar: con aleatorio también va al final.
-            if (it.shuffleModeEnabled && order.size == it.mediaItemCount - 1) sendOrder(it, order + (it.mediaItemCount - 1))
+            it.addMediaItems(items)
+            // DefaultShuffleOrder las metería en lugares al azar: con aleatorio también van al final.
+            if (it.shuffleModeEnabled && order.size == it.mediaItemCount - items.size) sendOrder(it, order + (order.size until it.mediaItemCount))
         }
     }
 

@@ -147,12 +147,12 @@ class PlaylistsTest {
     }
 
     @Test
-    fun hojaAnadirMuestraLaCancionYLasListas() {
+    fun hojaAnadirMuestraQueSeAnadeYLasListas() {
         compose.setContent {
-            RolaTheme { ChoosePlaylistSheet(agua, listOf(PlaylistSummary(5, "Noche", 2, listOf(agua, brillo))), {}, {}, {}) }
+            RolaTheme { ChoosePlaylistSheet("Ventanas · 3 canciones", listOf(PlaylistSummary(5, "Noche", 2, listOf(agua, brillo))), {}, {}, {}) }
         }
         compose.onNodeWithText("Añadir a una lista").assertExists()
-        compose.onNodeWithText("Agua de mar · Ana Vela").assertExists()
+        compose.onNodeWithText("Ventanas · 3 canciones").assertExists()
         compose.onNodeWithText("Nueva lista").assertExists()
         compose.onNodeWithText("2 canciones").assertExists()
     }

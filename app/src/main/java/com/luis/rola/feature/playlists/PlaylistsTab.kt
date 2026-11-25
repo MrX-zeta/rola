@@ -205,11 +205,11 @@ private fun SheetRow(title: String, subtitle: String?, onClick: () -> Unit, cove
     cover = cover,
 )
 
-/** «Añadir a una lista» (SCR-55, Figma 85:3348 / 85:3541): título, la canción, «Nueva lista» y las listas (sin Favoritas). */
+/** «Añadir a una lista» (SCR-55, Figma 85:3348 / 85:3541): título, qué se añade ([detail]), «Nueva lista» y las listas (sin Favoritas). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChoosePlaylistSheet(
-    song: Song,
+    detail: String,
     playlists: List<PlaylistSummary>,
     onChoose: (PlaylistSummary) -> Unit,
     onNew: () -> Unit,
@@ -220,7 +220,7 @@ fun ChoosePlaylistSheet(
         Column(Modifier.padding(start = RolaSpacing.xl, end = RolaSpacing.xl, bottom = RolaSpacing.xs)) {
             Text(stringResource(R.string.anadir_a_lista), style = MaterialTheme.typography.titleLarge, color = c.onSurface)
             Text(
-                stringResource(R.string.cancion_y_artista, song.title, song.artist ?: stringResource(R.string.artista_desconocido)),
+                detail,
                 style = MaterialTheme.typography.bodyMedium,
                 color = c.onSurfaceVariant,
                 maxLines = 1,
