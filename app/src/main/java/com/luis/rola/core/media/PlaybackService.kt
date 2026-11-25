@@ -99,6 +99,7 @@ class PlaybackService : MediaSessionService() {
                         Player.EVENT_MEDIA_ITEM_TRANSITION,
                         Player.EVENT_POSITION_DISCONTINUITY,
                         Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                        Player.EVENT_PLAYBACK_STATE_CHANGED, // terminó la cola
                         Player.EVENT_REPEAT_MODE_CHANGED,
                         Player.EVENT_PLAYLIST_METADATA_CHANGED,
                     )
