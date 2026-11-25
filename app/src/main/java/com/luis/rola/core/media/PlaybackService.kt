@@ -13,8 +13,10 @@ import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.annotation.OptIn
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder
@@ -25,10 +27,15 @@ import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.luis.rola.MainActivity
+import com.luis.rola.RolaApp
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 /**
- * La música vive aquí, no en la interfaz (INV-11): cola, modos y temporizador.
+ * La música vive aquí, no en la interfaz (INV-11): cola, modos y temporizador; se guarda y se restaura en pausa (DEC-31).
  * Notificación de Media3; su ícono, en res/values/drawables.xml.
  */
 // Orden aleatorio propio y pausa al final de la canción: API de ExoPlayer marcada inestable en Media3 1.11.
@@ -39,6 +46,19 @@ class PlaybackService : MediaSessionService() {
     private lateinit var player: ExoPlayer
     private val timer = SleepTimer(SystemClock::elapsedRealtime)
     private val handler = Handler(Looper.getMainLooper())
+    private val scope = MainScope()
+    private val container get() = (application as RolaApp).container
+    private lateinit var saver: PlaybackSaver
+
+    /** Hasta terminar de restaurar no se guarda nada y la interfaz retiene sus órdenes (FR-027). */
+    private var listo = false
+
+    private val cada5s = object : Runnable {
+        override fun run() {
+            guardarAvance()
+            handler.postDelayed(this, 5_000)
+        }
+    }
 
     // postDelayed cuenta con uptime, que se detiene si el teléfono duerme en pausa: puede llegar tarde, nunca antes.
     private val vence = Runnable {
@@ -48,6 +68,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+        saver = PlaybackSaver(container.playback, container.scope)
         player = ExoPlayer.Builder(this)
             .setAudioAttributes(
                 AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(),
@@ -58,16 +79,39 @@ class PlaybackService : MediaSessionService() {
             .build()
         player.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
-                // FR-018: una canción ilegible no detiene la cola.
+                // FR-018: una canción ilegible no detiene la cola. Sin play(): si sonaba sigue, y si se acaba de restaurar queda en pausa.
                 if (player.hasNextMediaItem()) {
                     player.seekToNextMediaItem()
                     player.prepare()
-                    player.play()
                 }
+            }
+
+            override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                // SOURCE_UPDATE (se supo una duración) no cambia la cola; setShuffleOrder sí llega como PLAYLIST_CHANGED.
+                if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) guardarCola()
+            }
+
+            override fun onEvents(player: Player, events: Player.Events) {
+                if (events.containsAny(
+                        Player.EVENT_MEDIA_ITEM_TRANSITION,
+                        Player.EVENT_POSITION_DISCONTINUITY,
+                        Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                        Player.EVENT_REPEAT_MODE_CHANGED,
+                        Player.EVENT_PLAYLIST_METADATA_CHANGED,
+                    )
+                ) {
+                    guardarAvance()
+                }
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                handler.removeCallbacks(cada5s)
+                if (isPlaying) handler.postDelayed(cada5s, 5_000)
             }
 
             override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
                 if (shuffleModeEnabled) shuffleFromCurrent()
+                guardarCola()
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -132,6 +176,64 @@ class PlaybackService : MediaSessionService() {
             })
             .build()
         syncTimer()
+        scope.launch {
+            val recortada = restaurar()
+            // En otro turno del hilo: Media3 ya mandó la cola a los controladores antes que este aviso.
+            handler.post {
+                listo = true
+                if (recortada) guardarCola()
+                syncTimer()
+            }
+        }
+    }
+
+    /** Todo como estaba y en pausa: nunca suena sola (FR-022). Devuelve si se omitió alguna canción. */
+    private suspend fun restaurar(): Boolean {
+        val guardado = container.playback.load() ?: return false // sin cola no se toca el MediaStore
+        val songs = container.songs.first().associateBy { it.id }
+        val p = guardado.keepExisting(songs.keys)
+        if (p == null || player.mediaItemCount > 0) return false
+        player.setMediaItems(p.ids.map { songs.getValue(it).toMediaItem() }, p.progress.index, p.progress.positionMs)
+        player.playlistMetadata = MediaMetadata.Builder().setTitle(p.progress.source).build()
+        player.repeatMode = p.progress.repeat.mode
+        player.shuffleModeEnabled = p.progress.shuffle // baraja de nuevo; enseguida va el orden guardado
+        if (p.progress.shuffle) player.setShuffleOrder(DefaultShuffleOrder(p.order.toIntArray(), Random.nextLong()))
+        player.prepare()
+        return p.ids.size < guardado.ids.size
+    }
+
+    private fun guardarCola() {
+        if (!listo) return
+        val t = player.currentTimeline
+        val order = if (t.isEmpty) {
+            emptyList()
+        } else {
+            QueueOrder.follow(t.getFirstWindowIndex(player.shuffleModeEnabled)) {
+                t.getNextWindowIndex(it, Player.REPEAT_MODE_OFF, player.shuffleModeEnabled)
+            }
+        }
+        // Solo entran ids del MediaStore (onAddMediaItems y restaurar).
+        saver.saveQueue(List(t.windowCount) { player.getMediaItemAt(it).mediaId.toLong() }, order)
+        guardarAvance()
+    }
+
+    private fun guardarAvance() {
+        if (!listo) return
+        saver.saveProgress(
+            PlaybackProgress(
+                player.currentMediaItemIndex,
+                player.currentPosition,
+                player.shuffleModeEnabled,
+                Repeat.entries.first { it.mode == player.repeatMode },
+                player.playlistMetadata.title?.toString(),
+            ),
+        )
+    }
+
+    // La app pasó a segundo plano.
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == TRIM_MEMORY_UI_HIDDEN) guardarAvance()
     }
 
     /** Valida y aplica un comando propio; `false` si los argumentos no sirven. */
@@ -170,18 +272,23 @@ class PlaybackService : MediaSessionService() {
         session?.sessionExtras = bundleOf(
             EXTRA_TEMPORIZADOR to timer.option.name,
             EXTRA_TERMINA_EN to (timer.endsAtMs ?: 0L),
+            EXTRA_LISTO to listo,
         )
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo) = session
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        guardarAvance()
         val player = session?.player
         if (player == null || !player.playWhenReady || player.mediaItemCount == 0) stopSelf()
     }
 
     override fun onDestroy() {
-        handler.removeCallbacks(vence)
+        guardarAvance()
+        saver.close()
+        scope.cancel()
+        handler.removeCallbacksAndMessages(null)
         session?.run {
             player.release()
             release()
@@ -197,5 +304,6 @@ class PlaybackService : MediaSessionService() {
         const val ARG_OPCION = "opcion"
         const val EXTRA_TEMPORIZADOR = "temporizador"
         const val EXTRA_TERMINA_EN = "terminaEn"
+        const val EXTRA_LISTO = "listo"
     }
 }

@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.media3.common.MediaItem
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
-enum class Repeat { OFF, ALL, ONE }
+enum class Repeat(val mode: Int) { OFF(Player.REPEAT_MODE_OFF), ALL(Player.REPEAT_MODE_ALL), ONE(Player.REPEAT_MODE_ONE) }
 
 /** `current == null`: no hay nada cargado y la mini tarjeta no se dibuja. Se publica solo en eventos (sin ticker). */
 data class PlayerState(
@@ -66,7 +67,7 @@ class PlayerConnection(context: Context) {
 
     private var controller: MediaController? = null
 
-    /** Órdenes que llegan antes de conectar (el primer toque tras un arranque en frío): salen en orden al conectar (FR-055). */
+    /** Órdenes que llegan antes de conectar o de que el servicio termine de restaurar: salen en orden después (FR-055, 006 FR-027). */
     private val pendientes = ArrayDeque<(MediaController) -> Unit>()
 
     private val listener = object : Player.Listener {
@@ -87,26 +88,39 @@ class PlayerConnection(context: Context) {
         }
     }
 
+    private val future = MediaController.Builder(context, SessionToken(context, ComponentName(context, PlaybackService::class.java)))
+        .setListener(object : MediaController.Listener {
+            override fun onExtrasChanged(controller: MediaController, extras: Bundle) {
+                publish()
+                mandarPendientes()
+            }
+        })
+        .buildAsync()
+
     init {
-        val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        val future = MediaController.Builder(context, token)
-            .setListener(object : MediaController.Listener {
-                override fun onExtrasChanged(controller: MediaController, extras: Bundle) = publish()
-            })
-            .buildAsync()
         future.addListener({
-            val c = future.get().also { it.addListener(listener) }
-            controller = c
-            while (pendientes.isNotEmpty()) pendientes.removeFirst()(c)
+            if (future.isCancelled) return@addListener // close() antes de conectar
+            controller = future.get().also { it.addListener(listener) }
             publish()
             publishQueue()
+            mandarPendientes()
         }, ContextCompat.getMainExecutor(context))
     }
 
+    private fun mandarPendientes() {
+        val c = listo() ?: return
+        while (pendientes.isNotEmpty()) pendientes.removeFirst()(c)
+    }
+
+    private fun listo() = controller?.takeIf { it.sessionExtras.getBoolean(PlaybackService.EXTRA_LISTO) }
+
     /** Todo corre en el hilo principal: la conexión llega por `getMainExecutor`. */
     private fun whenConnected(order: (MediaController) -> Unit) {
-        controller?.let(order) ?: pendientes.addLast(order)
+        listo()?.let(order) ?: pendientes.addLast(order)
     }
+
+    @VisibleForTesting
+    fun close() = MediaController.releaseFuture(future)
 
     /** [source]: lo que dirá «Reproduciendo desde»; viaja en los metadatos de la cola de Media3. */
     fun play(queue: List<Song>, startIndex: Int, source: String? = null) = whenConnected {
@@ -251,11 +265,7 @@ class PlayerConnection(context: Context) {
             durationMs = p.duration.coerceAtLeast(0),
             hasNext = p.hasNextMediaItem(),
             shuffle = p.shuffleModeEnabled,
-            repeat = when (p.repeatMode) {
-                Player.REPEAT_MODE_ALL -> Repeat.ALL
-                Player.REPEAT_MODE_ONE -> Repeat.ONE
-                else -> Repeat.OFF
-            },
+            repeat = Repeat.entries.first { it.mode == p.repeatMode },
             timer = SleepTimerOption.entries.find { it.name == extras.getString(PlaybackService.EXTRA_TEMPORIZADOR) }
                 ?: SleepTimerOption.OFF,
             timerEndsAtMs = extras.getLong(PlaybackService.EXTRA_TERMINA_EN).takeIf { it > 0 },
@@ -278,7 +288,7 @@ class PlayerConnection(context: Context) {
     }
 }
 
-private fun Song.toMediaItem() = MediaItem.Builder()
+internal fun Song.toMediaItem() = MediaItem.Builder()
     .setMediaId(id.toString())
     .setUri(uri)
     .setMediaMetadata(
