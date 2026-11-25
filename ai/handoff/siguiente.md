@@ -3,7 +3,7 @@
 **Estado:** lista
 **Escrita:** 2026-11-19 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
-**Grafo:** 1.10.0 · **Spec Kit:** Parte A, corrección sobre `specs/005-biblioteca-completa/` con `/speckit-converge`; Parte B, función nueva en `specs/006-inicio-y-buscar/`.
+**Grafo:** 1.11.0 · **Spec Kit:** Parte A, corrección sobre `specs/005-biblioteca-completa/` con `/speckit-converge`; Parte B, función nueva en `specs/006-inicio-y-buscar/`.
 **Ponytail:** full en la Parte A; off del Paso B1 al B5; full desde el Paso B6.
 **Dispositivo:** emulador; si el Redmi aparece en adb, instálale `perfil` al final.
 
@@ -29,10 +29,10 @@
 ---
 ## Parte B · Inicio y Buscar
 ### Lectura obligatoria
-- Grafo: DEC-30 (Inicio), DEC-25 (Buscar, con su nota), DEC-03 (vuelve a abrir en Inicio), DEC-19, DEC-26, DEC-27 (relieve en SCR-12, SCR-40, SCR-41), DEC-28, DEC-09, TBL-HISTORY, OP-01, OP-09, OP-16.
+- Grafo: DEC-31 (Persistencia de la reproducción), DEC-30 (Inicio), DEC-25 (Buscar, con su nota), DEC-03 (vuelve a abrir en Inicio), DEC-19, DEC-26, DEC-27 (relieve en SCR-12, SCR-40, SCR-41), DEC-28, DEC-09, TBL-HISTORY, OP-01, OP-09, OP-16.
 - Pantallas: SCR-10 Inicio, SCR-11 Inicio · primera vez, SCR-12 Sin canciones, SCR-40 Buscar, SCR-41 Sin resultados (y sus `figma_nodo_claro`). Usa `figma-design-to-code`.
 ### Paso B1 · `/speckit-specify`
-> Al abrir Rola veo Inicio: un saludo según la hora, lo que escuché hace poco en un carrusel, y «Para ti» con mi canción más escuchada lista para reproducir, un mosaico de Aleatorio con el total de canciones y otro de Favoritas. La primera vez, sin historial, me invita a reproducir algo o ir a Biblioteca. Si no hay canciones en el teléfono, me lo dice y puedo escanear de nuevo. En Buscar escribo y al instante veo canciones, álbumes, artistas y listas que coinciden, con la parte buscada resaltada; si no hay nada, me lo dice.
+> Al abrir Rola veo Inicio: un saludo según la hora, lo que escuché hace poco en un carrusel, y «Para ti» con mi canción más escuchada lista para reproducir, un mosaico de Aleatorio con el total de canciones y otro de Favoritas. La primera vez, sin historial, me invita a reproducir algo o ir a Biblioteca. Si no hay canciones en el teléfono, me lo dice y puedo escanear de nuevo. Si cierro la app o el sistema la cierra, al volver encuentro la canción y la cola donde las dejé, en pausa. En Buscar escribo y al instante veo canciones, álbumes, artistas y listas que coinciden, con la parte buscada resaltada; si no hay nada, me lo dice.
 ### Paso B2 · `/speckit-clarify`
 - Historial (TBL-HISTORY): una reproducción cuenta cuando suena ≥ 30 s o termina si dura menos. «Escuchado hace poco»: últimas 10 canciones distintas, la más reciente primero. «Tu más escuchada»: más reproducciones (empate: la más reciente).
 - Al borrar una canción del dispositivo, se borra su historial (DEC-08).
@@ -41,8 +41,10 @@
 - «Escanear de nuevo» (SCR-12): vuelve a consultar el MediaStore y pide al sistema escanear la carpeta Música con `MediaScannerConnection`; muestra progreso y resultado (DEC-09). «Abrir Ajustes» no se muestra hasta la tarea 08.
 - Buscar: sin texto, solo el campo con ayuda; resultados al escribir (≈ 150 ms de espera), agrupados (Canciones, Álbumes, Artistas, Listas incluida Favoritas), máximo 5 por grupo con orden por relevancia (empieza con > contiene); misma normalización que `SearchText`. Mismo menú ⋮ que Biblioteca. El teclado se abre al entrar a Buscar.
 - La app vuelve a abrir en Inicio (fin de lo temporal de DEC-03).
+- **Persistencia de la reproducción (DEC-31).** Brian reporta que al cerrar la app y pasar el tiempo se pierde la canción y la cola ordenada. Se guarda: la cola en su orden actual, la canción actual, el minuto exacto, aleatorio, repetir y el origen («Reproduciendo desde»). Al abrir la app o recrearse el servicio se restaura todo **en pausa** (nunca suena sola); el mini reproductor aparece con la canción y la barra en su minuto. Si una canción de la cola ya no existe en el teléfono, se omite en silencio; si no queda ninguna, no hay mini reproductor. Pregunta a Brian solo si algo no está claro: ¿se guarda también el temporizador de sueño? (propuesta: **no**).
 ### Paso B3 · `/speckit-plan`
-- `core/database`: tabla `play_history` con migración automática v1→v2 de Room (prueba de migración).
+- `core/database`: tablas `play_history` y `playback_queue` (posición, media_id) con **una sola** migración automática v1→v2 de Room (prueba de migración). Los valores sueltos (índice actual, minuto, aleatorio, repetir, origen) van en DataStore.
+- `core/media`: guardar el estado cuando cambia la cola o la canción, al pausar, al pasar la app a segundo plano y, mientras suena, cada ~5 s para el minuto; restaurar al crearse el servicio con `setMediaItems(items, índice, minuto)` + `prepare()` sin `play()`. Guardado fuera del hilo principal y sin reescribir la cola completa si solo cambió el minuto (con 2 000 canciones no debe notarse).
 - `core/media`: registrar reproducciones desde el servicio.
 - `feature/home`, `feature/search`. Inicio y Buscar dentro del NavHost; la raíz de Biblioteca sigue fuera.
 - Relieve (`RolaRelief`) solo en SCR-12, SCR-40 y SCR-41 donde Figma lo muestra.
@@ -50,11 +52,11 @@
 ### Paso B4–B5 · `/speckit-tasks` y `/speckit-analyze`
 - Commit `docs(spec): 006 inicio y buscar`. Detente y pide a Brian que pase Ponytail a **full**.
 ### Paso B6 · `/speckit-implement`
-- Pruebas: JUnit de saludo por hora, regla de ≥ 30 s, últimas 10 distintas, más escuchada con empate, relevancia de búsqueda; migración de Room; Compose: Inicio primera vez vs con historial, sin canciones, Buscar agrupa y resalta, sin resultados.
+- Pruebas: JUnit de guardar/restaurar (cola en orden, índice, minuto, aleatorio, repetir, canción borrada omitida, cola vacía); Compose o instrumentada: tras recrear la actividad y el servicio, el mini reproductor muestra la misma canción y la cola abre igual y en pausa. JUnit de saludo por hora, regla de ≥ 30 s, últimas 10 distintas, más escuchada con empate, relevancia de búsqueda; migración de Room; Compose: Inicio primera vez vs con historial, sin canciones, Buscar agrupa y resalta, sin resultados.
 - `design-critique` de SCR-10, 11, 12, 40, 41.
 
 ---
 ## Paso final · Comprobaciones y reporte
 - `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y todas las de Compose tras el último cambio.
-- Capturas: `t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-opciones-album.png`.
+- Prueba manual en emulador: poner una cola ordenada, mover la canción a la mitad, cerrar la app deslizándola y forzar su cierre desde Ajustes del sistema, reabrir; anótalo en el reporte. Capturas: `t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-opciones-album.png`, `t07-restaurada.png` (mini reproductor tras reabrir).
 - `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`. Reporte y estado «esperando revisión».
