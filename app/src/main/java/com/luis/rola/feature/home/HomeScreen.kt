@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -143,9 +145,9 @@ private fun Content(
         Section(R.string.para_ti, fila(5).then(lado))
         Column(lado, verticalArrangement = Arrangement.spacedBy(RolaSpacing.sm)) {
             state.mostPlayed?.let { Featured(it, fila(6)) { onPlay(it.song) } }
-            Row(fila(7), horizontalArrangement = Arrangement.spacedBy(RolaSpacing.sm)) {
-                Tile(R.drawable.ic_shuffle, R.string.aleatorio, state.songs, Modifier.weight(1f), onShuffle)
-                Tile(R.drawable.ic_favorite, R.string.favoritas, state.favorites, Modifier.weight(1f), onFavorites)
+            Row(fila(7).height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(RolaSpacing.sm)) {
+                Tile(R.drawable.ic_shuffle, R.string.aleatorio, state.songs, Modifier.weight(1f).fillMaxHeight(), onShuffle)
+                Tile(R.drawable.ic_favorite, R.string.favoritas, state.favorites, Modifier.weight(1f).fillMaxHeight(), onFavorites)
             }
         }
     }
@@ -165,7 +167,6 @@ private fun RecentCard(song: Song, modifier: Modifier, onClick: () -> Unit) {
     Column(
         modifier
             .width(112.dp)
-            .clip(MaterialTheme.shapes.small)
             .clickable(onClickLabel = stringResource(R.string.reproducir), onClick = onClick)
             .testTag("reciente"),
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -211,8 +212,9 @@ private fun Featured(top: MostPlayed, modifier: Modifier, onClick: () -> Unit) {
                 color = c.onSurfaceVariant,
             )
         }
-        Box(Modifier.size(48.dp).background(RolaTheme.colors.accent, CircleShape), Alignment.Center) {
-            Icon(painterResource(R.drawable.ic_play), null, tint = RolaTheme.colors.onAccent)
+        // Lima en oscuro y negro en claro (Figma 30:439 / 51:2090): en claro el mosaico ya es lima.
+        Box(Modifier.size(48.dp).background(c.onPrimaryContainer, CircleShape), Alignment.Center) {
+            Icon(painterResource(R.drawable.ic_play), null, tint = c.background)
         }
     }
 }
