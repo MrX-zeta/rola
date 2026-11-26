@@ -9,6 +9,7 @@ import androidx.room.Room
 import com.luis.rola.core.data.DataStorePreferencesRepository
 import com.luis.rola.core.data.HistoryRepository
 import com.luis.rola.core.data.LibraryRepository
+import com.luis.rola.core.data.LibraryScanner
 import com.luis.rola.core.data.MediaStoreSongRepository
 import com.luis.rola.core.data.PreferencesRepository
 import com.luis.rola.core.data.Song
@@ -45,6 +46,7 @@ class AppContainer(context: Context) {
     var player = PlayerConnection(context)
         @VisibleForTesting set
     val preferences: PreferencesRepository = DataStorePreferencesRepository(context.ajustes)
+    val scanner = LibraryScanner(songRepository, preferences)
     val library = LibraryRepository(db, songs)
     val history = HistoryRepository(db.history(), songs)
 }
