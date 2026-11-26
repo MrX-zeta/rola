@@ -103,7 +103,7 @@
       {
         "version": "1.12.0",
         "fecha": "2026-11-26",
-        "cambio": "Revisión tarea 07: play_order en TBL-QUEUE, temporizador no se guarda, notas de implementación en DEC-30/25/31, PEND-09 a 11, aviso de privacidad sin Notificaciones y plan de tareas 08–10 ajustado."
+        "cambio": "Revisión tarea 07: play_order en TBL-QUEUE, temporizador no se guarda, notas de implementación en DEC-30/25/31, PEND-09 a 11, aviso de privacidad sin Notificaciones y plan de tareas 08–10 ajustado. Se descartó «Otros avisos»: todos los mensajes se muestran siempre."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -190,7 +190,7 @@
       "05": "Favoritas y Listas con Room: DEC-29, SCR-23, 30–33, SCR-54, OP-04–08",
       "06": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
       "07": "Inicio y Buscar, historial y persistencia de la reproducción (hecha, revisada 2026-11-26)",
-      "08": "Ajustes y legal: SCR-70 (sin secciones Letras ni Widget), SCR-72–74, tema seleccionable, Otros avisos, Escanear medios, allowBackup=false, engrane y «Abrir Ajustes» visibles",
+      "08": "Ajustes y legal: SCR-70 (sin secciones Letras ni Widget), SCR-72–74, tema seleccionable, Escanear medios, allowBackup=false, engrane y «Abrir Ajustes» visibles",
       "09": "Letras: SCR-60–63, 71, 75, LRCLIB; agrega a Ajustes la sección LETRAS y el mosaico de Letras en Inicio",
       "10": "Widget: SCR-80; agrega a Ajustes «Agregar widget»",
       "11": "Correcciones finales y Maestro"
@@ -513,7 +513,7 @@
       "id": "DEC-09",
       "tipo": "decision",
       "nombre": "Retroalimentación visible",
-      "descripcion": "Toda operación del usuario muestra resultado: snackbar para acciones reversibles o informativas (con Deshacer cuando se pueda), diálogo para decisiones, indicador de progreso para esperas > 300 ms, estados vacíos con una acción clara. Las listas y portadas que tardan muestran un esqueleto de carga con la forma del contenido (sin brillo animado si el sistema pide reducir movimiento).",
+      "descripcion": "Toda operación del usuario muestra resultado: snackbar para acciones reversibles o informativas (con Deshacer cuando se pueda), diálogo para decisiones, indicador de progreso para esperas > 300 ms, estados vacíos con una acción clara. Las listas y portadas que tardan muestran un esqueleto de carga con la forma del contenido (sin brillo animado si el sistema pide reducir movimiento). Sin interruptor de avisos: todos los mensajes se muestran siempre (decidido 2026-11-26; «Otros avisos» descartado).",
       "estado": "decidido"
     },
     {
@@ -660,7 +660,7 @@
       "id": "DEC-18",
       "tipo": "decision",
       "nombre": "Onboarding y permisos",
-      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. «Otros avisos» son mensajes dentro de la app (no notificaciones del sistema), así que tampoco se pide (aclarado 2026-11-26). Onboarding: 3 pantallas con deslizar horizontal entre ellas (solo dentro del onboarding), «Omitir» lleva a Permisos, «Empezar» en la tercera. Se muestra una sola vez (onboarding_completed en DataStore); si ya se completó y el permiso está concedido, la app abre directo.",
+      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. «Otros avisos» se descartó (2026-11-26): no hay interruptor y no se pide el permiso. Onboarding: 3 pantallas con deslizar horizontal entre ellas (solo dentro del onboarding), «Omitir» lleva a Permisos, «Empezar» en la tercera. Se muestra una sola vez (onboarding_completed en DataStore); si ya se completó y el permiso está concedido, la app abre directo.",
       "estado": "decidido"
     },
     {
@@ -808,7 +808,7 @@
       "id": "PEND-01",
       "tipo": "pregunta_abierta",
       "nombre": "Interruptor de notificaciones",
-      "descripcion": "Para reproducir en segundo plano, Android exige una notificación visible del servicio de reproducción: no se puede ocultar sin que la música se detenga al salir de la app. Propuesta: el interruptor controla los demás avisos (escaneo terminado, letra descargada) y la notificación multimedia se queda. Decide el dueño. RESUELTO (2026-11-14): el interruptor se llama «Otros avisos» y apaga solo los avisos de la app; la notificación del reproductor siempre se muestra porque Android la exige.",
+      "descripcion": "Para reproducir en segundo plano, Android exige una notificación visible del servicio de reproducción: no se puede ocultar sin que la música se detenga al salir de la app. Propuesta: el interruptor controla los demás avisos (escaneo terminado, letra descargada) y la notificación multimedia se queda. Decide el dueño. RESUELTO (2026-11-14): el interruptor se llama «Otros avisos» y apaga solo los avisos de la app; la notificación del reproductor siempre se muestra porque Android la exige. ACTUALIZADO 2026-11-26: el interruptor «Otros avisos» se descartó; no existe.",
       "estado": "resuelto"
     },
     {
@@ -1283,7 +1283,6 @@
           "onboarding_completed",
           "theme (system|dark|light)",
           "lrclib_enabled",
-          "other_notifications_enabled",
           "lyrics_folder_uri",
           "min_duration_s",
           "sort_order",
@@ -1704,7 +1703,8 @@
         "figma_nodo": "40:1674",
         "requiere_red": false,
         "tema": "oscuro y claro listos",
-        "figma_nodo_claro": "51:5129"
+        "figma_nodo_claro": "51:5129",
+        "nota": "Sin fila «Otros avisos» (descartada 2026-11-26). Las secciones Letras y Agregar widget se muestran hasta las tareas 09 y 10."
       }
     },
     {
