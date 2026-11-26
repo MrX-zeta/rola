@@ -46,3 +46,10 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 ### Tarea 08 (2026-11-26)
 - **REQUIERE REVISIÓN HUMANA:** copia de seguridad apagada: `allowBackup="false"`, se borró `backup_rules.xml` y `data_extraction_rules.xml` excluye todo en la nube y en el traspaso entre teléfonos (en Android 12+ `allowBackup` solo apaga la nube). Commit `feaa291`.
 - Símbolo de Rola en tema claro: la «r» del drawable es blanca fija y casi no se ve sobre el fondo claro (reporte, diferencias en claro).
+
+### Tarea 08 (2026-11-26)
+- `allowBackup=false` y reglas de extracción (nube y traspaso): **revisadas y aprobadas por la sesión de diseño**.
+- Dos pruebas de `PlaybackStoreTest` fallan en Windows (`preferences_pb.tmp`): se investigan en la tarea 09, Parte A.
+- Símbolo de Rola blanco en claro: se arregla en la tarea 09, Parte A.
+- Pendiente del dueño: probar `perfil` en el Redmi (fundido del tema, deslizar la tarea, escaneo con archivo nuevo, fluidez con 2 000 canciones).
+

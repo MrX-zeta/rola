@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.12.0",
+    "version": "1.13.0",
     "actualizado": "2026-11-26",
-    "fase": "Inicio, Buscar y persistencia hechos (tarea 07). Siguiente: tarea 08, Ajustes y legal.",
+    "fase": "Ajustes y legal hechos (tarea 08). Siguiente: tarea 09, Letras.",
     "historial": [
       {
         "version": "1.0.0",
@@ -104,6 +104,11 @@
         "version": "1.12.0",
         "fecha": "2026-11-26",
         "cambio": "Revisión tarea 07: play_order en TBL-QUEUE, temporizador no se guarda, notas de implementación en DEC-30/25/31, PEND-09 a 11, aviso de privacidad sin Notificaciones y plan de tareas 08–10 ajustado. Se descartó «Otros avisos»: todos los mensajes se muestran siempre."
+      },
+      {
+        "version": "1.13.0",
+        "fecha": "2026-11-26",
+        "cambio": "Revisión tarea 08: DEC-13 sin «Otros avisos», TBL-LYRICS decidida, notas de DEC-10/12/30, Figma con Licencias ampliadas, SCR-12 nuevo texto, portada plana en Reproduciendo claro y mosaico Favoritas en Inicio."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -190,8 +195,8 @@
       "05": "Favoritas y Listas con Room: DEC-29, SCR-23, 30–33, SCR-54, OP-04–08",
       "06": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
       "07": "Inicio y Buscar, historial y persistencia de la reproducción (hecha, revisada 2026-11-26)",
-      "08": "Ajustes y legal: SCR-70 (sin secciones Letras ni Widget), SCR-72–74, tema seleccionable, Escanear medios, allowBackup=false, engrane y «Abrir Ajustes» visibles",
-      "09": "Letras: SCR-60–63, 71, 75, LRCLIB; agrega a Ajustes la sección LETRAS y el mosaico de Letras en Inicio",
+      "08": "Ajustes y legal (hecha, revisada 2026-11-26)",
+      "09": "Letras: SCR-60–63, 71, 75, LRCLIB, carpeta de letras, sección LETRAS en Ajustes; arreglos: símbolo en claro y pruebas en Windows",
       "10": "Widget: SCR-80; agrega a Ajustes «Agregar widget»",
       "11": "Correcciones finales y Maestro"
     }
@@ -520,7 +525,7 @@
       "id": "DEC-10",
       "tipo": "decision",
       "nombre": "Fuentes de letras",
-      "descripcion": "Orden: (1) letra guardada en la app, (2) archivo .lrc con el mismo nombre en la carpeta que el usuario eligió (acceso por selector del sistema, se recuerda el permiso; se sugieren rutas comunes como «SnapTube Audio», «Music» y «Download»), (3) LRCLIB si está activado. Se muestra tocando la carátula de la canción actual. Las letras sin tiempos se muestran como texto plano.",
+      "descripcion": "Orden: (1) letra guardada en la app, (2) archivo .lrc con el mismo nombre en la carpeta que el usuario eligió (acceso por selector del sistema, se recuerda el permiso; se sugieren rutas comunes como «SnapTube Audio», «Music» y «Download»), (3) LRCLIB si está activado. Se muestra tocando la carátula de la canción actual. Las letras sin tiempos se muestran como texto plano. Lo hallado en la carpeta o en LRCLIB se guarda en la app. Al abrir: guardada y carpeta sin red; si no hay, SCR-61; si se intentó y no hubo, SCR-63. Desfase ±10 s por canción.",
       "estado": "decidido"
     },
     {
@@ -534,14 +539,14 @@
       "id": "DEC-12",
       "tipo": "decision",
       "nombre": "LRCLIB apagado",
-      "descripcion": "Desde la carátula hay dos opciones: Buscar en el teléfono y Buscar en internet. Si LRCLIB está apagado, «Buscar en internet» lleva a Ajustes y el interruptor de LRCLIB parpadea con un borde (sin animación si el sistema pide reducir movimiento).",
+      "descripcion": "Desde la carátula hay dos opciones: Buscar en el teléfono y Buscar en internet. Si LRCLIB está apagado, «Buscar en internet» lleva a Ajustes y el interruptor de LRCLIB parpadea con un borde (sin animación si el sistema pide reducir movimiento). Por defecto apagado. El resaltado de SCR-75 es un borde fijo si el sistema pide reducir movimiento; al volver con LRCLIB encendido se lanza la búsqueda una vez.",
       "estado": "decidido"
     },
     {
       "id": "DEC-13",
       "tipo": "decision",
       "nombre": "Ajustes",
-      "descripcion": "Temporizador de apagado, «Otros avisos» (PEND-01 resuelto), escanear medios, buscar letras en internet (LRCLIB), letras descargadas, carpeta de letras, tema (Sistema/Oscuro/Claro, por defecto Oscuro), agregar widget, términos y condiciones con descargo, aviso de privacidad, licencias.",
+      "descripcion": "Temporizador de apagado, escanear medios con último escaneo, buscar letras en internet (LRCLIB), letras descargadas, carpeta de letras, tema (Sistema/Oscuro/Claro, por defecto Oscuro), agregar widget, términos y condiciones con descargo, aviso de privacidad, licencias, versión. SIN «Otros avisos» (descartado 2026-11-26). Implementado en la tarea 08 salvo letras (09) y widget (10).",
       "estado": "decidido"
     },
     {
@@ -1256,7 +1261,7 @@
       "tipo": "tabla",
       "nombre": "lyrics",
       "descripcion": "Letras guardadas por canción.",
-      "estado": "propuesto",
+      "estado": "decidido",
       "detalles": {
         "almacen": "Room",
         "campos": [
@@ -1268,7 +1273,8 @@
           "lrclib_id",
           "duration_s",
           "saved_at"
-        ]
+        ],
+        "migracion": "Room v2→v3 automática (tarea 09)"
       }
     },
     {
@@ -1379,7 +1385,8 @@
         "figma_nodo": "30:408",
         "requiere_red": false,
         "tema": "oscuro y claro listos",
-        "figma_nodo_claro": "51:2090"
+        "figma_nodo_claro": "51:2090",
+        "nota": "Figma: mosaico «Favoritas · N canciones» en lugar de Letras (2026-11-26)."
       }
     },
     {
@@ -1757,7 +1764,8 @@
         "figma_nodo": "41:1842",
         "requiere_red": false,
         "tema": "oscuro y claro listos",
-        "figma_nodo_claro": "51:5602"
+        "figma_nodo_claro": "51:5602",
+        "nota": "Figma con Palette y Reorderable (2026-11-26)."
       }
     },
     {
@@ -1895,7 +1903,7 @@
       "id": "DEC-30",
       "tipo": "decision",
       "nombre": "Inicio",
-      "descripcion": "Saludo según la hora y fecha; «Escuchado hace poco» con las últimas 10 canciones distintas (carrusel); «Para ti» en bento: «Tu más escuchada» (la canción con más reproducciones, con botón reproducir), mosaico «Aleatorio · N canciones» y mosaico «Favoritas · N» (el de Letras llega con la tarea 09). Sin historial: SCR-11. Sin canciones en el teléfono: SCR-12 con «Escanear de nuevo». «Ver todo» y el engrane de Ajustes no se muestran hasta tener su pantalla. IMPLEMENTADO (tarea 07): tocar una canción en Inicio o Buscar arma la cola con Biblioteca · Canciones desde esa canción (origen «Biblioteca»). La fecha del saludo sustituye a la hora de Figma. Favoritas e hijos de Buscar cuelgan de su pestaña (la píldora no salta; atrás regresa).",
+      "descripcion": "Saludo según la hora y fecha; «Escuchado hace poco» con las últimas 10 canciones distintas (carrusel); «Para ti» en bento: «Tu más escuchada» (la canción con más reproducciones, con botón reproducir), mosaico «Aleatorio · N canciones» y mosaico «Favoritas · N» (el de Letras llega con la tarea 09). Sin historial: SCR-11. Sin canciones en el teléfono: SCR-12 con «Escanear de nuevo». «Ver todo» y el engrane de Ajustes no se muestran hasta tener su pantalla. IMPLEMENTADO (tarea 07): tocar una canción en Inicio o Buscar arma la cola con Biblioteca · Canciones desde esa canción (origen «Biblioteca»). La fecha del saludo sustituye a la hora de Figma. Favoritas e hijos de Buscar cuelgan de su pestaña (la píldora no salta; atrás regresa). Sin mosaico de Letras en Inicio (decidido 2026-11-26): el segundo mosaico es Favoritas; las letras guardadas se ven en Ajustes.",
       "estado": "decidido"
     },
     {
