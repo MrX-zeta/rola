@@ -1,62 +1,59 @@
-# Tarea 07 · Inicio y Buscar
+# Tarea 08 · Ajustes y legal
 
-**Estado:** esperando revisión
-**Escrita:** 2026-11-19 · sesión de diseño
+**Estado:** lista
+**Escrita:** 2026-11-26 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
-**Grafo:** 1.11.0 · **Spec Kit:** Parte A, corrección sobre `specs/005-biblioteca-completa/` con `/speckit-converge`; Parte B, función nueva en `specs/006-inicio-y-buscar/`.
-**Ponytail:** full en la Parte A; off del Paso B1 al B5; full desde el Paso B6.
+**Grafo:** 1.12.0 · **Spec Kit:** función nueva en `specs/007-ajustes-y-legal/` (`/speckit-specify` → `-clarify` → `-plan` → `-tasks` → `-analyze` → `-implement`).
+**Ponytail:** off del Paso 1 al 5; full desde el Paso 6.
 **Dispositivo:** emulador; si el Redmi aparece en adb, instálale `perfil` al final.
 
-## Respuestas a la tarea 06
-1. Agrupar por artista del álbum: **se queda** (anotado en DEC-05).
-2, 5, 6, 7, 8: **aprobadas**.
-3. Sin relieve: **correcto**; ya quité las sombras de Figma.
-4. ⋮ de los detalles: lleva **«Añadir a la cola»** y **«Añadir a una lista»** (todas las canciones del álbum o del artista), con el mismo estilo de menú que SCR-54. Va en la Parte A.
-9. Corrige la frase de la spec: al desaparecer un detalle se «vuelve atrás».
-- PEND-05: **resuelto, no** se ignoran artículos.
-- Álbum de menos de 1 min: muestra «< 1 min».
-- Tamaños sin token exacto: **se aceptan** los tokens actuales.
+## Respuestas a la tarea 07
+- Decisiones 1–10: **aprobadas**. Anotadas en DEC-30 y DEC-25 (cola de Biblioteca con origen «Biblioteca», Buscar compara nombres, fecha en lugar de la hora de Figma, hijos de Inicio y de Buscar).
+- `play_order` en `playback_queue`: **sí** (ya en TBL-QUEUE). **Temporizador de sueño: no se guarda**; quité `sleep_timer_end` del grafo.
+- **Copia de seguridad de Android:** se **desactiva** (`allowBackup="false"`). Va en esta tarea (Paso 6, primer commit).
+- SCR-12 dice «revisa qué carpetas se escanean»: en esta tarea aparece «Abrir Ajustes»; deja el texto verdadero con lo que Ajustes ofrece (Escanear medios; no hay selector de carpetas).
+- Historial sin tope ni borrado (PEND-10) y reanudar desde audífonos con la app cerrada (PEND-11): **se posponen** (tarea 11).
+- Falta, y es de Brian: deslizar la tarea en el Redmi y probar «Escanear de nuevo» con un archivo que el sistema no conozca.
 
 ## Paso 0 · Comprobación
-- `git log --oneline -3` incluye `docs: sesión de diseño tarea 07`. Si no, detente.
+- `git log --oneline -3` incluye el commit de la sesión de diseño de la tarea 08 (`docs: sesión de diseño tarea 08`). Si no, detente.
 
 ---
-## Parte A · Pendientes de Biblioteca (Ponytail full)
-- ⋮ en Detalle de álbum y Detalle de artista con las dos opciones; «Añadir a una lista» abre SCR-55 con todas las canciones (el aviso dice cuántas se agregaron).
-- «< 1 min» y la frase de la spec. `/speckit-converge`.
-- Commits: `docs(spec): 005 pendientes`, `feat(library): opciones de álbum y artista`.
+## Lectura obligatoria
+- Grafo: DEC-23 (Legal), DEC-26 (Escaneo), DEC-18 (nota de abajo), DEC-09, DEC-16 (tema claro), DEC-27, DEC-28, DEC-12, KV-DATASTORE, OP-16, PEND-07 (no entra), PEND-09.
+- Pantallas: SCR-70 Ajustes (40:1674 / claro 51:5129), SCR-72 Términos (41:1778 / 51:5538), SCR-73 Privacidad (41:1810 / 51:5570), SCR-74 Licencias (41:1842 / 51:5602), Temporizador (36:1651 / 51:4662). Usa `figma-design-to-code`. Lee los textos legales **completos** en Figma (el aviso de privacidad ya no menciona Notificaciones).
+- **Nota DEC-18:** «Otros avisos» son mensajes dentro de la app (como «Lista creada»), **no** notificaciones del sistema: no se pide `POST_NOTIFICATIONS`.
 
----
-## Parte B · Inicio y Buscar
-### Lectura obligatoria
-- Grafo: DEC-31 (Persistencia de la reproducción), DEC-30 (Inicio), DEC-25 (Buscar, con su nota), DEC-03 (vuelve a abrir en Inicio), DEC-19, DEC-26, DEC-27 (relieve en SCR-12, SCR-40, SCR-41), DEC-28, DEC-09, TBL-HISTORY, OP-01, OP-09, OP-16.
-- Pantallas: SCR-10 Inicio, SCR-11 Inicio · primera vez, SCR-12 Sin canciones, SCR-40 Buscar, SCR-41 Sin resultados (y sus `figma_nodo_claro`). Usa `figma-design-to-code`.
-### Paso B1 · `/speckit-specify`
-> Al abrir Rola veo Inicio: un saludo según la hora, lo que escuché hace poco en un carrusel, y «Para ti» con mi canción más escuchada lista para reproducir, un mosaico de Aleatorio con el total de canciones y otro de Favoritas. La primera vez, sin historial, me invita a reproducir algo o ir a Biblioteca. Si no hay canciones en el teléfono, me lo dice y puedo escanear de nuevo. Si cierro la app o el sistema la cierra, al volver encuentro la canción y la cola donde las dejé, en pausa. En Buscar escribo y al instante veo canciones, álbumes, artistas y listas que coinciden, con la parte buscada resaltada; si no hay nada, me lo dice.
-### Paso B2 · `/speckit-clarify`
-- Historial (TBL-HISTORY): una reproducción cuenta cuando suena ≥ 30 s o termina si dura menos. «Escuchado hace poco»: últimas 10 canciones distintas, la más reciente primero. «Tu más escuchada»: más reproducciones (empate: la más reciente).
-- Al borrar una canción del dispositivo, se borra su historial (DEC-08).
-- Saludo: «Buenos días» (5–11:59), «Buenas tardes» (12–18:59), «Buenas noches» (19–4:59), con la fecha en español.
-- «Ver todo» y el engrane de Ajustes **no se muestran** todavía (DEC-30).
-- «Escanear de nuevo» (SCR-12): vuelve a consultar el MediaStore y pide al sistema escanear la carpeta Música con `MediaScannerConnection`; muestra progreso y resultado (DEC-09). «Abrir Ajustes» no se muestra hasta la tarea 08.
-- Buscar: sin texto, solo el campo con ayuda; resultados al escribir (≈ 150 ms de espera), agrupados (Canciones, Álbumes, Artistas, Listas incluida Favoritas), máximo 5 por grupo con orden por relevancia (empieza con > contiene); misma normalización que `SearchText`. Mismo menú ⋮ que Biblioteca. El teclado se abre al entrar a Buscar.
-- La app vuelve a abrir en Inicio (fin de lo temporal de DEC-03).
-- **Persistencia de la reproducción (DEC-31).** Brian reporta que al cerrar la app y pasar el tiempo se pierde la canción y la cola ordenada. Se guarda: la cola en su orden actual, la canción actual, el minuto exacto, aleatorio, repetir y el origen («Reproduciendo desde»). Al abrir la app o recrearse el servicio se restaura todo **en pausa** (nunca suena sola); el mini reproductor aparece con la canción y la barra en su minuto. Si una canción de la cola ya no existe en el teléfono, se omite en silencio; si no queda ninguna, no hay mini reproductor. Pregunta a Brian solo si algo no está claro: ¿se guarda también el temporizador de sueño? (propuesta: **no**).
-### Paso B3 · `/speckit-plan`
-- `core/database`: tablas `play_history` y `playback_queue` (posición, media_id) con **una sola** migración automática v1→v2 de Room (prueba de migración). Los valores sueltos (índice actual, minuto, aleatorio, repetir, origen) van en DataStore.
-- `core/media`: guardar el estado cuando cambia la cola o la canción, al pausar, al pasar la app a segundo plano y, mientras suena, cada ~5 s para el minuto; restaurar al crearse el servicio con `setMediaItems(items, índice, minuto)` + `prepare()` sin `play()`. Guardado fuera del hilo principal y sin reescribir la cola completa si solo cambió el minuto (con 2 000 canciones no debe notarse).
-- `core/media`: registrar reproducciones desde el servicio.
-- `feature/home`, `feature/search`. Inicio y Buscar dentro del NavHost; la raíz de Biblioteca sigue fuera.
-- Relieve (`RolaRelief`) solo en SCR-12, SCR-40 y SCR-41 donde Figma lo muestra.
-- Movimiento (`animate`): cascada al entrar en Inicio (carrusel y bento) y en los resultados de Buscar; los resultados nuevos no deben parpadear al escribir.
-### Paso B4–B5 · `/speckit-tasks` y `/speckit-analyze`
-- Commit `docs(spec): 006 inicio y buscar`. Detente y pide a Brian que pase Ponytail a **full**.
-### Paso B6 · `/speckit-implement`
-- Pruebas: JUnit de guardar/restaurar (cola en orden, índice, minuto, aleatorio, repetir, canción borrada omitida, cola vacía); Compose o instrumentada: tras recrear la actividad y el servicio, el mini reproductor muestra la misma canción y la cola abre igual y en pausa. JUnit de saludo por hora, regla de ≥ 30 s, últimas 10 distintas, más escuchada con empate, relevancia de búsqueda; migración de Room; Compose: Inicio primera vez vs con historial, sin canciones, Buscar agrupa y resalta, sin resultados.
-- `design-critique` de SCR-10, 11, 12, 40, 41.
+## Qué entra y qué no en Ajustes (DEC-30: no se muestra lo que aún no existe)
+- **Sí:** REPRODUCCIÓN (Temporizador de apagado, Otros avisos), BIBLIOTECA (Escanear medios con «Último escaneo»), APARIENCIA (Tema), ACERCA DE (Términos, Privacidad, Licencias, Versión).
+- **No todavía:** sección LETRAS y «Carpeta de letras» (tarea 09, con SCR-71 y SCR-75), «Agregar widget» (tarea 10).
+- Se hacen visibles el **engrane de Inicio** y el botón **«Abrir Ajustes»** de SCR-12. Ajustes es hijo de la pestaña desde la que se abre (la píldora no salta; atrás regresa).
+
+### Paso 1 · `/speckit-specify`
+> En Ajustes cambio el tema (sistema, oscuro o claro) y se aplica al instante; programo el temporizador de apagado y veo cuánto falta; decido si veo mensajes informativos como «Lista creada»; escaneo mis medios y veo cuándo fue la última vez; leo los términos, el aviso de privacidad y las licencias; y veo la versión. Llego desde el engrane de Inicio o desde «Abrir Ajustes» cuando no hay canciones.
+### Paso 2 · `/speckit-clarify` (propuestas; confirma lo dudoso con Brian)
+- **Tema:** `theme` = sistema | oscuro | claro, **por defecto oscuro** (lo que ya se ve). Hoja de selección con tres opciones, mismo estilo que la hoja de ordenar (33:1070). Se aplica sin reiniciar, incluida la barra de estado; el ícono y la pantalla de inicio siguen al sistema.
+- **Temporizador:** la fila abre la misma hoja del reproductor; muestra «Apagado» o el tiempo restante. No se guarda al cerrar la app.
+- **Otros avisos** (`other_notifications_enabled`, por defecto encendido): apagado oculta solo los mensajes informativos sin acción (por ejemplo «Lista creada», «Agregada a la cola»). **Siempre se muestran:** los que traen «Deshacer», los errores y el resultado de acciones pedidas (escaneo). Los controles del reproductor siempre se muestran.
+- **Escanear medios:** misma lógica que «Escanear de nuevo» de SCR-12 (OP-16), con progreso y resultado; guarda `last_scan_at` y muestra «Último escaneo: hace 2 días» en español (un momento, minutos, horas, días).
+- **Versión:** sale de `BuildConfig`, no escrita a mano.
+- **Legal:** textos en `strings.xml`; pantallas con desplazamiento, flecha atrás y encabezado con rol. Licencias: agrega Coil, Palette y Reorderable (Apache 2.0) a las de Figma; yo actualizo Figma al revisar.
+- **Copia de seguridad:** `allowBackup="false"` (PEND-09).
+### Paso 3 · `/speckit-plan`
+- `feature/settings` (Ajustes y las tres pantallas legales) dentro del NavHost. Claves nuevas en el DataStore `rola_ajustes`: `theme`, `other_notifications_enabled`, `last_scan_at`.
+- Tema: `RolaTheme` lee `theme` y lo aplica al instante; sin parpadeo al arrancar (leer antes de dibujar).
+- «Otros avisos»: un solo punto por donde pasan los avisos informativos, no uno por pantalla.
+- Movimiento (`animate`): sin animaciones nuevas salvo la ya definida en DEC-28; la hoja del tema y los interruptores usan la animación de siempre; cambio de tema con fundido ≤ 300 ms, sin saltos; respeta «reducir movimiento».
+### Paso 4–5 · `/speckit-tasks` y `/speckit-analyze`
+- Commit `docs(spec): 007 ajustes y legal`. Detente y pide a Brian que pase Ponytail a **full**.
+### Paso 6 · `/speckit-implement`
+- Primer commit de código: `allowBackup="false"` (`fix(app): desactivar la copia de seguridad`).
+- Pruebas: JUnit de «hace X» en español, tema por defecto y guardado, filtro de «Otros avisos» (con y sin Deshacer); Compose: Ajustes muestra solo las filas permitidas, el tema cambia y persiste, los tres documentos se leen y se puede volver, engrane y «Abrir Ajustes» llevan a Ajustes y atrás regresa.
+- **Tema claro por primera vez en el teléfono:** captura en claro de Inicio, Biblioteca (4 pestañas), Buscar, Reproduciendo, Cola, Temporizador, Ajustes y las tres legales, y compara con los nodos claros de Figma (51:…). Reporta cada diferencia. Nodos claros: Inicio 51:2090, Biblioteca Canciones 51:2359, Álbumes 51:2577, Artistas 51:2737, Listas 51:2902, Buscar 51:4081, Reproduciendo 51:4482, Cola 51:4570.
+- `design-critique` de SCR-70, 72, 73, 74 en oscuro y en claro.
 
 ---
 ## Paso final · Comprobaciones y reporte
 - `./gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y todas las de Compose tras el último cambio.
-- Prueba manual en emulador: poner una cola ordenada, mover la canción a la mitad, cerrar la app deslizándola y forzar su cierre desde Ajustes del sistema, reabrir; anótalo en el reporte. Capturas: `t07-inicio.png`, `t07-inicio-primera-vez.png`, `t07-sin-canciones.png`, `t07-buscar.png`, `t07-sin-resultados.png`, `t07-opciones-album.png`, `t07-restaurada.png` (mini reproductor tras reabrir).
-- `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`. Reporte y estado «esperando revisión».
+- Capturas: `t08-ajustes.png`, `t08-ajustes-claro.png`, `t08-tema.png`, `t08-terminos.png`, `t08-privacidad.png`, `t08-licencias.png`, `t08-inicio-claro.png`, `t08-reproduciendo-claro.png`.
+- Pregunta a Brian solo lo que no esté claro. `/ponytail:ponytail-review`, `git log` sin autoría de IA, push a `origin development`. Reporte y estado «esperando revisión».

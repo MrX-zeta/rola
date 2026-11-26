@@ -37,6 +37,8 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 - Artistas agrupados por artista del álbum: una canción con invitado no crea su propio artista (reporte, decisión 1).
 
 ### Tarea 07 (2026-11-25)
-- **REQUIERE REVISIÓN HUMANA:** `allowBackup` lleva `rola.db` y la cola a otro teléfono, donde los ids del MediaStore son otros (reporte, riesgos).
+- **Resuelta 2026-11-26:** se desactiva la copia (`allowBackup=false`) en la tarea 08. Antes: `allowBackup` lleva `rola.db` y la cola a otro teléfono, donde los ids del MediaStore son otros (reporte, riesgos).
 - Temporizador de sueño: DEC-31 y KV-DATASTORE se contradicen; hoy no se guarda.
 - Deslizar la app fuera de recientes y fluidez con 2 000 canciones: verlas en el Redmi.
+
+**Revisada por la sesión de diseño (2026-11-26):** decisiones 1–10 aprobadas; `play_order` aprobado; el temporizador de sueño no se guarda; falta que Brian deslice la tarea en el Redmi y pruebe «Escanear de nuevo» con un archivo nuevo.

@@ -1,9 +1,9 @@
 {
   "meta": {
     "nombre": "Grafo de conocimiento — Rola",
-    "version": "1.11.0",
-    "actualizado": "2026-11-25",
-    "fase": "Biblioteca completa (tarea 06). Siguiente: tarea 07, Inicio y Buscar.",
+    "version": "1.12.0",
+    "actualizado": "2026-11-26",
+    "fase": "Inicio, Buscar y persistencia hechos (tarea 07). Siguiente: tarea 08, Ajustes y legal.",
     "historial": [
       {
         "version": "1.0.0",
@@ -99,6 +99,11 @@
         "version": "1.11.0",
         "fecha": "2026-11-25",
         "cambio": "DEC-31 Persistencia de la reproducción (cola, canción y minuto se restauran en pausa) y TBL-QUEUE; se añade a la tarea 07."
+      },
+      {
+        "version": "1.12.0",
+        "fecha": "2026-11-26",
+        "cambio": "Revisión tarea 07: play_order en TBL-QUEUE, temporizador no se guarda, notas de implementación en DEC-30/25/31, PEND-09 a 11, aviso de privacidad sin Notificaciones y plan de tareas 08–10 ajustado."
       }
     ],
     "proposito": "Fuente de verdad del contexto, decisiones y restricciones de Rola, para personas y agentes de IA.",
@@ -162,8 +167,8 @@
       "invoca": "pantalla → operación"
     },
     "estadisticas": {
-      "nodos": 165,
-      "aristas": 289,
+      "nodos": 168,
+      "aristas": 292,
       "por_tipo": {
         "proyecto": 1,
         "objetivo": 4,
@@ -172,7 +177,7 @@
         "tecnologia": 20,
         "decision": 31,
         "invariante": 11,
-        "pregunta_abierta": 8,
+        "pregunta_abierta": 11,
         "fuera_de_alcance": 7,
         "modulo": 9,
         "operacion": 19,
@@ -184,10 +189,10 @@
     "plan_de_tareas": {
       "05": "Favoritas y Listas con Room: DEC-29, SCR-23, 30–33, SCR-54, OP-04–08",
       "06": "Biblioteca completa: SCR-21, 22, 24, 25, 26, abecedario",
-      "07": "Inicio y Buscar: SCR-10–12, 40, 41",
-      "08": "Ajustes y legal: SCR-70, 72–75, tema seleccionable",
-      "09": "Letras: SCR-60–63, 71, LRCLIB",
-      "10": "Widget: SCR-80",
+      "07": "Inicio y Buscar, historial y persistencia de la reproducción (hecha, revisada 2026-11-26)",
+      "08": "Ajustes y legal: SCR-70 (sin secciones Letras ni Widget), SCR-72–74, tema seleccionable, Otros avisos, Escanear medios, allowBackup=false, engrane y «Abrir Ajustes» visibles",
+      "09": "Letras: SCR-60–63, 71, 75, LRCLIB; agrega a Ajustes la sección LETRAS y el mosaico de Letras en Inicio",
+      "10": "Widget: SCR-80; agrega a Ajustes «Agregar widget»",
       "11": "Correcciones finales y Maestro"
     }
   },
@@ -463,7 +468,7 @@
       "id": "DEC-03",
       "tipo": "decision",
       "nombre": "Navegación",
-      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña. TEMPORAL (2026-11-14): mientras Inicio no exista, la app abre en Biblioteca. FIN DE LO TEMPORAL (tarea 07): con Inicio listo, la app vuelve a abrir en Inicio.",
+      "descripcion": "Barra inferior flotante en forma de píldora con tres destinos: Inicio (por defecto), Biblioteca y Buscar. El destino activo muestra ícono + texto; los otros solo ícono (con descripción para accesibilidad). No hay deslizar entre pestañas: solo se cambia tocando la píldora. Atrás del sistema respeta la pila de cada pestaña. TEMPORAL (2026-11-14): mientras Inicio no exista, la app abre en Biblioteca. FIN DE LO TEMPORAL (hecho en la tarea 07): la app abre en Inicio.",
       "estado": "decidido"
     },
     {
@@ -655,7 +660,7 @@
       "id": "DEC-18",
       "tipo": "decision",
       "nombre": "Onboarding y permisos",
-      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. Se pedirá solo cuando exista algo de «Otros avisos». Onboarding: 3 pantallas con deslizar horizontal entre ellas (solo dentro del onboarding), «Omitir» lleva a Permisos, «Empezar» en la tercera. Se muestra una sola vez (onboarding_completed en DataStore); si ya se completó y el permiso está concedido, la app abre directo.",
+      "descripcion": "Tres pantallas de bienvenida (qué es, letras, sin conexión) y una de permisos. Se pide solo lo necesario y en contexto: audio (READ_MEDIA_AUDIO en 13+, READ_EXTERNAL_STORAGE en 11–12) al terminar el onboarding; notificaciones (13+) al reproducir por primera vez. Si se niega el audio: pantalla con explicación y botón a Ajustes del sistema. CAMBIO (2026-11-14): no se pide POST_NOTIFICATIONS al reproducir; la notificación de la sesión multimedia no lo necesita en Android 13+. «Otros avisos» son mensajes dentro de la app (no notificaciones del sistema), así que tampoco se pide (aclarado 2026-11-26). Onboarding: 3 pantallas con deslizar horizontal entre ellas (solo dentro del onboarding), «Omitir» lleva a Permisos, «Empezar» en la tercera. Se muestra una sola vez (onboarding_completed en DataStore); si ya se completó y el permiso está concedido, la app abre directo.",
       "estado": "decidido"
     },
     {
@@ -712,7 +717,7 @@
       "id": "DEC-25",
       "tipo": "decision",
       "nombre": "Buscar",
-      "descripcion": "Buscador general sobre canciones, álbumes, artistas y listas, con resultados agrupados. Sin abecedario (los resultados van por relevancia). Mismo menú de opciones que Biblioteca. Mientras no se escribe nada, Buscar muestra solo el campo con un texto de ayuda. Los resultados se actualizan al escribir (sin botón), con la coincidencia resaltada.",
+      "descripcion": "Buscador general sobre canciones, álbumes, artistas y listas, con resultados agrupados. Sin abecedario (los resultados van por relevancia). Mismo menú de opciones que Biblioteca. Mientras no se escribe nada, Buscar muestra solo el campo con un texto de ayuda. Los resultados se actualizan al escribir (sin botón), con la coincidencia resaltada. IMPLEMENTADO (tarea 07): compara nombres de canción, álbum, artista y lista (no el artista de cada canción); la fila de Listas usa el estilo de Álbumes; ⋮ solo en canciones; al volver a Buscar con texto el teclado no se abre.",
       "estado": "decidido"
     },
     {
@@ -1282,8 +1287,9 @@
           "lyrics_folder_uri",
           "min_duration_s",
           "sort_order",
-          "sleep_timer_end"
-        ]
+          "last_scan_at"
+        ],
+        "nota": "Reproducción guardada vive aparte en el DataStore «rola_reproduccion» (índice, minuto, aleatorio, repetir, origen). El temporizador de sueño no se guarda (decidido 2026-11-26). Tema por defecto: oscuro."
       }
     },
     {
@@ -1737,7 +1743,8 @@
         "figma_nodo": "41:1810",
         "requiere_red": false,
         "tema": "oscuro y claro listos",
-        "figma_nodo_claro": "51:5570"
+        "figma_nodo_claro": "51:5570",
+        "nota": "Se quitó la mención a Notificaciones del párrafo Permisos (2026-11-26): no se pide POST_NOTIFICATIONS."
       }
     },
     {
@@ -1888,14 +1895,14 @@
       "id": "DEC-30",
       "tipo": "decision",
       "nombre": "Inicio",
-      "descripcion": "Saludo según la hora y fecha; «Escuchado hace poco» con las últimas 10 canciones distintas (carrusel); «Para ti» en bento: «Tu más escuchada» (la canción con más reproducciones, con botón reproducir), mosaico «Aleatorio · N canciones» y mosaico «Favoritas · N» (el de Letras llega con la tarea 09). Sin historial: SCR-11. Sin canciones en el teléfono: SCR-12 con «Escanear de nuevo». «Ver todo» y el engrane de Ajustes no se muestran hasta tener su pantalla.",
+      "descripcion": "Saludo según la hora y fecha; «Escuchado hace poco» con las últimas 10 canciones distintas (carrusel); «Para ti» en bento: «Tu más escuchada» (la canción con más reproducciones, con botón reproducir), mosaico «Aleatorio · N canciones» y mosaico «Favoritas · N» (el de Letras llega con la tarea 09). Sin historial: SCR-11. Sin canciones en el teléfono: SCR-12 con «Escanear de nuevo». «Ver todo» y el engrane de Ajustes no se muestran hasta tener su pantalla. IMPLEMENTADO (tarea 07): tocar una canción en Inicio o Buscar arma la cola con Biblioteca · Canciones desde esa canción (origen «Biblioteca»). La fecha del saludo sustituye a la hora de Figma. Favoritas e hijos de Buscar cuelgan de su pestaña (la píldora no salta; atrás regresa).",
       "estado": "decidido"
     },
     {
       "id": "DEC-31",
       "tipo": "decision",
       "nombre": "Persistencia de la reproducción",
-      "descripcion": "Al cerrar la app o si el sistema la cierra, se conserva la cola en su orden, la canción actual, el minuto exacto, aleatorio, repetir y el origen. Al volver se restaura en pausa (nunca suena sola). Canciones borradas del teléfono se omiten. Temporizador de sueño no se guarda (propuesta, pendiente de confirmar).",
+      "descripcion": "Al cerrar la app o si el sistema la cierra, se conserva la cola en su orden, la canción actual, el minuto exacto, aleatorio, repetir y el origen. Al volver se restaura en pausa (nunca suena sola). Canciones borradas del teléfono se omiten. El temporizador de sueño NO se guarda (decidido 2026-11-26). Implementada en la tarea 07: PlaybackStore, `play_order`, guardado cada 5 s, restauración en pausa.",
       "estado": "decidido",
       "detalles": {
         "almacen": "Room (cola ordenada) + DataStore (índice, minuto, aleatorio, repetir, origen)",
@@ -1913,10 +1920,33 @@
         "almacen": "Room",
         "campos": [
           "position",
+          "play_order",
           "media_id"
         ],
-        "migracion": "misma v1→v2 que play_history"
+        "migracion": "misma v1→v2 que play_history",
+        "nota": "play_order guarda el orden original para recuperarlo al apagar aleatorio tras reabrir (decidido 2026-11-26)."
       }
+    },
+    {
+      "id": "PEND-09",
+      "tipo": "pregunta_abierta",
+      "nombre": "Copia de seguridad de Android",
+      "descripcion": "allowBackup activo llevaría rola.db y la cola a otro teléfono donde los ids del MediaStore difieren. Decisión: desactivar la copia (allowBackup=false) en la tarea 08.",
+      "estado": "resuelto"
+    },
+    {
+      "id": "PEND-10",
+      "tipo": "pregunta_abierta",
+      "nombre": "Historial sin límite ni borrado",
+      "descripcion": "play_history crece sin tope y no hay forma de borrarlo. Propuesta: fila «Borrar historial» en Ajustes (hay que diseñarla) y tope razonable. Se decide al final.",
+      "estado": "propuesto"
+    },
+    {
+      "id": "PEND-11",
+      "tipo": "pregunta_abierta",
+      "nombre": "Reanudar desde audífonos con la app cerrada",
+      "descripcion": "Pulsar play desde audífonos o la notificación con la app cerrada no restaura la cola (Media3 onPlaybackResumption). Propuesta: hacerlo en la tarea 11.",
+      "estado": "propuesto"
     }
   ],
   "aristas": [
@@ -3394,6 +3424,21 @@
       "de": "DEC-31",
       "a": "DEC-04",
       "relacion": "depende_de"
+    },
+    {
+      "de": "PEND-09",
+      "a": "DEC-31",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-10",
+      "a": "TBL-HISTORY",
+      "relacion": "afina"
+    },
+    {
+      "de": "PEND-11",
+      "a": "DEC-31",
+      "relacion": "afina"
     }
   ]
 }
