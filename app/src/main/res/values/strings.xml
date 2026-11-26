@@ -216,7 +216,7 @@
     <string name="primera_vez_texto">Toca cualquier canción para empezar. Aquí verás lo último que escuchaste.</string>
     <string name="ir_a_biblioteca">Ir a Biblioteca</string>
     <string name="sin_musica_titulo">No encontramos música</string>
-    <string name="sin_musica_texto">Rola busca en las carpetas de audio de tu teléfono. Copia canciones o revisa qué carpetas se escanean.</string>
+    <string name="sin_musica_texto">Rola busca en las carpetas de audio de tu teléfono. Copia canciones y vuelve a escanear.</string>
     <string name="escanear_de_nuevo">Escanear de nuevo</string>
     <string name="escaneando">Escaneando…</string>
     <plurals name="encontramos_n">
@@ -231,4 +231,71 @@
     <string name="borrar_busqueda">Borrar búsqueda</string>
     <string name="sin_resultados_para">Sin resultados para «%1$s»</string>
     <string name="sin_resultados_consejo">Revisa cómo se escribe o prueba con el nombre del artista o del álbum.</string>
+
+    <!-- Ajustes (SCR-70) -->
+    <string name="ajustes">Ajustes</string>
+    <string name="seccion_reproduccion">REPRODUCCIÓN</string>
+    <string name="seccion_biblioteca">BIBLIOTECA</string>
+    <string name="seccion_apariencia">APARIENCIA</string>
+    <string name="seccion_acerca_de">ACERCA DE</string>
+    <string name="temporizador_de_apagado">Temporizador de apagado</string>
+    <string name="temporizador_de_apagado_texto">Pausa la música después de un tiempo</string>
+    <string name="escanear_medios">Escanear medios</string>
+    <string name="ultimo_escaneo">Último escaneo: %1$s</string>
+    <string name="sin_escaneo">Aún no has escaneado</string>
+    <string name="hace_un_momento">hace un momento</string>
+    <plurals name="hace_minutos">
+        <item quantity="one">hace %1$d minuto</item>
+        <item quantity="many">hace %1$d minutos</item>
+        <item quantity="other">hace %1$d minutos</item>
+    </plurals>
+    <plurals name="hace_horas">
+        <item quantity="one">hace %1$d hora</item>
+        <item quantity="many">hace %1$d horas</item>
+        <item quantity="other">hace %1$d horas</item>
+    </plurals>
+    <plurals name="hace_dias">
+        <item quantity="one">hace %1$d día</item>
+        <item quantity="many">hace %1$d días</item>
+        <item quantity="other">hace %1$d días</item>
+    </plurals>
+    <string name="tema">Tema</string>
+    <string name="tema_sistema">Sistema</string>
+    <string name="tema_oscuro">Oscuro</string>
+    <string name="tema_claro">Claro</string>
+    <string name="version">Versión</string>
+    <string name="version_rola">Rola %1$s</string>
+
+    <!-- Legal (SCR-72, SCR-73, SCR-74; DEC-23) -->
+    <string name="terminos_y_condiciones">Términos y condiciones</string>
+    <string name="aviso_de_privacidad">Aviso de privacidad</string>
+    <string name="licencias">Licencias</string>
+    <string name="terminos">Términos</string>
+    <string name="privacidad">Privacidad</string>
+    <string name="legal_actualizacion">Última actualización: noviembre de 2026</string>
+    <string name="terminos_1_titulo">Qué es Rola</string>
+    <string name="terminos_1_texto">Un reproductor de música local. No vende, distribuye ni transmite música: solo reproduce los archivos que ya están en tu teléfono.</string>
+    <string name="terminos_2_titulo">Letras</string>
+    <string name="terminos_2_texto">Las letras pertenecen a sus autores y editoriales y se muestran solo para uso personal. Las que vienen de internet las da LRCLIB, un servicio de terceros que Rola no controla.</string>
+    <string name="terminos_3_titulo">Sin garantía</string>
+    <string name="terminos_3_texto">Rola se ofrece tal cual. Al usar «Borrar del dispositivo», Android siempre te pide confirmar; el archivo borrado no se puede recuperar desde Rola.</string>
+    <string name="privacidad_1_titulo">Todo se queda en tu teléfono</string>
+    <string name="privacidad_1_texto">Rola no tiene cuentas, publicidad ni analítica. Tus listas, historial y letras se guardan solo en este dispositivo.</string>
+    <string name="privacidad_2_titulo">La única conexión</string>
+    <string name="privacidad_2_texto">Si activas «Buscar letras en internet», Rola envía a LRCLIB el título, artista, álbum y duración de la canción para encontrar su letra. Nada más.</string>
+    <string name="privacidad_3_titulo">Permisos</string>
+    <string name="privacidad_3_texto">Música y audio: para leer tus canciones. Carpeta de letras: solo la que tú elijas.</string>
+    <string name="licencia_ofl">SIL Open Font License 1.1</string>
+    <string name="licencia_apache">Apache License 2.0</string>
+    <string name="licencia_lrclib">Servicio de terceros · letras de la comunidad</string>
+    <string name="lib_space_grotesk">Space Grotesk</string>
+    <string name="lib_geist">Geist y Geist Mono</string>
+    <string name="lib_compose">Jetpack Compose y Material 3</string>
+    <string name="lib_media3">Media3 (ExoPlayer)</string>
+    <string name="lib_room">Room, DataStore y Glance</string>
+    <string name="lib_coil">Coil</string>
+    <string name="lib_palette">Palette</string>
+    <string name="lib_reorderable">Reorderable</string>
+    <string name="lib_kotlin">Kotlin y Coroutines</string>
+    <string name="lib_lrclib">LRCLIB</string>
 </resources>

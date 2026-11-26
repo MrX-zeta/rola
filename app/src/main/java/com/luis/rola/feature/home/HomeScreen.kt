@@ -30,6 +30,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,15 +80,26 @@ fun HomeScreen(
     onFavorites: () -> Unit,
     onLibrary: () -> Unit,
     onScan: () -> Unit,
+    onSettings: () -> Unit,
     scanning: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(),
     now: LocalDateTime = rememberNow(),
 ) {
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        RolaLogo()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RolaLogo()
+            Spacer(Modifier.weight(1f))
+            IconButton(
+                onSettings,
+                Modifier.padding(end = RolaSpacing.lg).size(48.dp).testTag("ajustes_engrane"),
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surface),
+            ) {
+                Icon(painterResource(R.drawable.ic_settings), stringResource(R.string.ajustes), tint = MaterialTheme.colorScheme.onSurface)
+            }
+        }
         when (state) {
             HomeState.Loading -> Loading()
-            HomeState.NoSongs -> NoSongs(scanning, onScan, contentPadding)
+            HomeState.NoSongs -> NoSongs(scanning, onScan, onSettings, contentPadding)
             is HomeState.Content -> Content(state, onPlay, onShuffle, onFavorites, onLibrary, contentPadding, now)
         }
     }
@@ -275,7 +288,7 @@ private fun FirstTime(onShuffle: () -> Unit, onLibrary: () -> Unit, modifier: Mo
 
 /** «No encontramos música» (SCR-12): relieve en el círculo y el botón (DEC-27). */
 @Composable
-private fun NoSongs(scanning: Boolean, onScan: () -> Unit, contentPadding: PaddingValues) {
+private fun NoSongs(scanning: Boolean, onScan: () -> Unit, onSettings: () -> Unit, contentPadding: PaddingValues) {
     val c = MaterialTheme.colorScheme
     val acento = RolaTheme.colors.accent
     val sobreAcento = RolaTheme.colors.onAccent
@@ -320,6 +333,9 @@ private fun NoSongs(scanning: Boolean, onScan: () -> Unit, contentPadding: Paddi
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.padding(start = RolaSpacing.xs),
             )
+        }
+        TextButton(onSettings, Modifier.height(52.dp).testTag("abrir_ajustes")) {
+            Text(stringResource(R.string.abrir_ajustes), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = c.onSurface)
         }
     }
 }

@@ -41,8 +41,6 @@ import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.media.PlayerConnection
 import com.luis.rola.core.media.PlayerState
 import com.luis.rola.core.media.QueueState
-import com.luis.rola.core.media.SleepTimerOption
-import com.luis.rola.core.media.formatDuration
 import com.luis.rola.feature.player.MiniCardContent
 import com.luis.rola.feature.player.NowPlayingScreen
 import com.luis.rola.feature.player.PlayerSheet
@@ -106,6 +104,11 @@ import com.luis.rola.feature.library.LibraryViewModel
 import com.luis.rola.feature.player.MiniPlayer
 import com.luis.rola.feature.search.SearchScreen
 import com.luis.rola.feature.search.SearchViewModel
+import com.luis.rola.feature.settings.LegalDoc
+import com.luis.rola.feature.settings.LegalScreen
+import com.luis.rola.feature.settings.SettingsScreen
+import com.luis.rola.feature.player.timerMessage
+import com.luis.rola.core.data.ThemeMode
 
 /** Pestañas (DEC-03) con la mini tarjeta y la píldora abajo. Sin deslizar; fundido corto entre pestañas (DEC-28). */
 @Composable
@@ -166,6 +169,16 @@ fun RolaNavHost(container: AppContainer) {
         avisos.launch {
             snackbar.currentSnackbarData?.dismiss() // el aviso nuevo reemplaza al anterior
             if (snackbar.showSnackbar(texto, accion, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) alAccion()
+        }
+    }
+
+    val escaneando by container.scanner.scanning.collectAsStateWithLifecycle()
+
+    /** Inicio (SCR-12) y Ajustes escanean igual; el aviso sale aquí para que llegue aunque se cambie de pantalla. */
+    fun escanear() {
+        avisos.launch {
+            val n = container.scanner.scan() ?: return@launch // ya había uno en curso
+            avisar(if (n > 0) res.getQuantityString(R.plurals.encontramos_n, n, n) else res.getString(R.string.escaneo_sin_musica))
         }
     }
 
@@ -336,19 +349,14 @@ fun RolaNavHost(container: AppContainer) {
             composable(Destino.Inicio.ruta) {
                 val home: HomeViewModel = viewModel(factory = HomeViewModel.factory(container))
                 val estado by home.state.collectAsStateWithLifecycle()
-                val escaneando by home.scanning.collectAsStateWithLifecycle()
                 HomeScreen(
                     estado,
                     onPlay = ::reproducir,
                     onShuffle = { ordenadas?.let { player.shuffle(it) } },
                     onFavorites = { nav.navigate("$RUTA_LISTA/$FAVORITAS_ID") },
                     onLibrary = { irA(Destino.Biblioteca) },
-                    onScan = {
-                        avisos.launch {
-                            val n = home.scan()
-                            avisar(if (n > 0) res.getQuantityString(R.plurals.encontramos_n, n, n) else res.getString(R.string.escaneo_sin_musica))
-                        }
-                    },
+                    onScan = ::escanear,
+                    onSettings = { nav.navigate(RUTA_AJUSTES) },
                     scanning = escaneando,
                     contentPadding = PaddingValues(bottom = abajo),
                 )
@@ -469,6 +477,30 @@ fun RolaNavHost(container: AppContainer) {
                     contentPadding = PaddingValues(bottom = abajo),
                     onGroupAction = { onGroupAction(origen, artista.songs, it) },
                 )
+            }
+            composable(RUTA_AJUSTES) {
+                val tema by container.preferences.theme.collectAsStateWithLifecycle(ThemeMode.DARK)
+                val ultimo by container.preferences.lastScanAt.collectAsStateWithLifecycle(null)
+                SettingsScreen(
+                    theme = tema,
+                    lastScanAt = ultimo,
+                    scanning = escaneando,
+                    timer = playerState.timer,
+                    timerEndsAtMs = playerState.timerEndsAtMs,
+                    onBack = { nav.popBackStack() },
+                    onTheme = { avisos.launch { container.preferences.setTheme(it) } },
+                    onScan = ::escanear,
+                    onTimer = { o ->
+                        player.setSleepTimer(o)
+                        avisar(res.timerMessage(o))
+                    },
+                    onOpenDoc = { nav.navigate("$RUTA_AJUSTES/${it.name}") },
+                    contentPadding = PaddingValues(bottom = abajo),
+                )
+            }
+            composable("$RUTA_AJUSTES/{doc}") { entrada ->
+                val doc = LegalDoc.valueOf(entrada.arguments?.getString("doc") ?: return@composable)
+                LegalScreen(doc, onBack = { nav.popBackStack() }, contentPadding = PaddingValues(bottom = abajo))
             }
         }
         Column(
@@ -655,13 +687,7 @@ private fun PlayerOverlay(
                 onStart = { o ->
                     player.setSleepTimer(o)
                     temporizador = false
-                    aviso(
-                        when (o) {
-                            SleepTimerOption.OFF -> res.getString(R.string.temporizador_cancelado)
-                            SleepTimerOption.END_OF_SONG -> res.getString(R.string.temporizador_restante_cancion)
-                            else -> res.getString(R.string.temporizador_restante, formatDuration(o.minutes * 60_000L))
-                        },
-                    )
+                    aviso(res.timerMessage(o))
                 },
                 onDismiss = { temporizador = false },
             )
@@ -673,6 +699,7 @@ private fun PlayerOverlay(
 private class ParaLista(val ids: List<Long>, val detalle: String, val grupo: Boolean = false)
 
 private const val RUTA_LISTA = "lista"
+private const val RUTA_AJUSTES = "ajustes"
 private const val RUTA_ALBUM = "album"
 private const val RUTA_ARTISTA = "artista"
 

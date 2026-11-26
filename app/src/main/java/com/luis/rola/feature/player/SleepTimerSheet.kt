@@ -1,5 +1,6 @@
 package com.luis.rola.feature.player
 
+import android.content.res.Resources
 import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,13 @@ fun SleepTimerOption.label() = when (this) {
     SleepTimerOption.M45 -> R.string.temporizador_45
     SleepTimerOption.H1 -> R.string.temporizador_60
     SleepTimerOption.END_OF_SONG -> R.string.temporizador_cancion
+}
+
+/** Aviso al elegir una opción, igual desde Reproduciendo y desde Ajustes. */
+fun Resources.timerMessage(option: SleepTimerOption): String = when (option) {
+    SleepTimerOption.OFF -> getString(R.string.temporizador_cancelado)
+    SleepTimerOption.END_OF_SONG -> getString(R.string.temporizador_restante_cancion)
+    else -> getString(R.string.temporizador_restante, formatDuration(option.minutes * 60_000L))
 }
 
 /**

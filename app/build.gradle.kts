@@ -42,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true // la versión de Ajustes sale de aquí (FR-053)
     }
 }
 

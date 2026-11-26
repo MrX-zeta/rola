@@ -17,7 +17,7 @@
 - **Decisión**: la raíz de `RolaTheme` graba su contenido en un `GraphicsLayer` (`drawWithContent { layer.record { drawContent() }; drawLayer(layer) }`). Al pedir otro tema, primero se captura el cuadro actual (`layer.toImageBitmap()`), luego se aplica el tema nuevo y la captura se dibuja encima con alfa 1 → 0 en ≤ 300 ms (salida, `EaseOut`). La captura no tiene semántica ni recibe toques. Con «reducir movimiento» el fundido se mantiene (DEC-28 permite fundidos cortos) pero sin otro movimiento.
 - **Por qué**: cubre todo (esquema de M3, colores de portada de Palette, barras dibujadas) sin animar cada color ni recomponer dos árboles; no hay saltos porque el diseño no cambia, solo el color.
 - **Alternativas**: `animateColorAsState` por cada rol del esquema (~35): los colores de portada y los que no salen del esquema saltan. `Crossfade` de toda la app: compone dos árboles, duplica estado y reproductor. Sin animación: válido, pero la tarea pide fundido.
-- **Nota**: el detalle (duración exacta, curva, interrupción si se cambia dos veces seguidas) se decide con la skill `animate` al implementar.
+- **Decidido con `animate` (T015)**: cambio poco frecuente; propósito: evitar un cambio brusco. Solo opacidad con `Animatable`; `RolaMotion.EaseOut` (salida fuerte del proyecto) en `RolaMotion.LENTA` (250 ms); con «reducir movimiento», el mismo fundido en `MEDIA` (150 ms). Interrupción: la foto se graba dentro de la capa, así que un segundo cambio a medio fundido captura lo que se ve y sigue sin salto. Juzgar la sensación en `perfil`.
 
 ## 4. Barras del sistema
 

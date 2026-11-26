@@ -63,3 +63,13 @@ private val EstiloTiempoChico = EstiloTiempo.copy(fontSize = 12.sp, lineHeight =
 
 /** Tiempos de la barra de avance y etiquetas en mayúsculas («SONANDO AHORA»): Geist Mono 12. */
 val Typography.timeSmall: TextStyle get() = EstiloTiempoChico
+
+private val EstiloSubtitulo = TextStyle(
+    fontFamily = SpaceGrotesk,
+    fontWeight = FontWeight.Bold,
+    fontSize = 18.sp,
+    lineHeight = 24.sp,
+)
+
+/** Encabezados dentro de un texto largo (legales, Figma 41:1802): Space Grotesk Bold 18/24. */
+val Typography.subhead: TextStyle get() = EstiloSubtitulo

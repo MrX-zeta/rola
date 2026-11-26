@@ -43,13 +43,14 @@ class HomeScreenTest {
             onFavorites = { toques += "favoritas" },
             onLibrary = { toques += "biblioteca" },
             onScan = { toques += "escanear" },
+            onSettings = { toques += "ajustes" },
             scanning = scanning,
             now = LocalDateTime.of(2026, 11, 20, 21, 30),
         )
     }
 
     private fun noEstaLoQueAunNoExiste() =
-        listOf("Ver todo", "Letras", "Abrir Ajustes").forEach { compose.onNodeWithText(it).assertDoesNotExist() }
+        listOf("Ver todo", "Letras").forEach { compose.onNodeWithText(it).assertDoesNotExist() }
 
     @Test
     fun conHistorial() {
@@ -103,5 +104,13 @@ class HomeScreenTest {
         montar(HomeState.NoSongs, scanning = true)
         compose.onNodeWithText("Escaneando…").assertIsNotEnabled()
         compose.onNodeWithText("Escanear de nuevo").assertDoesNotExist()
+    }
+
+    @Test
+    fun elEngraneYAbrirAjustesLlevanAAjustes() {
+        montar(HomeState.NoSongs)
+        compose.onNodeWithTag("ajustes_engrane").performClick()
+        compose.onNodeWithTag("abrir_ajustes").performScrollTo().performClick()
+        assertEquals(listOf("ajustes", "ajustes"), toques)
     }
 }
