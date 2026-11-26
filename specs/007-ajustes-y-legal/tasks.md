@@ -54,8 +54,8 @@ description: "Tareas de implementación de Ajustes y legal"
 - [X] T010 [US2] Rutas `ajustes` y `ajustes/{doc}` en el `NavHost`, hijas de la pestaña dueña (la píldora no salta), con «atrás» por flecha y gesto, en `rola/navigation/RolaNavHost.kt` (FR-001, FR-002, FR-004)
 - [X] T011 [US2] Mostrar el engrane (etiqueta `ajustes_engrane`, descripción «Ajustes») en el encabezado de Inicio según SCR-10 (Figma 51:2090 / oscuro) y el botón «Abrir Ajustes» (etiqueta `abrir_ajustes`) en SCR-12 (30:512 / 51:2302), ambos con `onSettings`, en `rola/feature/home/HomeScreen.kt`
 - [X] T012 [US2] Corregir `sin_musica_texto` en `app/src/main/res/values/strings.xml` para que diga solo lo que Ajustes ofrece (escanear medios; sin selector de carpetas) (FR-003)
-- [ ] T013 [P] [US2] Prueba Compose: Ajustes muestra las siete filas permitidas y no muestra «Carpeta de letras», «Buscar letras en internet», «Letras descargadas» ni «Agregar widget», en `androidTest/feature/settings/SettingsScreenTest.kt`
-- [ ] T014 [P] [US2] Prueba Compose: el engrane y «Abrir Ajustes» llaman a `onSettings`, en `androidTest/feature/home/HomeScreenTest.kt`; y de navegación: engrane → Ajustes → atrás regresa a Inicio con la píldora en Inicio, en `androidTest/navigation/RolaNavBarTest.kt` (o la prueba de navegación existente)
+- [X] T013 [P] [US2] Prueba Compose: Ajustes muestra las siete filas permitidas y no muestra «Carpeta de letras», «Buscar letras en internet», «Letras descargadas» ni «Agregar widget», en `androidTest/feature/settings/SettingsScreenTest.kt`
+- [X] T014 [P] [US2] Prueba Compose: el engrane y «Abrir Ajustes» llaman a `onSettings`, en `androidTest/feature/home/HomeScreenTest.kt`; y de navegación: engrane → Ajustes → atrás regresa a Inicio con la píldora en Inicio, en `androidTest/navigation/RolaNavBarTest.kt` (o la prueba de navegación existente)
 
 **Punto de control**: Ajustes accesible y vacío de acciones. Commit `feat(settings): pantalla de ajustes y accesos`.
 
@@ -71,7 +71,7 @@ description: "Tareas de implementación de Ajustes y legal"
 - [X] T016 [US1] `RolaTheme(themeMode)`: resolver oscuro/claro (`SYSTEM` → `isSystemInDarkTheme()`), grabar la raíz en un `GraphicsLayer`, y al cambiar el tema capturar el cuadro actual antes de aplicar el nuevo y dibujar la captura encima con alfa 1 → 0 según T015, sin semántica ni toques; actualizar el comentario de cabecera, en `rola/core/designsystem/Theme.kt` (FR-012, FR-014, FR-071)
 - [X] T017 [US1] `MainActivity`: leer `theme` junto con la bienvenida y sostener el splash hasta tener ambos; pasar el modo a `RolaTheme`; volver a llamar `enableEdgeToEdge` con `SystemBarStyle.dark`/`light` (transparente) cada vez que cambia el tema resuelto, en `rola/MainActivity.kt` (FR-012, FR-013)
 - [X] T018 [US1] Leer la hoja de ordenar (33:1070) y crear `ThemeSheet` con «Sistema», «Oscuro» y «Claro» como opciones de radio con estado anunciado, la actual marcada; al elegir se cierra y llama `onTheme`, en `rola/feature/settings/ThemeSheet.kt`; la fila Tema muestra el valor y abre la hoja (FR-011)
-- [ ] T019 [P] [US1] Prueba Compose: la fila Tema dice «Oscuro» por defecto; elegir «Claro» cambia la fila y queda guardado en el repositorio en memoria; al recrear la pantalla sigue «Claro», en `androidTest/feature/settings/SettingsScreenTest.kt`
+- [X] T019 [P] [US1] Prueba Compose: la fila Tema dice «Oscuro» por defecto; elegir «Claro» cambia la fila y queda guardado en el repositorio en memoria; al recrear la pantalla sigue «Claro», en `androidTest/feature/settings/SettingsScreenTest.kt`
 
 **Punto de control**: tema completo. Commit `feat(theme): tema sistema, oscuro o claro`.
 
@@ -89,7 +89,7 @@ description: "Tareas de implementación de Ajustes y legal"
 - [X] T023 [US3] Crear `TimeAgo` y `timeAgo(now, then)` con los tramos de `data-model.md` («< 60 s o negativa → Moment; < 60 min → Minutes; < 24 h → Hours; ≥ 24 h → Days», redondeo hacia abajo) en `rola/core/data/TimeAgo.kt`
 - [X] T024 [US3] Textos y plurales: «Último escaneo: %s», «hace un momento», «hace %d minuto(s)», «hace %d hora(s)», «hace %d día(s)», «Aún no has escaneado», en `app/src/main/res/values/strings.xml` (FR-043, FR-044)
 - [X] T025 [US3] Fila «Escanear medios»: subtítulo con `timeAgo` (refresco al entrar y cada minuto visible) o «Aún no has escaneado»; durante el escaneo muestra progreso y no acepta toques; el toque lanza el escaneo en el ámbito de avisos de `RolaNavHost` con el mismo aviso de resultado que SCR-12, en `rola/feature/settings/SettingsScreen.kt` y `rola/navigation/RolaNavHost.kt` (FR-041)
-- [ ] T026 [P] [US3] Prueba Compose: sin fecha dice «Aún no has escaneado»; con una fecha de hace 2 días dice «Último escaneo: hace 2 días»; con `scanning = true` la fila no llama a `onScan`, en `androidTest/feature/settings/SettingsScreenTest.kt`
+- [X] T026 [P] [US3] Prueba Compose: sin fecha dice «Aún no has escaneado»; con una fecha de hace 2 días dice «Último escaneo: hace 2 días»; con `scanning = true` la fila no llama a `onScan`, en `androidTest/feature/settings/SettingsScreenTest.kt`
 
 **Punto de control**: escaneo compartido. Commit `feat(settings): escanear medios y último escaneo`.
 
@@ -103,7 +103,7 @@ description: "Tareas de implementación de Ajustes y legal"
 
 - [X] T027 [US4] Mover el texto del aviso al elegir una opción (hoy dentro de `PlayerOverlay` en `rola/navigation/RolaNavHost.kt`) a una función compartida en `rola/feature/player/SleepTimerSheet.kt`, y usarla en los dos lugares
 - [X] T028 [US4] Fila «Temporizador de apagado»: valor «Apagado», el tiempo restante con `formatDuration` (cuenta cada segundo, como la hoja) o «Al terminar la canción»; el toque abre `SleepTimerSheet` con el estado de `PlayerConnection` y al elegir llama `player.setSleepTimer` y muestra el aviso, en `rola/feature/settings/SettingsScreen.kt` y `rola/navigation/RolaNavHost.kt` (FR-020, FR-021)
-- [ ] T029 [P] [US4] Prueba Compose: con `timer = OFF` la fila dice «Apagado»; con `END_OF_SONG` dice «Al terminar la canción»; con un fin dentro de 15 min muestra un tiempo; el toque abre la hoja, en `androidTest/feature/settings/SettingsScreenTest.kt`
+- [X] T029 [P] [US4] Prueba Compose: con `timer = OFF` la fila dice «Apagado»; con `END_OF_SONG` dice «Al terminar la canción»; con un fin dentro de 15 min muestra un tiempo; el toque abre la hoja, en `androidTest/feature/settings/SettingsScreenTest.kt`
 
 **Punto de control**: temporizador compartido. Commit `feat(settings): temporizador desde ajustes`.
 
@@ -118,7 +118,7 @@ description: "Tareas de implementación de Ajustes y legal"
 - [X] T030 [US5] Leer completos en Figma Términos (41:1778), Privacidad (41:1810) y Licencias (41:1842) y copiarlos a `app/src/main/res/values/strings.xml` (título, «Última actualización», encabezados y párrafos); Licencias suma Coil, Palette y Reorderable (Apache 2.0) (FR-050 a FR-052)
 - [X] T031 [US5] Crear `LegalDoc` (`TERMS`, `PRIVACY`, `LICENSES` con sus recursos) y `LegalScreen` plana: barra con flecha (descripción) y título con rol de encabezado; columna desplazable con la fecha, encabezados (rol de encabezado) y párrafos, en `rola/feature/settings/LegalScreen.kt`; conectar las tres filas a `ajustes/{doc}`
 - [X] T032 [US5] Fila «Versión»: «Rola %s» con `BuildConfig.VERSION_NAME`, en `rola/feature/settings/SettingsScreen.kt` (FR-053)
-- [ ] T033 [P] [US5] Prueba Compose: cada documento muestra su título como encabezado, se desplaza hasta su último párrafo y la flecha llama a `onBack`; Licencias contiene «Coil», «Palette» y «Reorderable»; la fila Versión muestra `BuildConfig.VERSION_NAME`, en `androidTest/feature/settings/LegalScreenTest.kt`
+- [X] T033 [P] [US5] Prueba Compose: cada documento muestra su título como encabezado, se desplaza hasta su último párrafo y la flecha llama a `onBack`; Licencias contiene «Coil», «Palette» y «Reorderable»; la fila Versión muestra `BuildConfig.VERSION_NAME`, en `androidTest/feature/settings/LegalScreenTest.kt`
 
 **Punto de control**: legal completo. Commit `feat(settings): términos, privacidad, licencias y versión`.
 
@@ -126,12 +126,12 @@ description: "Tareas de implementación de Ajustes y legal"
 
 ## Fase 8: Pulido y comprobaciones
 
-- [ ] T034 Tema claro en el emulador: capturas de Inicio, Biblioteca (4 pestañas), Buscar, Reproduciendo, Cola, Temporizador, Ajustes y las tres legales; comparar con los nodos claros (Inicio 51:2090, Canciones 51:2359, Álbumes 51:2577, Artistas 51:2737, Listas 51:2902, Buscar 51:4081, Reproduciendo 51:4482, Cola 51:4570, Temporizador 51:4662, Ajustes 51:5129, legales 51:5538/5570/5602) y anotar cada diferencia para el reporte
-- [ ] T035 `design-critique` de SCR-70, 72, 73 y 74 en oscuro y en claro contra Figma; anotar diferencias
-- [ ] T036 Revisar el contraste de los textos en claro (≥ 4.5:1) con `rola/core/designsystem/Contrast.kt` donde aplique
-- [ ] T037 `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `:app:connectedDebugAndroidTest`; corregir lo que falle
-- [ ] T038 Capturas finales en `ai/handoff/capturas/`: `t08-ajustes.png`, `t08-ajustes-claro.png`, `t08-tema.png`, `t08-terminos.png`, `t08-privacidad.png`, `t08-licencias.png`, `t08-inicio-claro.png`, `t08-reproduciendo-claro.png`
-- [ ] T039 `/ponytail:ponytail-review` sobre el diff antes de cada commit; `git log` sin autoría de IA; push a `origin development`
+- [X] T034 Tema claro en el emulador: capturas de Inicio, Biblioteca (4 pestañas), Buscar, Reproduciendo, Cola, Temporizador, Ajustes y las tres legales; comparar con los nodos claros (Inicio 51:2090, Canciones 51:2359, Álbumes 51:2577, Artistas 51:2737, Listas 51:2902, Buscar 51:4081, Reproduciendo 51:4482, Cola 51:4570, Temporizador 51:4662, Ajustes 51:5129, legales 51:5538/5570/5602) y anotar cada diferencia para el reporte
+- [X] T035 `design-critique` de SCR-70, 72, 73 y 74 en oscuro y en claro contra Figma; anotar diferencias
+- [X] T036 Revisar el contraste de los textos en claro (≥ 4.5:1) con `rola/core/designsystem/Contrast.kt` donde aplique
+- [X] T037 `.\gradlew :app:assembleDebug :app:assemblePerfil :app:testDebugUnitTest :app:lintDebug` y `:app:connectedDebugAndroidTest`; corregir lo que falle
+- [X] T038 Capturas finales en `ai/handoff/capturas/`: `t08-ajustes.png`, `t08-ajustes-claro.png`, `t08-tema.png`, `t08-terminos.png`, `t08-privacidad.png`, `t08-licencias.png`, `t08-inicio-claro.png`, `t08-reproduciendo-claro.png`
+- [X] T039 `/ponytail:ponytail-review` sobre el diff antes de cada commit; `git log` sin autoría de IA; push a `origin development`
 
 ---
 

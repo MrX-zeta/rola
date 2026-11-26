@@ -42,3 +42,7 @@ Lo que necesita una decisión del dueño o revisión humana. Cuando se resuelva,
 - Deslizar la app fuera de recientes y fluidez con 2 000 canciones: verlas en el Redmi.
 
 **Revisada por la sesión de diseño (2026-11-26):** decisiones 1–10 aprobadas; `play_order` aprobado; el temporizador de sueño no se guarda; falta que Brian deslice la tarea en el Redmi y pruebe «Escanear de nuevo» con un archivo nuevo.
+
+### Tarea 08 (2026-11-26)
+- **REQUIERE REVISIÓN HUMANA:** copia de seguridad apagada: `allowBackup="false"`, se borró `backup_rules.xml` y `data_extraction_rules.xml` excluye todo en la nube y en el traspaso entre teléfonos (en Android 12+ `allowBackup` solo apaga la nube). Commit `feaa291`.
+- Símbolo de Rola en tema claro: la «r» del drawable es blanca fija y casi no se ve sobre el fondo claro (reporte, diferencias en claro).

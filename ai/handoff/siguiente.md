@@ -1,6 +1,6 @@
 # Tarea 08 · Ajustes y legal
 
-**Estado:** lista
+**Estado:** esperando revisión
 **Escrita:** 2026-11-26 · sesión de diseño
 **Rama:** `development`. En worktree: actualízalo con `origin/development` antes de empezar y al final sube tu rama a `origin development`.
 **Grafo:** 1.12.0 · **Spec Kit:** función nueva en `specs/007-ajustes-y-legal/` (`/speckit-specify` → `-clarify` → `-plan` → `-tasks` → `-analyze` → `-implement`).
