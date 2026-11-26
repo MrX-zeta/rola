@@ -52,4 +52,18 @@ class PreferencesRepositoryTest {
         conRepositorio { it.setSortOrder(SongSort(SortBy.ARTIST, ascending = false)) }
         conRepositorio { assertEquals(SongSort(SortBy.ARTIST, ascending = false), it.sortOrder.first()) }
     }
+
+    @Test
+    fun `el tema empieza oscuro y se recuerda al reabrir`() {
+        conRepositorio { assertEquals(ThemeMode.DARK, it.theme.first()) }
+        conRepositorio { it.setTheme(ThemeMode.LIGHT) }
+        conRepositorio { assertEquals(ThemeMode.LIGHT, it.theme.first()) }
+    }
+
+    @Test
+    fun `sin escaneo no hay fecha y la guardada se recuerda`() {
+        conRepositorio { assertEquals(null, it.lastScanAt.first()) }
+        conRepositorio { it.setLastScanAt(1_700_000_000_000) }
+        conRepositorio { assertEquals(1_700_000_000_000, it.lastScanAt.first()) }
+    }
 }

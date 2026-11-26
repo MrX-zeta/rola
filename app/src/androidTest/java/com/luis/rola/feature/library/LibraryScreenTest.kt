@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performClick
 import org.junit.Assert.assertTrue
 import com.luis.rola.core.data.Song
 import com.luis.rola.core.data.SongSort
+import com.luis.rola.core.data.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.luis.rola.core.data.LibraryRepository
 import com.luis.rola.core.data.SongRepository
@@ -154,4 +155,8 @@ class PreferenciasEnMemoria : PreferencesRepository {
     override suspend fun completeOnboarding() {}
     override val sortOrder = MutableStateFlow(SongSort())
     override suspend fun setSortOrder(sort: SongSort) { sortOrder.value = sort }
+    override val theme = MutableStateFlow(ThemeMode.DARK)
+    override suspend fun setTheme(mode: ThemeMode) { theme.value = mode }
+    override val lastScanAt = MutableStateFlow<Long?>(null)
+    override suspend fun setLastScanAt(epochMs: Long) { lastScanAt.value = epochMs }
 }

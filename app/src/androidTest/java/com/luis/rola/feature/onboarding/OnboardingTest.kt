@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.luis.rola.core.data.PreferencesRepository
 import com.luis.rola.core.data.SongSort
+import com.luis.rola.core.data.ThemeMode
 import com.luis.rola.core.designsystem.LocalReduceMotion
 import com.luis.rola.core.designsystem.RolaMotion
 import com.luis.rola.core.designsystem.RolaTheme
@@ -34,6 +35,10 @@ private class PreferenciasFalsas(inicial: Boolean) : PreferencesRepository {
     override suspend fun completeOnboarding() { estado.value = true }
     override val sortOrder = MutableStateFlow(SongSort())
     override suspend fun setSortOrder(sort: SongSort) { sortOrder.value = sort }
+    override val theme = MutableStateFlow(ThemeMode.DARK)
+    override suspend fun setTheme(mode: ThemeMode) { theme.value = mode }
+    override val lastScanAt = MutableStateFlow<Long?>(null)
+    override suspend fun setLastScanAt(epochMs: Long) { lastScanAt.value = epochMs }
 }
 
 class OnboardingTest {
