@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Rola</string>
     <string name="marca_palabra">rola</string>
 
@@ -243,7 +243,7 @@
     <string name="escanear_medios">Escanear medios</string>
     <string name="ultimo_escaneo">Último escaneo: %1$s</string>
     <string name="sin_escaneo">Aún no has escaneado</string>
-    <string name="hace_un_momento">hace un momento</string>
+    <string name="hace_un_momento" tools:ignore="Typos">hace un momento</string>
     <plurals name="hace_minutos">
         <item quantity="one">hace %1$d minuto</item>
         <item quantity="many">hace %1$d minutos</item>
